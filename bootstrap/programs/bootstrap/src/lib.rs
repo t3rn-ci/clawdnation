@@ -3,7 +3,6 @@ use anchor_lang::system_program;
 use anchor_spl::{
     associated_token::AssociatedToken,
     token::{self, Burn, Mint, Token, TokenAccount},
-    token_interface::{Mint as InterfaceMint, TokenAccount as InterfaceTokenAccount, TokenInterface},
 };
 use raydium_cp_swap::{
     cpi,
@@ -11,7 +10,7 @@ use raydium_cp_swap::{
     states::{AmmConfig, OBSERVATION_SEED, POOL_LP_MINT_SEED, POOL_SEED, POOL_VAULT_SEED},
 };
 
-declare_id!("GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe");
+declare_id!("GhbYgkj3vLuLpxoyZFPNEGBWWRFpKWBmzbxP4HTXkDAv");
 
 /// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
 ///
@@ -129,12 +128,13 @@ pub mod clwdn_bootstrap {
         )?;
 
         // Calculate CLWDN for this contribution at current rate
-        let sol_amount = amount_lamports
-            .checked_div(1_000_000_000)
+        // Multiply first to avoid precision loss for amounts < 1 SOL
+        let clwdn_lamports = amount_lamports
+            .checked_mul(current_rate)
             .ok_or(BootstrapError::Overflow)?;
 
-        let clwdn_amount = sol_amount
-            .checked_mul(current_rate)
+        let clwdn_amount = clwdn_lamports
+            .checked_div(1_000_000_000)
             .ok_or(BootstrapError::Overflow)?;
 
         // Check if this would exceed allocation cap
@@ -624,17 +624,17 @@ pub struct CreateLPAndBurn<'info> {
     pub pool_state: UncheckedAccount<'info>,
 
     /// Token_0 mint (must be < token_1 mint key)
+    /// CHECK: Token mint validated by Raydium
     #[account(
+        mut,
         constraint = token_0_mint.key() < token_1_mint.key(),
-        mint::token_program = token_0_program,
     )]
-    pub token_0_mint: Box<InterfaceAccount<'info, InterfaceMint>>,
+    pub token_0_mint: UncheckedAccount<'info>,
 
     /// Token_1 mint (must be > token_0 mint key)
-    #[account(
-        mint::token_program = token_1_program,
-    )]
-    pub token_1_mint: Box<InterfaceAccount<'info, InterfaceMint>>,
+    /// CHECK: Token mint validated by Raydium
+    #[account(mut)]
+    pub token_1_mint: UncheckedAccount<'info>,
 
     /// CHECK: Pool LP mint, init by cp-swap
     #[account(
@@ -649,24 +649,18 @@ pub struct CreateLPAndBurn<'info> {
     pub lp_mint: UncheckedAccount<'info>,
 
     /// LP wallet's token 0 account
-    #[account(
-        mut,
-        token::mint = token_0_mint,
-        token::authority = lp_wallet,
-    )]
-    pub lp_token_0: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+    /// CHECK: Token account validated by Raydium
+    #[account(mut)]
+    pub lp_token_0: UncheckedAccount<'info>,
 
     /// LP wallet's token 1 account
-    #[account(
-        mut,
-        token::mint = token_1_mint,
-        token::authority = lp_wallet,
-    )]
-    pub lp_token_1: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+    /// CHECK: Token account validated by Raydium
+    #[account(mut)]
+    pub lp_token_1: UncheckedAccount<'info>,
 
     /// LP token account for LP wallet (to burn from)
     #[account(mut)]
-    pub lp_token_account: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+    pub lp_token_account: Box<Account<'info, TokenAccount>>,
 
     /// CHECK: Token_0 vault, init by cp-swap
     #[account(
@@ -712,8 +706,10 @@ pub struct CreateLPAndBurn<'info> {
     pub observation_state: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
-    pub token_0_program: Interface<'info, TokenInterface>,
-    pub token_1_program: Interface<'info, TokenInterface>,
+    /// CHECK: Token program for token 0
+    pub token_0_program: UncheckedAccount<'info>,
+    /// CHECK: Token program for token 1
+    pub token_1_program: UncheckedAccount<'info>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,

@@ -137,11 +137,49 @@ async function enrichTokens(tokens) {
   return enriched;
 }
 
+// Blocked paths for security
+const BLOCKED_PATHS = [
+  '.env', '.env.local', '.env.production', '.env.twitter',
+  '.git', '.gitignore',
+  'node_modules',
+  'solana/orders.json', 'solana/vesting.json', 'solana/bootstrap.json',
+  'serve.js', 'package.json', 'package-lock.json',
+  'Cargo.toml', 'Cargo.lock',
+  '.pem', '.key', 'wallet', 'keypair',
+];
+
+function isBlockedPath(filePath) {
+  const normalized = path.normalize(filePath).replace(/\\/g, '/');
+  // Block path traversal
+  if (normalized.includes('..')) return true;
+  // Block specific files/patterns
+  return BLOCKED_PATHS.some(blocked => normalized.includes(blocked));
+}
+
 const server = http.createServer(async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+
+  // POST /api/rpc — Solana RPC proxy (CORS workaround)
+  if (req.url === '/api/rpc' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const rpcReq = JSON.parse(body);
+        const rpcRes = await solanaRpc(rpcReq.method, rpcReq.params);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(rpcRes));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
 
   // GET /api/tokens — list completed token launches with on-chain data
   if (req.url === '/api/tokens' || req.url === '/api/tokens/') {
@@ -458,10 +496,18 @@ const server = http.createServer(async (req, res) => {
   const filePath = path.join(__dirname, file);
   const ext = path.extname(filePath);
 
+  // Security: Block path traversal and sensitive files
+  const resolvedPath = path.resolve(filePath);
+  const projectRoot = path.resolve(__dirname);
+  if (!resolvedPath.startsWith(projectRoot) || isBlockedPath(resolvedPath)) {
+    res.writeHead(403, { 'Content-Type': 'text/html' });
+    return res.end('<h1>403 Forbidden</h1><p>Access denied</p>');
+  }
+
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      return res.end('404');
+      res.writeHead(404, { 'Content-Type': 'text/html' });
+      return res.end('<h1>404 Not Found</h1><p>The requested resource was not found</p>');
     }
     // Inject network config into HTML files
     if (ext === '.html') {
