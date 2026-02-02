@@ -1,0 +1,80 @@
+{
+  "network": "devnet",
+  "timestamp": "2026-02-02T18:43:48.235Z",
+  "authority": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+  "steps": [
+    {
+      "step": "Verify CLWDN Mint",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:49.634Z",
+      "mint": "2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3",
+      "supply": 1100000000,
+      "authorityBalance": 0,
+      "mintAuthority": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE"
+    },
+    {
+      "step": "Initialize Vesting",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:49.634Z",
+      "vestingFile": "/Users/mbultra/projects/clawdnation/solana/clwdn-vesting.json",
+      "allocations": [
+        {
+          "id": "staking",
+          "amount": 150000000,
+          "months": 48,
+          "cliff": 0
+        },
+        {
+          "id": "team",
+          "amount": 150000000,
+          "months": 12,
+          "cliff": 6
+        }
+      ]
+    },
+    {
+      "step": "Create Governance Plan",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:49.636Z",
+      "bootstrapState": "8ud2WHTUNzEE6R1xebmpuWraHd1JBZ2fWDyKQ7inhqMz",
+      "dispenserState": "BxfPAP6D8hYZQ9mnLpbVkLdByrYmkSHY4wJPpQE7278w",
+      "operatorHotWallet": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+      "details": "Governance structure documented, full setup requires council members"
+    },
+    {
+      "step": "Configure Dispenser",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:49.885Z",
+      "dispenserState": "BxfPAP6D8hYZQ9mnLpbVkLdByrYmkSHY4wJPpQE7278w",
+      "currentAuthority": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
+      "operator": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+      "details": "Authority vs Operator roles defined"
+    },
+    {
+      "step": "Transfer Authorities (Simulated)",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:49.885Z",
+      "details": "Process documented, requires council members for execution"
+    },
+    {
+      "step": "Burn Mint Authority (Simulated)",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:50.134Z",
+      "mintAuthority": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
+      "command": "spl-token authorize 2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3 mint --disable --url devnet",
+      "details": "Mint authority still active - burn when ready for production"
+    },
+    {
+      "step": "Deployment Summary",
+      "status": "success",
+      "timestamp": "2026-02-02T18:43:50.135Z",
+      "totalSteps": 6,
+      "successCount": 6,
+      "filesCreated": [
+        "clwdn-vesting.json",
+        "deployment-log.json",
+        "factory-tokenomics-config.json"
+      ]
+    }
+  ]
+}

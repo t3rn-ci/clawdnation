@@ -1,0 +1,42 @@
+{
+  "mode": "no-bootstrap",
+  "tokenName": "SECUREBOT",
+  "mint": "Dn94HHy2kdQk3VHM7Sfhwp4HhQe1KwD3BWz8MzpDMfwt",
+  "supply": 1000000000,
+  "decimals": 9,
+  "tokenomics": {
+    "liquidity": 50,
+    "team": 15,
+    "staking": 15,
+    "community": 10,
+    "treasury": 10
+  },
+  "distribution": {
+    "liquidity": 500000000,
+    "team": 150000000,
+    "staking": 150000000,
+    "community": 100000000,
+    "treasury": 100000000
+  },
+  "accounts": {
+    "liquidity": "F2rWhVGYeVS3PPtfcyryPGC66yyRBgsFZC3KQfeaAvX3",
+    "team": "F2rWhVGYeVS3PPtfcyryPGC66yyRBgsFZC3KQfeaAvX3",
+    "staking": "F2rWhVGYeVS3PPtfcyryPGC66yyRBgsFZC3KQfeaAvX3",
+    "community": "F2rWhVGYeVS3PPtfcyryPGC66yyRBgsFZC3KQfeaAvX3",
+    "treasury": "F2rWhVGYeVS3PPtfcyryPGC66yyRBgsFZC3KQfeaAvX3"
+  },
+  "lp": {
+    "sol": 1,
+    "tokens": 500000000,
+    "initialPrice": 500000000
+  },
+  "timestamp": "2026-02-02T20:34:05.652Z",
+  "security": {
+    "mintAuthority": null,
+    "freezeAuthority": null,
+    "supplyFixed": true,
+    "lpBurned": false,
+    "vestingDeployed": false,
+    "treasuryMultisig": false
+  }
+}

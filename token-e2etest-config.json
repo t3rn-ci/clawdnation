@@ -1,0 +1,42 @@
+{
+  "mode": "no-bootstrap",
+  "tokenName": "E2ETEST",
+  "mint": "68Co4J8frthSnaBFhLAfCHTCemoZyZLjSU9gBbktaGNF",
+  "supply": 1000000000,
+  "decimals": 9,
+  "tokenomics": {
+    "liquidity": 50,
+    "team": 15,
+    "staking": 15,
+    "community": 10,
+    "treasury": 10
+  },
+  "distribution": {
+    "liquidity": 500000000,
+    "team": 150000000,
+    "staking": 150000000,
+    "community": 100000000,
+    "treasury": 100000000
+  },
+  "accounts": {
+    "liquidity": "FPRT5Tz1e2FRmsV4KymGDMYMsik36gARhiP4hZ5JMTzr",
+    "team": "FPRT5Tz1e2FRmsV4KymGDMYMsik36gARhiP4hZ5JMTzr",
+    "staking": "FPRT5Tz1e2FRmsV4KymGDMYMsik36gARhiP4hZ5JMTzr",
+    "community": "FPRT5Tz1e2FRmsV4KymGDMYMsik36gARhiP4hZ5JMTzr",
+    "treasury": "FPRT5Tz1e2FRmsV4KymGDMYMsik36gARhiP4hZ5JMTzr"
+  },
+  "lp": {
+    "sol": 1,
+    "tokens": 500000000,
+    "initialPrice": 500000000
+  },
+  "timestamp": "2026-02-02T22:23:27.852Z",
+  "security": {
+    "mintAuthority": null,
+    "freezeAuthority": null,
+    "supplyFixed": true,
+    "lpBurned": false,
+    "vestingDeployed": false,
+    "treasuryMultisig": false
+  }
+}

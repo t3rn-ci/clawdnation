@@ -12,7 +12,7 @@ import {
   createAccount,
   mintTo,
   getAccount,
-  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { assert } from "chai";
 
@@ -44,7 +44,7 @@ describe("dispenser — full security test suite", () => {
     // Create Token-2022 mint
     mint = await createMint(
       provider.connection, authority.payer, authority.publicKey, null, 9,
-      Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+      Keypair.generate(), undefined, TOKEN_PROGRAM_ID
     );
 
     // Derive state PDA
@@ -55,13 +55,13 @@ describe("dispenser — full security test suite", () => {
     // Create vault (token account owned by state PDA)
     vault = await createAccount(
       provider.connection, authority.payer, mint, statePda,
-      Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+      Keypair.generate(), undefined, TOKEN_PROGRAM_ID
     );
 
     // Mint 1B tokens to vault
     await mintTo(
       provider.connection, authority.payer, mint, vault, authority.payer,
-      1_000_000_000_000_000_000n, [], undefined, TOKEN_2022_PROGRAM_ID
+      1_000_000_000_000_000_000n, [], undefined, TOKEN_PROGRAM_ID
     );
   });
 
@@ -365,7 +365,7 @@ describe("dispenser — full security test suite", () => {
     before(async () => {
       recipient1TokenAccount = await createAccount(
         provider.connection, authority.payer, mint, recipient1.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
     });
 
@@ -375,14 +375,14 @@ describe("dispenser — full security test suite", () => {
       );
       const attackerTA = await createAccount(
         provider.connection, attacker, mint, attacker.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       try {
         await program.methods.distribute(contrib1)
           .accounts({
             state: statePda, distribution: distPda, vault,
             recipientTokenAccount: attackerTA, mint,
-            operator: attacker.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: attacker.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).signers([attacker]).rpc();
         assert.fail("should fail");
       } catch (e) { assert.ok(e.toString().includes("Unauthorized")); }
@@ -395,14 +395,14 @@ describe("dispenser — full security test suite", () => {
       // Create token account owned by attacker, not recipient1
       const wrongOwnerTA = await createAccount(
         provider.connection, authority.payer, mint, attacker.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       try {
         await program.methods.distribute(contrib1)
           .accounts({
             state: statePda, distribution: distPda, vault,
             recipientTokenAccount: wrongOwnerTA, mint,
-            operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).rpc();
         assert.fail("should fail — RecipientMismatch");
       } catch (e) { assert.ok(e.toString().includes("RecipientMismatch")); }
@@ -414,14 +414,14 @@ describe("dispenser — full security test suite", () => {
       );
       const fakeVault = await createAccount(
         provider.connection, authority.payer, mint, attacker.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       try {
         await program.methods.distribute(contrib1)
           .accounts({
             state: statePda, distribution: distPda, vault: fakeVault,
             recipientTokenAccount: recipient1TokenAccount, mint,
-            operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).rpc();
         assert.fail("should fail — wrong vault authority");
       } catch (e) { assert.ok(e.toString().includes("Constraint") || e.toString().includes("constraint")); }
@@ -433,22 +433,22 @@ describe("dispenser — full security test suite", () => {
       );
       const fakeMint = await createMint(
         provider.connection, authority.payer, authority.publicKey, null, 9,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       const fakeVault = await createAccount(
         provider.connection, authority.payer, fakeMint, statePda,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       const fakeRecipientTA = await createAccount(
         provider.connection, authority.payer, fakeMint, recipient1.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       try {
         await program.methods.distribute(contrib1)
           .accounts({
             state: statePda, distribution: distPda, vault: fakeVault,
             recipientTokenAccount: fakeRecipientTA, mint: fakeMint,
-            operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).rpc();
         assert.fail("should fail — wrong mint");
       } catch (e) { assert.ok(e); }
@@ -458,19 +458,19 @@ describe("dispenser — full security test suite", () => {
       const [distPda] = PublicKey.findProgramAddressSync(
         [Buffer.from("dist"), Buffer.from(contrib1)], program.programId
       );
-      const vaultBefore = await getAccount(provider.connection, vault, undefined, TOKEN_2022_PROGRAM_ID);
+      const vaultBefore = await getAccount(provider.connection, vault, undefined, TOKEN_PROGRAM_ID);
 
       await program.methods.distribute(contrib1)
         .accounts({
           state: statePda, distribution: distPda, vault,
           recipientTokenAccount: recipient1TokenAccount, mint,
-          operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+          operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
         }).rpc();
 
-      const recipientAcct = await getAccount(provider.connection, recipient1TokenAccount, undefined, TOKEN_2022_PROGRAM_ID);
+      const recipientAcct = await getAccount(provider.connection, recipient1TokenAccount, undefined, TOKEN_PROGRAM_ID);
       assert.equal(recipientAcct.amount.toString(), amount.toString());
 
-      const vaultAfter = await getAccount(provider.connection, vault, undefined, TOKEN_2022_PROGRAM_ID);
+      const vaultAfter = await getAccount(provider.connection, vault, undefined, TOKEN_PROGRAM_ID);
       assert.equal((vaultBefore.amount - vaultAfter.amount).toString(), amount.toString());
 
       const dist = await program.account.distribution.fetch(distPda);
@@ -486,7 +486,7 @@ describe("dispenser — full security test suite", () => {
           .accounts({
             state: statePda, distribution: distPda, vault,
             recipientTokenAccount: recipient1TokenAccount, mint,
-            operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).rpc();
         assert.fail("should fail — already distributed");
       } catch (e) { assert.ok(e.toString().includes("AlreadyDistributed")); }
@@ -572,14 +572,14 @@ describe("dispenser — full security test suite", () => {
       );
       const recipientTA = await createAccount(
         provider.connection, authority.payer, mint, recipient1.publicKey,
-        Keypair.generate(), undefined, TOKEN_2022_PROGRAM_ID
+        Keypair.generate(), undefined, TOKEN_PROGRAM_ID
       );
       try {
         await program.methods.distribute(cancelContrib)
           .accounts({
             state: statePda, distribution: distPda, vault,
             recipientTokenAccount: recipientTA, mint,
-            operator: authority.publicKey, tokenProgram: TOKEN_2022_PROGRAM_ID,
+            operator: authority.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
           }).rpc();
         assert.fail("should fail");
       } catch (e) { assert.ok(e.toString().includes("AlreadyDistributed")); }
@@ -607,7 +607,7 @@ describe("dispenser — full security test suite", () => {
     });
 
     it("vault has correct authority (state PDA)", async () => {
-      const vaultAcct = await getAccount(provider.connection, vault, undefined, TOKEN_2022_PROGRAM_ID);
+      const vaultAcct = await getAccount(provider.connection, vault, undefined, TOKEN_PROGRAM_ID);
       assert.ok(vaultAcct.owner.equals(statePda));
     });
   });

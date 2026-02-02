@@ -1,0 +1,60 @@
+{
+  "name": "ClawdNation Default",
+  "description": "Comprehensive model with staking, airdrops, and bootstrap",
+  "version": "2.0",
+  "allocations": {
+    "bootstrap": {
+      "percent": 10,
+      "description": "Bootstrap distribution (initial sale)",
+      "vesting": {
+        "months": 0,
+        "cliff": 0
+      }
+    },
+    "liquidity": {
+      "percent": 40,
+      "description": "Liquidity pool (locked)",
+      "vesting": {
+        "months": 0,
+        "cliff": 0
+      },
+      "locked": true
+    },
+    "staking": {
+      "percent": 15,
+      "description": "Staking rewards",
+      "vesting": {
+        "months": 48,
+        "cliff": 0
+      }
+    },
+    "team": {
+      "percent": 15,
+      "description": "Team allocation",
+      "vesting": {
+        "months": 12,
+        "cliff": 6
+      }
+    },
+    "community": {
+      "percent": 10,
+      "description": "Community & airdrops",
+      "vesting": {
+        "months": 0,
+        "cliff": 0
+      }
+    },
+    "treasury": {
+      "percent": 10,
+      "description": "Treasury operations",
+      "vesting": {
+        "months": 0,
+        "cliff": 0
+      }
+    }
+  },
+  "metadata": {
+    "createdAt": "2026-02-02T18:40:26.737Z",
+    "updatedAt": "2026-02-02T18:40:26.737Z"
+  }
+}

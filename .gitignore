@@ -9,6 +9,8 @@ node_modules/
 
 # Solana keypairs
 *.json.bak
+*wallet*.json
+devnet-test-wallet.json
 
 # Runtime data
 solana/orders.json

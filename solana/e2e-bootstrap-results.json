@@ -1,0 +1,50 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "name": "Check Initial State",
+      "status": "PASS",
+      "details": {
+        "solBalance": 4.00311776,
+        "clwdnSupply": 1100000000
+      }
+    },
+    {
+      "step": 2,
+      "name": "Check Dispenser Operator",
+      "status": "WARN",
+      "details": {
+        "note": "NOT authorized - distributions will fail"
+      }
+    },
+    {
+      "step": 3,
+      "name": "Initialize Bootstrap",
+      "status": "PASS",
+      "details": "Initialized"
+    },
+    {
+      "step": 4,
+      "name": "Self-Boot",
+      "status": "FAIL",
+      "error": "429 Too Many Requests:  {\"jsonrpc\":\"2.0\",\"error\":{\"code\": 429, \"message\":\"You've either reached your airdrop limit today or the airdrop faucet has run dry. Please visit https://faucet.solana.com for alternate sources of test SOL\"}, \"id\": \"fa74f8b9-b5ab-42fa-b0e6-1efb4956275e\" } \r\n"
+    },
+    {
+      "step": 5,
+      "name": "Create Raydium LP",
+      "status": "PASS",
+      "details": {
+        "solUsed": 0
+      }
+    },
+    {
+      "step": 6,
+      "name": "Burn LP Tokens",
+      "status": "SKIP",
+      "details": "Manual step after pool creation"
+    }
+  ],
+  "startTime": 1770070935226,
+  "endTime": 1770070979992,
+  "duration": 44.766
+}

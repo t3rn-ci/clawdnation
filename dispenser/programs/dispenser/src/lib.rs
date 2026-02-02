@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TransferChecked};
 use anchor_spl::token_interface::{Mint, TokenAccount};
 
-declare_id!("AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ");
+declare_id!("fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi");
 
 #[program]
 pub mod clwdn_dispenser {
@@ -19,7 +19,18 @@ pub mod clwdn_dispenser {
         state.total_queued = 0;
         state.total_cancelled = 0;
         state.bump = ctx.bumps.state;
+
+        // Safety features with sensible defaults
+        state.paused = false;
+        state.last_distribution_slot = 0;
+        state.distributions_this_window = 0;
+        state.rate_limit_per_window = 100; // 100 distributions per hour
+        state.max_single_distribution = 10_000_000_000_000_000; // 10M CLWDN (9 decimals)
+
         msg!("Dispenser initialized. Mint: {}", state.mint);
+        msg!("Rate limit: {} distributions/hour, Max amount: {} tokens",
+            state.rate_limit_per_window,
+            state.max_single_distribution / 1_000_000_000);
         Ok(())
     }
 
@@ -31,7 +42,16 @@ pub mod clwdn_dispenser {
             DispenserError::Unauthorized
         );
         if !state.operators.contains(&new_operator) {
+            require!(
+                state.operators.len() < 10,
+                DispenserError::TooManyOperators
+            );
             state.operators.push(new_operator);
+
+            // Realloc account if needed
+            let new_space = 8 + DispenserState::INIT_SPACE;
+            let account_info = ctx.accounts.state.to_account_info();
+            account_info.realloc(new_space, false)?;
         }
         msg!("Operator added: {}", new_operator);
         Ok(())
@@ -58,6 +78,12 @@ pub mod clwdn_dispenser {
             DispenserError::Unauthorized
         );
         state.pending_authority = Some(new_authority);
+
+        // Realloc account for Option<Pubkey> if needed
+        let new_space = 8 + DispenserState::INIT_SPACE;
+        let account_info = ctx.accounts.state.to_account_info();
+        account_info.realloc(new_space, false)?;
+
         msg!("Authority transfer proposed to: {}", new_authority);
         Ok(())
     }
@@ -144,6 +170,8 @@ pub mod clwdn_dispenser {
         let status = ctx.accounts.distribution.status.clone();
         let bump = ctx.accounts.state.bump;
         let is_operator = ctx.accounts.state.operators.contains(&ctx.accounts.operator.key());
+        let paused = ctx.accounts.state.paused;
+        let max_amount = ctx.accounts.state.max_single_distribution;
 
         require!(is_operator, DispenserError::Unauthorized);
         require!(
@@ -151,11 +179,45 @@ pub mod clwdn_dispenser {
             DispenserError::AlreadyDistributed
         );
 
+        // SAFETY CHECK #1: Emergency pause
+        require!(!paused, DispenserError::Paused);
+
+        // SAFETY CHECK #2: Amount cap
+        require!(
+            amount <= max_amount,
+            DispenserError::AmountTooLarge
+        );
+
         // Fix #1: validate recipient_token_account owner matches distribution.recipient
         require!(
             ctx.accounts.recipient_token_account.owner == recipient,
             DispenserError::RecipientMismatch
         );
+
+        // SAFETY CHECK #3: Rate limiting (before transfer to fail fast)
+        let clock = Clock::get()?;
+        let current_slot = clock.slot;
+        let slots_per_hour = 7200; // ~2 slots/sec * 3600 sec = 7200 slots/hour
+
+        // Do rate limiting checks (mutable scope)
+        {
+            let state_mut = &mut ctx.accounts.state;
+
+            // Reset window if an hour has passed
+            if current_slot - state_mut.last_distribution_slot > slots_per_hour {
+                state_mut.last_distribution_slot = current_slot;
+                state_mut.distributions_this_window = 0;
+            }
+
+            // Check rate limit
+            require!(
+                state_mut.distributions_this_window < state_mut.rate_limit_per_window,
+                DispenserError::RateLimitExceeded
+            );
+
+            // Increment distribution counter
+            state_mut.distributions_this_window += 1;
+        }
 
         // Transfer from vault to recipient using PDA signer
         let seeds = &[b"state".as_ref(), &[bump]];
@@ -174,14 +236,14 @@ pub mod clwdn_dispenser {
         );
         token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
 
-        // Now mutate
+        // Now mutate distribution
         let dist = &mut ctx.accounts.distribution;
         dist.status = DistributionStatus::Distributed;
         dist.distributed_at = Clock::get()?.unix_timestamp;
 
-        let state = &mut ctx.accounts.state;
         // Fix #4: checked addition
-        state.total_distributed = state
+        let state_mut = &mut ctx.accounts.state;
+        state_mut.total_distributed = state_mut
             .total_distributed
             .checked_add(amount)
             .ok_or(DispenserError::Overflow)?;
@@ -223,6 +285,54 @@ pub mod clwdn_dispenser {
         msg!("Cancelled distribution: {}", dist.contribution_id);
         Ok(())
     }
+
+    /// Emergency pause — any operator can trigger
+    pub fn emergency_pause(ctx: Context<ManageOperator>) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            state.operators.contains(&ctx.accounts.operator.key()),
+            DispenserError::Unauthorized
+        );
+        state.paused = true;
+        msg!("🚨 EMERGENCY PAUSE activated by: {}", ctx.accounts.operator.key());
+        Ok(())
+    }
+
+    /// Unpause — only authority can unpause
+    pub fn unpause(ctx: Context<TransferAuthority>) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            DispenserError::Unauthorized
+        );
+        state.paused = false;
+        msg!("✅ System unpaused by authority: {}", ctx.accounts.authority.key());
+        Ok(())
+    }
+
+    /// Update rate limit — only authority
+    pub fn update_rate_limit(ctx: Context<TransferAuthority>, new_limit: u32) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            DispenserError::Unauthorized
+        );
+        state.rate_limit_per_window = new_limit;
+        msg!("Rate limit updated to: {} distributions/hour", new_limit);
+        Ok(())
+    }
+
+    /// Update max single distribution amount — only authority
+    pub fn update_max_amount(ctx: Context<TransferAuthority>, new_max: u64) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            DispenserError::Unauthorized
+        );
+        state.max_single_distribution = new_max;
+        msg!("Max distribution amount updated to: {}", new_max);
+        Ok(())
+    }
 }
 
 // ═══ ACCOUNTS ═══
@@ -247,21 +357,27 @@ pub struct Initialize<'info> {
 pub struct ManageOperator<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub operator: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct TransferAuthority<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct AcceptAuthority<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub new_authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -340,6 +456,13 @@ pub struct DispenserState {
     pub total_queued: u64,
     pub total_cancelled: u64,
     pub bump: u8,
+
+    // Safety features
+    pub paused: bool,
+    pub last_distribution_slot: u64,
+    pub distributions_this_window: u32,
+    pub rate_limit_per_window: u32,        // Default: 100 distributions/hour
+    pub max_single_distribution: u64,      // Default: 10M CLWDN (10_000_000_000_000_000)
 }
 
 #[account]
@@ -382,4 +505,12 @@ pub enum DispenserError {
     RecipientMismatch,
     #[msg("No pending authority transfer")]
     NoPendingTransfer,
+    #[msg("System is paused")]
+    Paused,
+    #[msg("Amount exceeds maximum allowed per distribution")]
+    AmountTooLarge,
+    #[msg("Rate limit exceeded - too many distributions this window")]
+    RateLimitExceeded,
+    #[msg("Maximum number of operators (10) reached")]
+    TooManyOperators,
 }

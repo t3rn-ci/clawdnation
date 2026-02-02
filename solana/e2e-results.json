@@ -1,0 +1,29 @@
+{
+  "txs": {
+    "fund": "jZgA3MNfqC5kRx1DYuYyRGdznTgy821S9orabcuCBHiMizRavxDEteNXzy1a9sSzyUM9Hehj6Wh86REKaQAnrbr",
+    "contribution": "4RDsr2Zbyy2g73ivvSjVdzudUvLFc5yd9S1M1JU2HYqq6PDGPkBTHET2HkjRYtDaw9HVhTtc8SVEzc5JpoyP8h54"
+  },
+  "accounts": {
+    "buyer": "F7XLwNRn2r8pAW4C9heMiebhnGdDsbfGqc4F3BWi6nEY",
+    "contributorPda": "4rXkQHK761fUucVHEQNmnK6iL9a97bpDC7jchkA4WUNv",
+    "buyerAta": "C9G694bPtKwsM4T7gN8ELbZbwKuh2R4BnH6NDE7ofb9A"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "status": "✅",
+      "desc": "X post intent (simulated)"
+    },
+    {
+      "step": 2,
+      "status": "✅",
+      "desc": "Bootstrap contribution (0.1 SOL → 1000 CLWDN)",
+      "tx": "4RDsr2Zbyy2g73ivvSjVdzudUvLFc5yd9S1M1JU2HYqq6PDGPkBTHET2HkjRYtDaw9HVhTtc8SVEzc5JpoyP8h54"
+    },
+    {
+      "step": 3,
+      "status": "✅",
+      "desc": "Dispenser auto-distribution"
+    }
+  ]
+}
