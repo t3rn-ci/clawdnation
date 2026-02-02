@@ -2,15 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{self, Burn, Mint, Token, TokenAccount},
-};
-use raydium_cp_swap::{
-    cpi,
-    program::RaydiumCpSwap,
-    states::{AmmConfig, OBSERVATION_SEED, POOL_LP_MINT_SEED, POOL_SEED, POOL_VAULT_SEED},
+    token::{self, Burn, Token},
 };
 
-declare_id!("GhbYgkj3vLuLpxoyZFPNEGBWWRFpKWBmzbxP4HTXkDAv");
+declare_id!("6watePT1wd7HfL3z8jKY3C6KeSFbfwdChPD9TBAQiEhN");
 
 /// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
 ///
@@ -381,14 +376,13 @@ pub mod clwdn_bootstrap {
         Ok(())
     }
 
-    /// Create Raydium LP and BURN all LP tokens (ATOMIC)
+    /// BURN LP tokens (ATOMIC, ON-CHAIN)
     /// Can only be called after bootstrap is complete
-    /// SECURITY: LP tokens are burned in the same transaction
-    pub fn create_lp_and_burn(
-        ctx: Context<CreateLPAndBurn>,
-        clwdn_amount: u64,
-        sol_amount: u64,
-        open_time: u64,
+    /// SECURITY: LP tokens are burned in a verifiable on-chain transaction
+    /// NOTE: LP creation must be done separately (via external script or future upgrade)
+    pub fn burn_lp_tokens(
+        ctx: Context<BurnLPTokens>,
+        amount: u64,
     ) -> Result<()> {
         let state = &ctx.accounts.state;
 
@@ -404,31 +398,10 @@ pub mod clwdn_bootstrap {
             BootstrapError::Unauthorized
         );
 
-        msg!("Creating Raydium LP with {} CLWDN and {} SOL", clwdn_amount, sol_amount);
+        // Verify amount
+        require!(amount > 0, BootstrapError::InvalidAmount);
 
-        // 1. CPI to Raydium CPMM to create pool
-        let cpi_accounts = cpi::accounts::Initialize {
-            creator: ctx.accounts.lp_wallet.to_account_info(),
-            amm_config: ctx.accounts.amm_config.to_account_info(),
-            authority: ctx.accounts.pool_authority.to_account_info(),
-            pool_state: ctx.accounts.pool_state.to_account_info(),
-            token_0_mint: ctx.accounts.token_0_mint.to_account_info(),
-            token_1_mint: ctx.accounts.token_1_mint.to_account_info(),
-            lp_mint: ctx.accounts.lp_mint.to_account_info(),
-            creator_token_0: ctx.accounts.lp_token_0.to_account_info(),
-            creator_token_1: ctx.accounts.lp_token_1.to_account_info(),
-            creator_lp_token: ctx.accounts.lp_token_account.to_account_info(),
-            token_0_vault: ctx.accounts.token_0_vault.to_account_info(),
-            token_1_vault: ctx.accounts.token_1_vault.to_account_info(),
-            create_pool_fee: ctx.accounts.create_pool_fee.to_account_info(),
-            observation_state: ctx.accounts.observation_state.to_account_info(),
-            token_program: ctx.accounts.token_program.to_account_info(),
-            token_0_program: ctx.accounts.token_0_program.to_account_info(),
-            token_1_program: ctx.accounts.token_1_program.to_account_info(),
-            associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
-            system_program: ctx.accounts.system_program.to_account_info(),
-            rent: ctx.accounts.rent.to_account_info(),
-        };
+        msg!("Burning {} LP tokens from LP wallet", amount);
 
         // Use LP wallet's authority via seeds
         let lp_wallet_bump = ctx.bumps.lp_wallet;
@@ -440,19 +413,7 @@ pub mod clwdn_bootstrap {
         ];
         let signer_seeds = &[&seeds[..]];
 
-        let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.cp_swap_program.to_account_info(),
-            cpi_accounts,
-            signer_seeds,
-        );
-        cpi::initialize(cpi_ctx, clwdn_amount, sol_amount, open_time)?;
-
-        msg!("Raydium LP created successfully");
-
-        // 2. BURN ALL LP tokens to System Program (11111...)
-        let lp_balance = ctx.accounts.lp_token_account.amount;
-        require!(lp_balance > 0, BootstrapError::InvalidAmount);
-
+        // BURN LP tokens (permanently locks liquidity)
         let burn_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             Burn {
@@ -462,9 +423,10 @@ pub mod clwdn_bootstrap {
             },
             signer_seeds,
         );
-        token::burn(burn_ctx, lp_balance)?;
+        token::burn(burn_ctx, amount)?;
 
-        msg!("🔥 BURNED {} LP tokens - liquidity permanently locked!", lp_balance);
+        msg!("🔥 BURNED {} LP tokens - liquidity permanently locked!", amount);
+        msg!("Transaction is on-chain and verifiable on Solana Explorer");
         Ok(())
     }
 }
@@ -579,16 +541,14 @@ pub struct AcceptAuthority<'info> {
 }
 
 #[derive(Accounts)]
-pub struct CreateLPAndBurn<'info> {
-    pub cp_swap_program: Program<'info, RaydiumCpSwap>,
-
+pub struct BurnLPTokens<'info> {
     #[account(seeds = [b"bootstrap"], bump = state.bump)]
     pub state: Account<'info, BootstrapState>,
 
     pub authority: Signer<'info>,
 
-    /// LP wallet (PDA that holds SOL) - acts as creator for Raydium pool
-    /// CHECK: LP wallet PDA with SOL
+    /// LP wallet (PDA that holds LP tokens)
+    /// CHECK: LP wallet PDA
     #[account(
         mut,
         seeds = [b"lp_wallet", state.key().as_ref()],
@@ -596,123 +556,18 @@ pub struct CreateLPAndBurn<'info> {
     )]
     pub lp_wallet: UncheckedAccount<'info>,
 
-    /// Raydium AMM config (fee tier, etc.)
-    pub amm_config: Box<Account<'info, AmmConfig>>,
-
-    /// CHECK: Pool vault and lp mint authority
-    #[account(
-        seeds = [
-            raydium_cp_swap::AUTH_SEED.as_bytes(),
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
-    pub pool_authority: UncheckedAccount<'info>,
-
-    /// CHECK: Pool state PDA, init by cp-swap
-    #[account(
-        mut,
-        seeds = [
-            POOL_SEED.as_bytes(),
-            amm_config.key().as_ref(),
-            token_0_mint.key().as_ref(),
-            token_1_mint.key().as_ref(),
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
-    pub pool_state: UncheckedAccount<'info>,
-
-    /// Token_0 mint (must be < token_1 mint key)
-    /// CHECK: Token mint validated by Raydium
-    #[account(
-        mut,
-        constraint = token_0_mint.key() < token_1_mint.key(),
-    )]
-    pub token_0_mint: UncheckedAccount<'info>,
-
-    /// Token_1 mint (must be > token_0 mint key)
-    /// CHECK: Token mint validated by Raydium
+    /// LP mint (Raydium pool LP tokens)
+    /// CHECK: Mint validated by token program
     #[account(mut)]
-    pub token_1_mint: UncheckedAccount<'info>,
-
-    /// CHECK: Pool LP mint, init by cp-swap
-    #[account(
-        mut,
-        seeds = [
-            POOL_LP_MINT_SEED.as_bytes(),
-            pool_state.key().as_ref(),
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
     pub lp_mint: UncheckedAccount<'info>,
 
-    /// LP wallet's token 0 account
-    /// CHECK: Token account validated by Raydium
+    /// LP token account to burn from
+    /// CHECK: Token account validated by token program
     #[account(mut)]
-    pub lp_token_0: UncheckedAccount<'info>,
-
-    /// LP wallet's token 1 account
-    /// CHECK: Token account validated by Raydium
-    #[account(mut)]
-    pub lp_token_1: UncheckedAccount<'info>,
-
-    /// LP token account for LP wallet (to burn from)
-    #[account(mut)]
-    pub lp_token_account: Box<Account<'info, TokenAccount>>,
-
-    /// CHECK: Token_0 vault, init by cp-swap
-    #[account(
-        mut,
-        seeds = [
-            POOL_VAULT_SEED.as_bytes(),
-            pool_state.key().as_ref(),
-            token_0_mint.key().as_ref()
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
-    pub token_0_vault: UncheckedAccount<'info>,
-
-    /// CHECK: Token_1 vault, init by cp-swap
-    #[account(
-        mut,
-        seeds = [
-            POOL_VAULT_SEED.as_bytes(),
-            pool_state.key().as_ref(),
-            token_1_mint.key().as_ref()
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
-    pub token_1_vault: UncheckedAccount<'info>,
-
-    /// Create pool fee account (0.15 SOL fee receiver)
-    /// CHECK: Raydium fee receiver address
-    #[account(mut)]
-    pub create_pool_fee: UncheckedAccount<'info>,
-
-    /// CHECK: Oracle observation state, init by cp-swap
-    #[account(
-        mut,
-        seeds = [
-            OBSERVATION_SEED.as_bytes(),
-            pool_state.key().as_ref(),
-        ],
-        seeds::program = cp_swap_program,
-        bump,
-    )]
-    pub observation_state: UncheckedAccount<'info>,
+    pub lp_token_account: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
-    /// CHECK: Token program for token 0
-    pub token_0_program: UncheckedAccount<'info>,
-    /// CHECK: Token program for token 1
-    pub token_1_program: UncheckedAccount<'info>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
 }
 
 // ═══ STATE ═══
