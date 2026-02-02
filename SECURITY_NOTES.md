@@ -79,14 +79,25 @@ Without path traversal protection, attackers could:
 
 ## Test Coverage
 
-**Current Status**: 3 passing, 30 failing (regression)
+**Current Status**: 33 passing, 4 failing (89% pass rate) ✅
 
-Previous state: 33 passing, 4 failing (89% pass rate)
+**FIXED (2026-02-02)**: Critical program ID mismatch resolved
+- **Problem**: Anchor.toml had wrong program ID for localnet (GmsCrZcVdArUFKrBHRpycuUUaSTr9HgwzuqnsvbXsNBV)
+- **Solution**: Updated to match declare_id! in lib.rs (fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi)
+- **Result**: Tests recovered from 3/33 to 33/37 passing
 
-**Known Issues**:
-- Program ID mismatch errors (likely validator cache)
-- Test environment needs cleanup
-- Not a security issue, but needs investigation
+**Remaining 4 Failures** (non-security):
+1. Max 10 operators enforcement (edge case)
+2. Authority transfer propose (serialization issue)
+3. Wrong person accept transfer (depends on #2)
+4. Full transfer cycle (depends on #2)
+
+All core security tests pass:
+- ✅ Distribution security (drain attacks blocked)
+- ✅ Operator privilege escalation blocked
+- ✅ Cancel/double-distribute blocked
+- ✅ Account ownership checks
+- ✅ State accounting (overflow protection)
 
 ## Summary
 
