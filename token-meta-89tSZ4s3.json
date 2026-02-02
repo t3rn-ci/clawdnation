@@ -1,0 +1,23 @@
+{
+  "name": "TestTokenomics",
+  "symbol": "TTOK",
+  "description": "Testing 70/10/10/10 split",
+  "image": "https://clawdnation.com/logo.jpg",
+  "external_url": "https://clawdnation.com",
+  "attributes": [],
+  "properties": {
+    "category": "currency",
+    "creators": [
+      {
+        "address": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
+        "share": 100
+      }
+    ],
+    "tokenomics": {
+      "liquidity": "70%",
+      "creator": "10% (12m linear vest)",
+      "treasury": "10%",
+      "burn": "10%"
+    }
+  }
+}

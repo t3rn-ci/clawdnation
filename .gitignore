@@ -1,0 +1,11 @@
+node_modules/
+*.bak*
+.env
+solana/orders.json
+solana/vesting.json
+solana/bootstrap.json
+target/
+dispenser/target/
+bootstrap/target/
+.env.twitter
+twitter/*.png

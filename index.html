@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ClawdNation — Token Factory, Staking & Airdrop</title>
+  <meta name="description" content="Launch tokens on Solana via Twitter. Stake $CLWDN, earn LP fee rewards. ClawdNation token factory.">
+  <meta name="theme-color" content="#e63946">
+  <link rel="icon" href="/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0a0a;--bgc:#111;--bge:#1a1a1a;--bgh:#151515;--brd:#222;--t1:#f0f0f0;--t2:#888;--t3:#555;--ac:#e63946;--acl:#ff4d5a;--acb:rgba(230,57,70,0.15);--gn:#00c853;--gnb:rgba(0,200,83,0.12);--gnt:#00e676;--or:#ff9800;--orb:rgba(255,152,0,0.12);--bl:#42a5f5;--blb:rgba(66,165,245,0.12);--blt:#90caf9;--r:10px;--rl:14px;--sh:0 1px 3px rgba(0,0,0,.3);--f:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;--m:'JetBrains Mono','Courier New',monospace;--mw:1200px}
+    html{scroll-behavior:smooth}body{font-family:var(--f);font-size:15px;line-height:1.5;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
+    a{color:var(--ac);text-decoration:none}a:hover{text-decoration:underline}
+    header{border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);background:rgba(10,10,10,.92)}
+    .hi{max-width:var(--mw);margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1)}.logo:hover{text-decoration:none}
+    .lt2{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ac)}
+    .ltag{font-size:11px;font-weight:600;color:var(--ac);background:var(--acb);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+    .nav-links{display:flex;gap:16px;align-items:center}
+    .nav-links a{font-size:13px;font-weight:500;color:var(--t2);transition:color .15s}.nav-links a:hover{color:var(--ac);text-decoration:none}
+    @media(max-width:600px){.nav-links{gap:8px}.nav-links a{font-size:12px}#walletNav .btn{font-size:11px;padding:5px 10px}}
+
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--r);font-size:14px;font-weight:600;font-family:var(--f);text-decoration:none;transition:all .15s;cursor:pointer;border:none}
+    .btn:hover{text-decoration:none;transform:translateY(-1px)}
+    .btn-ac{background:var(--ac);color:#fff}.btn-ac:hover{background:var(--acl);color:#fff}
+    .btn-out{background:transparent;border:1px solid var(--brd);color:var(--t1)}.btn-out:hover{border-color:var(--ac);color:var(--ac)}
+    .btn-gn{background:var(--gn);color:#000;font-weight:700}.btn-gn:hover{background:var(--gnt);color:#000}
+    .btn-pu{background:#9c27b0;color:#fff}.btn-pu:hover{background:#ab47bc;color:#fff}
+    .part-input{width:100%;padding:10px 14px;border:1px solid var(--brd);border-radius:var(--r);font-size:14px;font-family:var(--m);background:var(--bg);color:var(--t1);text-align:center}
+    .part-input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--acb)}
+    .part-input::placeholder{color:var(--t3)}
+    .btn-sm{padding:6px 14px;font-size:12px}
+
+        /* Network banner */
+    .net-banner{padding:8px 20px;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;border-bottom:1px solid var(--brd)}
+    .net-banner.devnet{background:rgba(0,200,83,0.08);color:var(--gnt);border-bottom-color:rgba(0,200,83,0.2)}
+    .net-banner.mainnet{background:rgba(255,152,0,0.08);color:var(--or);border-bottom-color:rgba(255,152,0,0.2)}
+    .net-banner strong{font-weight:700}
+
+    /* Skill card */
+    .skill-wrap{max-width:var(--mw);margin:16px auto 0;padding:0 20px}
+    .skill-label{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:8px}
+    .skill-card{
+    .skill-inner{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--r);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s,background .2s;position:relative}
+    .skill-card:hover .skill-inner{border-color:var(--ac);background:var(--bgh)}
+    .skill-text{font-family:var(--m);font-size:13px;color:var(--t2)}
+    .skill-copied{font-size:13px;font-weight:600;color:var(--gnt);opacity:0;transition:opacity .2s}
+    .skill-card.copied .skill-copied{opacity:1}
+    .skill-card.copied .skill-inner{border-color:var(--gn);background:rgba(0,200,83,0.05)}
+
+    /* Tabs */
+    .tabs{display:flex;gap:0;border-bottom:2px solid var(--brd);max-width:var(--mw);margin:0 auto;padding:0 20px}
+    .tab{padding:14px 24px;font-size:14px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:6px}
+    .tab:hover{color:var(--t1)}.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+    .tab .tab-badge{font-size:11px;background:var(--bge);padding:1px 7px;border-radius:10px;font-weight:500;color:var(--t3)}
+    .tab.active .tab-badge{background:var(--acb);color:var(--ac)}
+    @media(max-width:500px){.tab{padding:12px 14px;font-size:13px}}
+    .tab-content{display:none}.tab-content.active{display:block}
+
+    /* Stats bar */
+    .sbar{background:var(--bgc);border-bottom:1px solid var(--brd);padding:16px 20px}
+    .sg{max-width:var(--mw);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .st{text-align:center}.sv{font-size:22px;font-weight:700;font-family:var(--m);letter-spacing:-.02em}
+    .sv.pu{color:var(--ac)}.sv.gn{color:var(--gn)}.sv.or{color:var(--or)}.sv.bl{color:var(--bl)}
+    .sl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-top:2px}
+    @media(max-width:600px){.sg{grid-template-columns:repeat(2,1fr);gap:12px}.sv{font-size:18px}}
+
+    main{max-width:var(--mw);margin:0 auto;padding:24px 20px 60px}
+    .sec-title{font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .sec-title .ld{width:8px;height:8px;background:var(--gn);border-radius:50%;display:inline-block;animation:pls 2s ease-in-out infinite}
+    @keyframes pls{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* Token cards */
+    .tok-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-bottom:48px}
+    @media(max-width:400px){.tok-grid{grid-template-columns:1fr}}
+    .tok-card{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;transition:border-color .2s,transform .15s}
+    .tok-card:hover{border-color:var(--ac);transform:translateY(-2px)}
+    .tok-head{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+    .tok-id{display:flex;align-items:center;gap:10px}
+    .tok-icon{width:40px;height:40px;border-radius:10px;background:var(--acb);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ac);font-family:var(--m)}
+    .tok-name{font-size:16px;font-weight:700}.tok-sym{font-family:var(--m);font-weight:600;color:var(--ac);font-size:13px}
+    .tok-time{font-size:11px;color:var(--t3)}
+    .tok-desc{padding:12px 20px;font-size:13px;color:var(--t2);font-style:italic;border-bottom:1px solid var(--brd)}
+    .tok-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--brd)}
+    .tok-stat{padding:12px 16px;text-align:center;border-right:1px solid var(--brd)}.tok-stat:last-child{border-right:none}
+    .tok-stat-val{font-family:var(--m);font-weight:700;font-size:15px;color:var(--t1)}
+    .tok-stat-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .tok-holders{padding:12px 20px;border-bottom:1px solid var(--brd)}
+    .tok-holders-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .holder-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px}
+    .holder-addr{font-family:var(--m);font-size:11px;color:var(--t2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .holder-bar-bg{width:80px;height:6px;background:var(--bge);border-radius:3px;overflow:hidden}
+    .holder-bar{height:100%;background:var(--ac);border-radius:3px;transition:width .3s}
+    .holder-pct{font-family:var(--m);font-size:11px;color:var(--ac);font-weight:600;width:45px;text-align:right}
+    .tok-tokenomics{padding:12px 20px;border-bottom:1px solid var(--brd)}
+    .tok-tokenomics-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .tknm-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px}
+    .tknm-bar div{height:100%}
+    .tknm-legend{display:flex;flex-wrap:wrap;gap:10px}
+    .tknm-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)}
+    .tknm-dot{width:8px;height:8px;border-radius:2px}
+    .tok-mint{padding:12px 20px;border-bottom:1px solid var(--brd)}
+    .tok-mint-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+    .tok-mint-val{font-family:var(--m);font-size:11px;color:var(--t2);word-break:break-all;background:var(--bge);padding:6px 10px;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:background .15s}
+    .tok-mint-val:hover{background:var(--bgh)}
+    .tok-mint-val .copy-hint{font-size:10px;color:var(--t3);font-family:var(--f);white-space:nowrap}
+    .tok-links{padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap}
+    .tok-link{font-size:12px;font-weight:500;color:var(--bl);background:var(--blb);padding:4px 10px;border-radius:20px;transition:all .15s;white-space:nowrap}
+    .tok-link:hover{text-decoration:none;color:#fff;background:var(--bl)}
+    .tok-link.red{color:var(--ac);background:var(--acb)}.tok-link.red:hover{color:#fff;background:var(--ac)}
+    .tok-link.green{color:var(--gnt);background:var(--gnb)}.tok-link.green:hover{color:#fff;background:var(--gn)}
+    .tok-link.orange{color:var(--or);background:var(--orb)}.tok-link.orange:hover{color:#fff;background:var(--or)}
+    .creator{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--t2)}
+    .creator-dot{width:6px;height:6px;border-radius:50%;background:var(--ac)}
+
+    /* Staking tab */
+    .stk-hero{text-align:center;padding:40px 0 32px}
+    .stk-hero h2{font-size:28px;font-weight:700;margin-bottom:8px}.stk-hero h2 span{color:var(--gn)}
+    .stk-hero p{color:var(--t2);font-size:15px;max-width:500px;margin:0 auto}
+    .stk-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+    @media(max-width:700px){.stk-grid{grid-template-columns:1fr}}
+    .stk-box{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--rl);padding:24px;text-align:center}
+    .stk-box.highlight{background:linear-gradient(135deg,var(--gnb),var(--bgc));border-color:rgba(0,200,83,0.3)}
+    .stk-val{font-family:var(--m);font-size:32px;font-weight:700;margin-bottom:4px}
+    .stk-val.green{color:var(--gn)}.stk-val.red{color:var(--ac)}.stk-val.orange{color:var(--or)}.stk-val.blue{color:var(--bl)}
+    .stk-lbl{font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+    .stk-sub{font-size:12px;color:var(--t2);margin-top:6px}
+
+    .card{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden;margin-bottom:24px}
+    .ch{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd)}
+    .ch h2{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cb{padding:16px 20px}
+    .badge{font-size:11px;font-weight:600;color:var(--t3);background:var(--bge);padding:3px 10px;border-radius:20px}
+
+    /* How staking works */
+    .flow-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0}
+    @media(max-width:700px){.flow-steps{grid-template-columns:repeat(2,1fr)}}
+    .flow-step{text-align:center;padding:16px 12px;background:var(--bge);border-radius:var(--r);position:relative}
+    .flow-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:16px}
+    .flow-step:last-child::after{display:none}
+    @media(max-width:700px){.flow-step:nth-child(2)::after{display:none}}
+    .flow-num{font-size:24px;margin-bottom:4px}
+    .flow-step h4{font-size:13px;font-weight:600;margin-bottom:2px}
+    .flow-step p{font-size:11px;color:var(--t2)}
+
+    /* Rewards table */
+    .rew-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--brd);font-size:13px}
+    .rew-row:last-child{border-bottom:none}
+    .rew-src{display:flex;align-items:center;gap:8px}
+    .rew-dot{width:8px;height:8px;border-radius:50%}
+    .rew-val{font-family:var(--m);font-weight:600}
+
+    /* How to launch */
+    .how-steps{counter-reset:step}
+    .how-step{counter-increment:step;padding:12px 0 12px 40px;position:relative;border-bottom:1px solid var(--brd)}.how-step:last-child{border-bottom:none}
+    .how-step::before{content:counter(step);position:absolute;left:0;top:12px;width:26px;height:26px;background:var(--acb);color:var(--ac);border-radius:50%;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--m)}
+    .how-step h3{font-size:14px;font-weight:600;margin-bottom:2px}
+    .how-step p{font-size:13px;color:var(--t2)}
+    .how-step code{font-family:var(--m);font-size:12px;background:var(--bge);padding:2px 6px;border-radius:4px;color:var(--ac)}
+
+    /* Airdrop */
+    .airdrop-card{background:linear-gradient(135deg,var(--acb),rgba(0,200,83,0.03));border-color:rgba(230,57,70,0.3)}
+    .airdrop-info{font-size:13px;color:var(--t2);line-height:1.7}
+    .airdrop-info strong{color:var(--t1)}
+    .airdrop-rows{margin-top:12px}
+    .airdrop-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
+    .airdrop-row:last-child{border-bottom:none}
+    .airdrop-row .pct{font-family:var(--m);font-weight:600;color:var(--ac)}
+    .token-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bge);border:1px solid var(--brd);padding:8px 14px;border-radius:var(--r);margin-top:12px}
+    .token-badge .sym{font-family:var(--m);font-weight:700;color:var(--ac);font-size:16px}
+    .token-badge .net{font-size:12px;color:var(--t3)}
+
+    /* Bottom grid */
+    .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+    @media(max-width:700px){.bottom-grid{grid-template-columns:1fr}}
+
+    .cta-bar{text-align:center;padding:40px 20px;margin-top:48px;border-top:1px solid var(--brd)}
+    .cta-bar h2{font-size:24px;font-weight:700;margin-bottom:8px}
+    .cta-bar p{color:var(--t2);margin-bottom:20px}
+    .cta-bar .btn{margin:0 6px}
+    .ld2{text-align:center;color:var(--t3);font-size:14px;padding:32px 0}
+    .api-ep{font-family:var(--m);font-size:12px;background:var(--bge);padding:6px 10px;border-radius:6px;color:var(--t2);display:block;margin:4px 0;word-break:break-all}
+    footer{max-width:var(--mw);margin:0 auto;padding:24px 20px 40px;text-align:center;font-size:12px;color:var(--t3)}footer a{color:var(--t2)}
+    @media(max-width:600px){.tok-stats{grid-template-columns:1fr 1fr}}
+
+    /* Economics tab styles */
+    .hero{text-align:center;padding:40px 0 32px}
+    .hero h1{font-size:36px;font-weight:700;letter-spacing:-.03em;margin-bottom:8px}.hero h1 span{color:var(--ac)}
+    .hero p{color:var(--t2);font-size:16px;max-width:600px;margin:0 auto}
+    @media(max-width:600px){.hero h1{font-size:26px}.hero p{font-size:14px}}
+    .ov-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+    @media(max-width:600px){.ov-grid{grid-template-columns:repeat(2,1fr)}}
+    .ov{text-align:center;background:var(--bgc);border:1px solid var(--brd);border-radius:var(--r);padding:16px}
+    .ov-val{font-family:var(--m);font-size:18px;font-weight:700}.ov-val.red{color:var(--ac)}.ov-val.green{color:var(--gn)}.ov-val.blue{color:var(--bl)}.ov-val.orange{color:var(--or)}
+    .ov-lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .prog-wrap{margin:20px 0}
+    .prog-bar-bg{height:24px;background:var(--bge);border-radius:12px;overflow:hidden;position:relative}
+    .prog-bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--acl));border-radius:12px;transition:width .5s;min-width:2px}
+    .prog-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--t3)}
+    .prog-labels .val{font-family:var(--m);color:var(--t1);font-weight:600}
+    .prog-pct{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--m);font-size:12px;font-weight:700;color:var(--t1)}
+    .dist-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:16px 0}
+    .dist-bar div{height:100%}
+    .dist-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media(max-width:500px){.dist-legend{grid-template-columns:1fr}}
+    .dist-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0}
+    .dist-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+    .dist-pct{font-family:var(--m);font-weight:600;color:var(--ac);margin-left:auto}
+    .cmp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+    @media(max-width:600px){.cmp-grid{grid-template-columns:1fr}}
+    .cmp-box{text-align:center;padding:20px;background:var(--bge);border-radius:var(--r);border:1px solid var(--brd)}
+    .cmp-box.hl{border-color:var(--gn);background:var(--gnb)}
+    .cmp-val{font-family:var(--m);font-size:20px;font-weight:700;margin-bottom:4px}
+    .cmp-lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em}
+    .cmp-sub{font-size:12px;color:var(--t2);margin-top:4px}
+    .fly-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0}
+    @media(max-width:700px){.fly-steps{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:450px){.fly-steps{grid-template-columns:1fr 1fr}}
+    .fly-step{text-align:center;padding:16px 8px;background:var(--bge);border-radius:var(--r);position:relative}
+    .fly-step::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:14px;z-index:1}
+    .fly-step:last-child::after{display:none}
+    @media(max-width:700px){.fly-step:nth-child(3)::after{display:none}}
+    .fly-num{font-size:20px;margin-bottom:4px}
+    .fly-step h4{font-size:12px;font-weight:600;margin-bottom:2px}
+    .fly-step p{font-size:10px;color:var(--t3)}
+    .buy-card{background:linear-gradient(135deg,var(--acb),rgba(0,200,83,0.04));border-color:rgba(230,57,70,0.4)}
+    .buy-methods{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+    @media(max-width:700px){.buy-methods{grid-template-columns:1fr}}
+    .buy-method{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--rl);padding:24px}
+    .buy-method h3{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .buy-method .mtag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:10px}
+    .buy-method .mdesc{font-size:12px;color:var(--t3);margin-bottom:16px}
+    .buy-input-group{margin-bottom:12px}
+    .buy-input-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+    .buy-input-wrap{display:flex;align-items:center;background:var(--bge);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;transition:border-color .15s}
+    .buy-input-wrap:focus-within{border-color:var(--ac)}
+    .buy-input-wrap input{flex:1;background:none;border:none;padding:12px 14px;font-family:var(--m);font-size:16px;font-weight:600;color:var(--t1);outline:none;min-width:0}
+    .buy-input-wrap input::placeholder{color:var(--t3)}
+    .buy-input-wrap .suffix{padding:12px 14px;font-size:13px;font-weight:600;color:var(--t2);white-space:nowrap;border-left:1px solid var(--brd);background:rgba(0,0,0,0.2)}
+    .buy-summary{background:var(--bge);border-radius:var(--r);padding:12px 14px;margin:12px 0;font-size:13px;color:var(--t2)}
+    .buy-summary .arr{color:var(--ac);font-weight:700;margin:0 8px}
+    .buy-summary .hl{font-family:var(--m);font-weight:700;color:var(--t1)}
+    .buy-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:700;font-family:var(--f);cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+    .buy-btn:hover{transform:translateY(-1px);text-decoration:none}
+    .buy-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .buy-btn.wallet-btn-main{background:linear-gradient(135deg,#ab9ff2,#7c3aed);color:#fff}
+    .buy-btn.wallet-btn-main:hover:not(:disabled){background:linear-gradient(135deg,#c4b5fd,#8b5cf6)}
+    .buy-btn.twitter{background:var(--ac);color:#fff}
+    .buy-btn.twitter:hover{background:var(--acl);color:#fff}
+    .buy-status{margin-top:12px;padding:10px 14px;border-radius:var(--r);font-size:12px;display:none}
+    .buy-status.success{display:block;background:var(--gnb);color:var(--gnt);border:1px solid rgba(0,200,83,0.3)}
+    .buy-status.error{display:block;background:var(--acb);color:var(--acl);border:1px solid rgba(230,57,70,0.3)}
+    .buy-status.pending{display:block;background:var(--orb);color:var(--or);border:1px solid rgba(255,152,0,0.3)}
+    .buy-status a{color:inherit;text-decoration:underline}
+    .max-btn{padding:4px 10px;font-size:11px;font-weight:600;font-family:var(--f);background:var(--acb);color:var(--ac);border:none;border-radius:6px;cursor:pointer;transition:all .15s;margin-right:4px}
+    .max-btn:hover{background:var(--ac);color:#fff}
+    .wallet-info-bar{background:var(--bge);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--t2)}
+    .wallet-info-bar .bal{font-family:var(--m);font-weight:600;color:var(--gn)}
+    .met-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:600px){.met-grid{grid-template-columns:repeat(2,1fr)}}
+    .met{text-align:center;padding:16px;background:var(--bgc);border:1px solid var(--brd);border-radius:var(--r)}
+    .met-val{font-family:var(--m);font-size:20px;font-weight:700;color:var(--t1)}
+    .met-lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+    .note{font-size:12px;color:var(--t3);line-height:1.7;padding:12px 16px;background:var(--bge);border-radius:var(--r);margin-top:16px}
+    .note strong{color:var(--t2)}
+    .badge-green{color:var(--gnt);background:var(--gnb)}
+    .badge-red{color:var(--ac);background:var(--acb)}
+    .badge-blue{color:var(--blt);background:var(--blb)}
+    .badge-orange{color:var(--or);background:var(--orb)}
+  </style>
+</head>
+<body>
+<header><div class="hi">
+  <a class="logo" href="/"><img src="/logo.jpg" alt="ClawdNation" style="width:32px;height:32px;border-radius:6px"><span class="lt2">ClawdNation</span><span class="ltag">devnet</span></a>
+  <div class="nav-links">
+    <a href="https://x.com/clawdnation" target="_blank">𝕏</a>
+    <div id="walletNav" style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-pu btn-sm" data-wallet-btn onclick="connectWallet()" id="navConnectBtn" style="height:32px;line-height:1">🔮 Connect Wallet</button>
+    </div>
+    <a href="https://x.com/clawdnation" target="_blank" class="btn btn-ac btn-sm" style="height:32px;line-height:1;color:#fff">Launch Token</a>
+  </div>
+</div></header>
+<div id="networkBanner" class="net-banner" style="display:none"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="tokens">🚀 Tokens <span class="tab-badge" id="tabTokCnt">0</span></div>
+  <div class="tab" data-tab="staking">💎 Staking</div>
+  <div class="tab" data-tab="airdrop">🪂 Airdrop</div>
+  <div class="tab" data-tab="economics">📊 Economics</div>
+  <div class="tab" data-tab="deploys">📜 Deploys</div>
+  <div class="tab" data-tab="agent">🤖 Agent</div>
+</div>
+
+<!-- ═══════ TOKENS TAB ═══════ -->
+<div class="tab-content active" id="tab-tokens">
+<div class="sbar"><div class="sg">
+  <div class="st"><div class="sv pu" id="xTok">—</div><div class="sl">Tokens Launched</div></div>
+  <div class="st"><div class="sv gn" id="xCreators">—</div><div class="sl">Creators</div></div>
+  <div class="st"><div class="sv or" id="xVol">—</div><div class="sl">SOL Volume</div></div>
+  <div class="st"><div class="sv bl" id="xNet">Devnet</div><div class="sl">Network</div></div>
+</div></div>
+<div class="skill-wrap">
+  <div class="skill-label">Want to instruct your AI agent? Just copy paste this:</div>
+  <div class="skill-card" id="skillCopy" onclick="copySkill()" style="cursor:pointer">
+    <div class="skill-inner">
+      <span class="skill-text" id="skillText">Read https://clawdnation.com/skill.md and follow the instructions to join ClawdNation</span>
+      <span class="skill-copied" id="skillCopied">Copied!</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div style="margin-top:8px"><div class="sec-title"><span class="ld"></span> Token Dashboard</div></div>
+  <div class="tok-grid" id="tGrid"><div class="ld2">Loading tokens…</div></div>
+
+  <div class="bottom-grid">
+    <div class="card"><div class="ch"><h2>🐦 How to Launch</h2></div>
+    <div class="cb">
+      <div class="how-steps">
+        <div class="how-step"><h3>Tweet</h3><p>Post with <code>#clawdnation</code> — include token name, symbol, description, and your Solana wallet.</p></div>
+        <div class="how-step"><h3>Pay</h3><p>Bot replies with a payment address. Send the required SOL to confirm.</p></div>
+        <div class="how-step"><h3>Launch</h3><p>Token mints on Solana (Token-2022). 70% goes to Raydium liquidity pool, 10% to you (vested), 10% treasury, 10% burned.</p></div>
+      </div>
+      <div style="margin-top:16px;text-align:center">
+        <a href="https://x.com/clawdnation" target="_blank" class="btn btn-ac" style="width:100%;justify-content:center">Launch on X →</a>
+      </div>
+    </div></div>
+
+    <div class="card"><div class="ch"><h2>📊 Token Economics</h2></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Every token launched through ClawdNation follows the same distribution:</p>
+      <div class="tknm-bar">
+        <div style="width:70%;background:var(--bl)"></div>
+        <div style="width:10%;background:var(--gn)"></div>
+        <div style="width:10%;background:var(--or)"></div>
+        <div style="width:10%;background:var(--ac)"></div>
+      </div>
+      <div class="tknm-legend">
+        <div class="tknm-item"><div class="tknm-dot" style="background:var(--bl)"></div>70% Liquidity Pool</div>
+        <div class="tknm-item"><div class="tknm-dot" style="background:var(--gn)"></div>10% Creator (12m vest)</div>
+        <div class="tknm-item"><div class="tknm-dot" style="background:var(--or)"></div>10% Treasury</div>
+        <div class="tknm-item"><div class="tknm-dot" style="background:var(--ac)"></div>10% Burned 🔥</div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;color:var(--t3);line-height:1.7">
+        <strong style="color:var(--t1)">Liquidity:</strong> Auto-paired with SOL on Raydium CPMM. LP owned by ClawdNation.<br>
+        <strong style="color:var(--t1)">Creator:</strong> Linear vesting — 1/12th unlocks each month for 12 months.<br>
+        <strong style="color:var(--t1)">Treasury:</strong> Reserved for ecosystem growth and partnerships.<br>
+        <strong style="color:var(--t1)">Burn:</strong> Permanently removed from supply at mint. Deflationary by default.
+      </div>
+    </div></div>
+  </div>
+</main>
+</div>
+
+<!-- ═══════ STAKING TAB ═══════ -->
+<div class="tab-content" id="tab-staking">
+<div class="sbar"><div class="sg">
+  <div class="st"><div class="sv gn">Soon</div><div class="sl">Total Staked</div></div>
+  <div class="st"><div class="sv pu">TBD</div><div class="sl">APR</div></div>
+  <div class="st"><div class="sv or">Soon</div><div class="sl">Fees Earned</div></div>
+  <div class="st"><div class="sv bl">0</div><div class="sl">Stakers</div></div>
+</div></div>
+<main>
+  <div class="stk-hero">
+    <h2>Stake $CLWDN. <span>Earn LP fees.</span></h2>
+    <p>Every token launched on ClawdNation generates Raydium swap fees. Stake your $CLWDN to earn a share of all LP revenue.</p>
+  </div>
+
+  <div class="stk-grid">
+    <div class="stk-box highlight" style="text-align:center;padding:32px 20px">
+      <div style="font-size:48px;margin-bottom:12px">🔒</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px">Staking Coming Soon</div>
+      <div class="stk-sub" style="font-size:13px;max-width:400px;margin:0 auto">Staking will launch alongside the $CLWDN token. Stake your tokens to earn a share of all LP fees from every ClawdNation pool.</div>
+    </div>
+    <div class="stk-box" style="text-align:center;padding:32px 20px">
+      <div style="font-size:48px;margin-bottom:12px">💎</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px">Earn LP Fees</div>
+      <div class="stk-sub" style="font-size:13px;max-width:400px;margin:0 auto">Every token launched generates Raydium swap fees. Stakers earn a proportional share of all trading activity.</div>
+    </div>
+  </div>
+
+  <div class="card"><div class="ch"><h2>💰 How Rewards Work</h2></div>
+  <div class="cb">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">🐦</div>
+        <h4>Token Launched</h4>
+        <p>Someone creates a token via tweet</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">💧</div>
+        <h4>Pool Created</h4>
+        <p>70% supply + SOL → Raydium CPMM pool</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">📈</div>
+        <h4>Trading Fees</h4>
+        <p>0.25% fee on every swap</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">💎</div>
+        <h4>Staker Rewards</h4>
+        <p>LP fees distributed to $CLWDN stakers</p>
+      </div>
+    </div>
+  </div></div>
+  <div class="card"><div class="ch"><h2>📊 Reward Sources</h2></div>
+  <div class="cb">
+    <div class="rew-row"><div class="rew-src"><div class="rew-dot" style="background:var(--bl)"></div>Raydium LP Fees (0.25%)</div><div class="rew-val" style="color:var(--bl)">All pools</div></div>
+    <div class="rew-row"><div class="rew-src"><div class="rew-dot" style="background:var(--gn)"></div>New Token Launches</div><div class="rew-val" style="color:var(--gn)">Ongoing</div></div>
+    <div class="rew-row"><div class="rew-src"><div class="rew-dot" style="background:var(--or)"></div>Trading Volume Growth</div><div class="rew-val" style="color:var(--or)">Compounding</div></div>
+    <p style="margin-top:16px;font-size:12px;color:var(--t3)">More tokens launched = more pools = more trading fees = higher staker rewards. The flywheel effect.</p>
+  </div></div>
+
+  <div class="card"><div class="ch"><h2>🔒 Staking Details</h2></div>
+  <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+    <strong style="color:var(--t1)">Token:</strong> $CLWDN (Solana)<br>
+    <strong style="color:var(--t1)">Min Stake:</strong> No minimum<br>
+    <strong style="color:var(--t1)">Lock Period:</strong> None — unstake anytime<br>
+    <strong style="color:var(--t1)">Rewards:</strong> LP fees from all ClawdNation pools, distributed proportionally<br>
+    <strong style="color:var(--t1)">Claim:</strong> Via website — connect wallet, claim anytime<br>
+    <strong style="color:var(--t1)">Fee Collection:</strong> Automated — bot collects LP fees periodically and distributes to stakers
+  </div></div>
+</main>
+</div>
+
+<!-- AIRDROP TAB -->
+<div class="tab-content" id="tab-airdrop">
+<main>
+  <div class="stk-hero">
+    <h2>$CLWDN <span>Airdrop</span></h2>
+    <p>100,000,000 CLWDN (10% of supply) distributed to token creators. Snapshot in 1 month.</p>
+  </div>
+
+  <!-- Countdown + Key Info -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px">
+    <div class="stk-box" style="border-color:rgba(230,57,70,0.3)">
+      <div class="stk-val red" id="adCountdown">~30 days</div>
+      <div class="stk-lbl">Until Snapshot</div>
+    </div>
+    <div class="stk-box">
+      <div class="stk-val green">100,000,000</div>
+      <div class="stk-lbl">CLWDN to Distribute</div>
+    </div>
+    <div class="stk-box">
+      <div class="stk-val blue" id="adEligible">—</div>
+      <div class="stk-lbl">Eligible Creators</div>
+    </div>
+    <div class="stk-box">
+      <div class="stk-val orange" id="adTokensLaunched">—</div>
+      <div class="stk-lbl">Tokens Launched</div>
+    </div>
+  </div>
+
+  <!-- Check Eligibility -->
+  <div class="card" style="border-color:rgba(230,57,70,0.3);background:linear-gradient(135deg,var(--acb),var(--bgc))">
+    <div class="ch"><h2>🔍 Check Your Eligibility</h2></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Connect your wallet for instant check, or search by X handle.</p>
+      <div style="display:flex;gap:10px;max-width:600px;margin:0 auto;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-pu" id="adConnectBtn" data-wallet-btn onclick="connectWallet()" style="white-space:nowrap">🔮 Connect Wallet</button>
+        <div style="display:flex;gap:8px;flex:1;min-width:200px">
+          <input type="text" class="part-input" id="adCheckInput" placeholder="or enter @handle / wallet" style="text-align:left;font-size:13px;font-family:var(--f)">
+          <button class="btn btn-ac btn-sm" onclick="checkEligibility()" style="white-space:nowrap">Check</button>
+        </div>
+      </div>
+      <div id="adWalletInfo" style="text-align:center;margin-top:8px;font-size:12px;color:var(--t2);display:none"></div>
+      <div id="adCheckResult" style="text-align:center;margin-top:16px;min-height:24px"></div>
+    </div>
+  </div>
+
+  <!-- How to Get the Airdrop -->
+  <div class="card"><div class="ch"><h2>🎯 How to Get the Airdrop</h2></div>
+  <div class="cb">
+    <div class="flow-steps" style="grid-template-columns:repeat(3,1fr)">
+      <div class="flow-step">
+        <div class="flow-num">🐦</div>
+        <h4>1. Launch Tokens</h4>
+        <p>Tweet with #clawdnation to create tokens on Solana</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">💧</div>
+        <h4>2. Build Liquidity</h4>
+        <p>Each token gets a Raydium pool — more liquidity = bigger allocation</p>
+      </div>
+      <div class="flow-step" style="position:relative">
+        <div class="flow-num">🪂</div>
+        <h4>3. Receive CLWDN</h4>
+        <p>Airdrop distributed proportionally after snapshot</p>
+      </div>
+    </div>
+    <div style="background:var(--bge);border-radius:var(--r);padding:16px;margin-top:20px;font-size:13px;color:var(--t2);line-height:1.8">
+      <strong style="color:var(--t1);font-size:14px">📐 Allocation Formula:</strong><br>
+      <code style="font-family:var(--m);color:var(--ac);font-size:13px">your_share = (your_tokens_launched × liquidity_weight) / total_weighted_score</code><br><br>
+      <strong style="color:var(--t1)">Factors:</strong><br>
+      🚀 <strong style="color:var(--t1)">Number of tokens launched</strong> — each token you create earns points<br>
+      💧 <strong style="color:var(--t1)">Liquidity per token</strong> — tokens with more SOL in pool get a multiplier<br>
+      📈 <strong style="color:var(--t1)">Trading volume</strong> — actively traded tokens earn bonus weight
+    </div>
+  </div></div>
+
+  <!-- Timeline -->
+  <div class="card"><div class="ch"><h2>📅 Airdrop Timeline</h2></div>
+  <div class="cb">
+    <div style="position:relative;padding-left:28px">
+      <div style="position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--brd)"></div>
+      
+      <div style="position:relative;padding:12px 0 20px">
+        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--gn);border:2px solid var(--bg)"></div>
+        <div style="font-weight:600;color:var(--gn)">NOW — Accumulation Phase</div>
+        <div style="font-size:13px;color:var(--t2);margin-top:4px">Launch tokens via X to build your allocation score. Every token counts. The more liquidity your tokens have, the bigger your share.</div>
+      </div>
+      
+      <div style="position:relative;padding:12px 0 20px">
+        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--or);border:2px solid var(--bg)"></div>
+        <div style="font-weight:600;color:var(--or)">~1 MONTH — Snapshot</div>
+        <div style="font-size:13px;color:var(--t2);margin-top:4px">All token launches and pool data frozen. Your final allocation is calculated based on total tokens launched, liquidity depth, and trading volume.</div>
+      </div>
+      
+      <div style="position:relative;padding:12px 0 20px">
+        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--ac);border:2px solid var(--bg)"></div>
+        <div style="font-weight:600;color:var(--ac)">AFTER SNAPSHOT — Claim</div>
+        <div style="font-size:13px;color:var(--t2);margin-top:4px">Connect your wallet on this page to claim your $CLWDN allocation. Tokens sent directly to your wallet.</div>
+      </div>
+      
+      <div style="position:relative;padding:12px 0">
+        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--bl);border:2px solid var(--bg)"></div>
+        <div style="font-weight:600;color:var(--bl)">POST-AIRDROP — Stake & Earn</div>
+        <div style="font-size:13px;color:var(--t2);margin-top:4px">Stake your $CLWDN to earn LP fees from all ClawdNation token pools. Or trade on Raydium.</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- Example Scenarios -->
+  <div class="card"><div class="ch"><h2>💡 Example Allocations</h2></div>
+  <div class="cb">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:4px">🐣</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Casual Creator</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">1-2 tokens launched</div>
+        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--ac)">~50K</div>
+        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
+      </div>
+      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:4px">🔥</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Active Builder</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">5-10 tokens, good liquidity</div>
+        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--gn)">~500K</div>
+        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
+      </div>
+      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
+        <div style="font-size:24px;margin-bottom:4px">🐋</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Power Launcher</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">20+ tokens, deep liquidity</div>
+        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--bl)">~5M+</div>
+        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--t3);margin-top:12px;text-align:center">* Estimates based on hypothetical distribution. Actual amounts depend on total participation.</div>
+  </div></div>
+
+  <!-- CTA -->
+  <div style="text-align:center;padding:32px 0">
+    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Don't miss the snapshot 🔴</h3>
+    <p style="color:var(--t2);margin-bottom:20px">Start launching tokens now — every token you create before the snapshot counts toward your $CLWDN allocation.</p>
+    <a href="https://x.com/clawdnation" target="_blank" class="btn btn-ac" style="font-size:16px;padding:14px 28px">Launch Your First Token</a>
+  </div>
+</main>
+</div>
+
+<!-- ═══════ ECONOMICS TAB ═══════ -->
+<div class="tab-content" id="tab-economics">
+<main>
+  <div class="hero">
+    <h1>$CLWDN <span>Economics</span></h1>
+    <p>Transparent tokenomics. Bootstrap → Trading → Sustainable flywheel.</p>
+  </div>
+
+  <div class="ov-grid">
+    <div class="ov"><div class="ov-val red">$CLWDN</div><div class="ov-lbl">Symbol</div></div>
+    <div class="ov"><div class="ov-val blue">1,000,000,000</div><div class="ov-lbl">Total Supply</div></div>
+    <div class="ov"><div class="ov-val green">Solana</div><div class="ov-lbl">Network</div></div>
+    <div class="ov"><div class="ov-val orange">Token-2022</div><div class="ov-lbl">Program</div></div>
+  </div>
+
+  <!-- Join Bootstrap -->
+  <div class="card buy-card">
+    <div class="ch"><h2>🚀 Join Bootstrap</h2><span class="badge badge-green" id="saleBadge">Bootstrap Active</span></div>
+    <div class="cb">
+      <p style="color:var(--t2);margin-bottom:4px">Two ways to participate in the bootstrap phase — fixed rate of <strong style="color:var(--gnt);font-family:var(--m)">0.0001 SOL / CLWDN</strong></p>
+      <div class="buy-methods">
+        <div class="buy-method">
+          <h3>🔗 Contribute with Wallet <span class="mtag" style="background:rgba(171,159,242,0.15);color:#ab9ff2">Instant</span></h3>
+          <p class="mdesc">Connect your wallet, enter amount, and contribute directly on-chain.</p>
+
+          <div class="wallet-info-bar" id="ecoWalletInfoBar" style="display:none">
+            <span>🟢 <span id="ecoWAddr" style="font-family:var(--m);color:var(--t1)">—</span></span>
+            <span>Balance: <span class="bal" id="ecoWBal">— SOL</span></span>
+          </div>
+
+          <div class="buy-input-group">
+            <div class="buy-input-label">You Pay</div>
+            <div class="buy-input-wrap">
+              <input type="number" id="inSol" placeholder="0.0" min="0.001" step="0.001" oninput="ecoCalc('sol')">
+              <button class="max-btn" id="ecoMaxBtn" onclick="ecoSetMax()" style="display:none">MAX</button>
+              <span class="suffix">SOL</span>
+            </div>
+          </div>
+          <div class="buy-input-group">
+            <div class="buy-input-label">You Receive</div>
+            <div class="buy-input-wrap">
+              <input type="number" id="inClwdn" placeholder="0" min="1" step="1" oninput="ecoCalc('clwdn')">
+              <span class="suffix">CLWDN</span>
+            </div>
+          </div>
+
+          <div class="buy-summary" id="buySummary" style="display:none">
+            <span class="hl" id="sumSol">0 SOL</span>
+            <span class="arr">→</span>
+            <span class="hl" id="sumClwdn">0 CLWDN</span>
+            <span style="font-size:11px;color:var(--t3);margin-left:8px">@ 0.0001 SOL/CLWDN</span>
+          </div>
+
+          <button class="buy-btn wallet-btn-main" id="ecoBuyBtn" onclick="ecoDoBuy()" disabled>
+            <span id="ecoBuyLabel">Connect Wallet to Participate</span>
+          </button>
+
+          <div class="buy-status" id="ecoBuyStatus"></div>
+        </div>
+
+        <div class="buy-method">
+          <h3>🐦 Participate via Tweet <span class="mtag" style="background:var(--acb);color:var(--ac)">Social</span></h3>
+          <p class="mdesc">Post on X with #clawdnation — bot replies with contribution instructions. No extension needed.</p>
+
+          <div style="background:var(--bge);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:13px;color:var(--t2);line-height:1.8">
+            <strong style="color:var(--t1)">1.</strong> Tweet: <code style="font-family:var(--m);font-size:11px;background:var(--bg);padding:2px 6px;border-radius:3px;color:var(--ac)">#clawdnation bootstrap 1000 CLWDN [wallet]</code><br>
+            <strong style="color:var(--t1)">2.</strong> Bot replies with contribution address<br>
+            <strong style="color:var(--t1)">3.</strong> Send SOL from any wallet<br>
+            <strong style="color:var(--t1)">4.</strong> Receive CLWDN automatically
+          </div>
+
+          <a href="https://x.com/clawdnation" target="_blank" class="buy-btn twitter">🐦 Tweet to Participate</a>
+
+          <div style="margin-top:16px;padding:12px 14px;background:var(--bge);border-radius:var(--r)">
+            <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Payment Address</div>
+            <div style="font-family:var(--m);font-size:11px;color:var(--t2);word-break:break-all;cursor:pointer" onclick="ecoCopyAddr()">GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE</div>
+            <div style="font-size:10px;color:var(--t3);margin-top:4px" id="ecoCopyHint">Click to copy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 1: Bootstrap -->
+  <div class="card"><div class="ch"><h2>🔴 Phase 1 — Bootstrap</h2><span class="badge badge-green">Active</span></div>
+  <div class="cb">
+    <p style="color:var(--t2);margin-bottom:16px">10% of $CLWDN supply distributed at a fixed rate. Contributions seed the Raydium liquidity pool.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+      <div class="ov"><div class="ov-val red">100,000,000</div><div class="ov-lbl">CLWDN Available</div></div>
+      <div class="ov"><div class="ov-val blue">0.0001 SOL</div><div class="ov-lbl">Per CLWDN</div></div>
+      <div class="ov"><div class="ov-val orange">10,000 SOL</div><div class="ov-lbl">Bootstrap Target</div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bar-bg">
+        <div class="prog-bar" id="progBar" style="width:0%"></div>
+        <span class="prog-pct" id="progPct">0%</span>
+      </div>
+      <div class="prog-labels">
+        <span>SOL Contributed: <span class="val" id="progSol">0</span> / 10,000</span>
+        <span>CLWDN Distributed: <span class="val" id="progClwdn">0</span> / 100M</span>
+      </div>
+    </div>
+    <h3 style="font-size:14px;font-weight:600;margin:20px 0 8px">Contribution Allocation</h3>
+    <div class="dist-bar">
+      <div style="width:80%;background:var(--bl)"></div>
+      <div style="width:20%;background:var(--or)"></div>
+    </div>
+    <div class="dist-legend" style="grid-template-columns:1fr 1fr">
+      <div class="dist-item"><div class="dist-dot" style="background:var(--bl)"></div>Raydium CLWDN/SOL Pool<span class="dist-pct">80%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--or)"></div>Operations & Infrastructure<span class="dist-pct">20%</span></div>
+    </div>
+    <div class="note"><strong>Transparency:</strong> 80% of all SOL contributions (8,000 SOL) go directly into the Raydium liquidity pool. 20% covers AI infrastructure, API costs, and development.</div>
+  </div></div>
+
+  <!-- Phase 2: Trading -->
+  <div class="card"><div class="ch"><h2>🚀 Phase 2 — Trading</h2><span class="badge badge-blue">After Bootstrap</span></div>
+  <div class="cb">
+    <p style="color:var(--t2);margin-bottom:16px">After bootstrap completes, CLWDN/SOL launches on Raydium at 2.5x the bootstrap price.</p>
+    <div class="cmp-grid">
+      <div class="cmp-box">
+        <div class="cmp-val" style="color:var(--ac)">0.0001</div>
+        <div class="cmp-lbl">Bootstrap Price (SOL)</div>
+        <div class="cmp-sub">Fixed rate</div>
+      </div>
+      <div class="cmp-box hl">
+        <div class="cmp-val" style="color:var(--gn)">0.00025</div>
+        <div class="cmp-lbl">Trading Price (SOL)</div>
+        <div class="cmp-sub">2.5× bootstrap price</div>
+      </div>
+      <div class="cmp-box">
+        <div class="cmp-val" style="color:var(--or)">~$25.8M</div>
+        <div class="cmp-lbl">FDV at Trading</div>
+        <div class="cmp-sub">1B × $0.0258</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div class="ov"><div class="ov-val blue">8,000 SOL</div><div class="ov-lbl">Pool SOL (80% of bootstrap)</div></div>
+      <div class="ov"><div class="ov-val red">32,000,000</div><div class="ov-lbl">Pool CLWDN</div></div>
+    </div>
+    <div class="note"><strong>Early contributors benefit:</strong> Bootstrap participants receive CLWDN at 0.0001 SOL. Raydium trading opens at 0.00025 SOL — a 2.5× rate for early contributors.</div>
+  </div></div>
+
+  <!-- Supply Distribution -->
+  <div class="card"><div class="ch"><h2>🥧 $CLWDN Supply Distribution</h2></div>
+  <div class="cb">
+    <div class="dist-bar" style="height:16px;border-radius:8px">
+      <div style="width:10%;background:var(--ac)"></div>
+      <div style="width:40%;background:var(--bl)"></div>
+      <div style="width:15%;background:var(--gn)"></div>
+      <div style="width:15%;background:var(--or)"></div>
+      <div style="width:10%;background:#9c27b0"></div>
+      <div style="width:10%;background:var(--t3)"></div>
+    </div>
+    <div class="dist-legend" style="margin-top:12px">
+      <div class="dist-item"><div class="dist-dot" style="background:var(--ac)"></div>Bootstrap Distribution (100M)<span class="dist-pct">10%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--bl)"></div>Liquidity — LP locked (400M)<span class="dist-pct">40%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--gn)"></div>Staking Rewards — 4yr vest (150M)<span class="dist-pct">15%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--or)"></div>Team — 6m cliff + 12m vest (150M)<span class="dist-pct">15%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:#9c27b0"></div>Community & Airdrops (100M)<span class="dist-pct">10%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--t3)"></div>Treasury (100M)<span class="dist-pct">10%</span></div>
+    </div>
+  </div></div>
+
+  <!-- Phase 3: Sustainable -->
+  <div class="card"><div class="ch"><h2>♻️ Phase 3 — Sustainable Economics</h2><span class="badge" style="color:var(--t3);background:var(--bge)">Ongoing</span></div>
+  <div class="cb">
+    <p style="color:var(--t2);margin-bottom:16px">The ClawdNation flywheel: every token launched generates ongoing value for $CLWDN stakers.</p>
+    <div class="fly-steps">
+      <div class="fly-step"><div class="fly-num">🐦</div><h4>Token Launch</h4><p>Anyone tweets to create</p></div>
+      <div class="fly-step"><div class="fly-num">💧</div><h4>Pool Created</h4><p>70% → Raydium LP</p></div>
+      <div class="fly-step"><div class="fly-num">📊</div><h4>Trading</h4><p>0.25% swap fee</p></div>
+      <div class="fly-step"><div class="fly-num">💰</div><h4>Fee Revenue</h4><p>LP fees accumulate</p></div>
+      <div class="fly-step"><div class="fly-num">💎</div><h4>Staker Rewards</h4><p>Distributed to stakers</p></div>
+    </div>
+    <h3 style="font-size:14px;font-weight:600;margin:20px 0 8px">Token Factory Economics (per token)</h3>
+    <div class="dist-bar">
+      <div style="width:70%;background:var(--bl)"></div>
+      <div style="width:10%;background:var(--gn)"></div>
+      <div style="width:10%;background:var(--or)"></div>
+      <div style="width:10%;background:var(--ac)"></div>
+    </div>
+    <div class="dist-legend">
+      <div class="dist-item"><div class="dist-dot" style="background:var(--bl)"></div>Liquidity Pool (Raydium)<span class="dist-pct">70%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--gn)"></div>Creator (12m vest)<span class="dist-pct">10%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--or)"></div>Treasury<span class="dist-pct">10%</span></div>
+      <div class="dist-item"><div class="dist-dot" style="background:var(--ac)"></div>Burned 🔥<span class="dist-pct">10%</span></div>
+    </div>
+    <div class="note"><strong>The flywheel:</strong> More tokens → more pools → more trading → more fees → higher staking APR → more demand for $CLWDN.</div>
+  </div></div>
+
+  <!-- Live Metrics -->
+  <div class="card"><div class="ch"><h2>📈 Live Metrics</h2><span class="badge badge-green">Live</span></div>
+  <div class="cb">
+    <div class="met-grid">
+      <div class="met"><div class="met-val" id="mSol">0</div><div class="met-lbl">SOL Contributed</div></div>
+      <div class="met"><div class="met-val" id="mClwdn">0</div><div class="met-lbl">CLWDN Distributed</div></div>
+      <div class="met"><div class="met-val" id="mTokens">—</div><div class="met-lbl">Tokens Launched</div></div>
+      <div class="met"><div class="met-val" id="mPools">0</div><div class="met-lbl">Active Pools</div></div>
+      <div class="met"><div class="met-val" id="mFees">0 SOL</div><div class="met-lbl">LP Fees Earned</div></div>
+      <div class="met"><div class="met-val" id="mStaked">0</div><div class="met-lbl">CLWDN Staked</div></div>
+    </div>
+  </div></div>
+
+  <!-- API -->
+  <div class="card"><div class="ch"><h2>🔌 API</h2><span class="badge" style="color:var(--t3);background:var(--bge)">Developer</span></div>
+  <div class="cb">
+    <p style="font-size:13px;color:var(--t2);margin-bottom:8px">Access economics data programmatically:</p>
+    <div style="font-family:var(--m);font-size:12px;background:var(--bge);padding:10px 14px;border-radius:var(--r);color:var(--t2)">
+      GET <a href="/api/economics" style="color:var(--ac)">/api/economics</a>
+    </div>
+  </div></div>
+</main>
+</div>
+
+<!-- ═══════ DEPLOYS TAB ═══════ -->
+<div class="tab-content" id="tab-deploys">
+<main>
+  <div style="text-align:center;padding:32px 0 24px">
+    <h1 style="font-size:32px;font-weight:700;letter-spacing:-.03em;margin-bottom:8px">📜 <span style="color:var(--ac)">Deploys</span></h1>
+    <p style="color:var(--t2);font-size:15px;max-width:600px;margin:0 auto">All smart contracts and tokens deployed by ClawdNation on Solana.</p>
+  </div>
+
+  <!-- Core Infrastructure -->
+  <div class="card">
+    <div class="ch"><h2>🏗️ Core Infrastructure</h2><span style="font-size:11px;font-weight:600;color:var(--gnt);background:var(--gnb);padding:3px 10px;border-radius:20px">Devnet</span></div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:var(--bge);border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600;color:var(--t1)">💰 Payment / Treasury Wallet</span>
+            <span style="font-size:11px;color:var(--t3)">Bootstrap contributions</span>
+          </div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2);word-break:break-all;cursor:pointer" onclick="navigator.clipboard.writeText('GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE')">
+            GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE
+            <a href="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE?cluster=devnet" target="_blank" style="margin-left:8px;font-size:10px">Explorer ↗</a>
+          </div>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600;color:var(--t1)">⚙️ Token Program</span>
+            <span style="font-size:11px;color:var(--t3)">SPL Token-2022</span>
+          </div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2)">Solana Token-2022 (Token Extensions Program)</div>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600;color:var(--t1)">💧 DEX</span>
+            <span style="font-size:11px;color:var(--t3)">Raydium CPMM</span>
+          </div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2)">Raydium Concentrated Pool Market Maker (Devnet)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deployed Tokens -->
+  <div class="card">
+    <div class="ch"><h2>🪙 Deployed Tokens</h2><span style="font-size:11px;font-weight:600;color:var(--blt);background:var(--blb);padding:3px 10px;border-radius:20px" id="deployCount">Loading...</span></div>
+    <div class="cb" id="deploysGrid" style="display:flex;flex-direction:column;gap:10px">
+      <div style="text-align:center;color:var(--t3);padding:20px">Loading deploys...</div>
+    </div>
+  </div>
+
+  <!-- All Token Metadata Files -->
+  <div class="card">
+    <div class="ch"><h2>📦 All Minted Tokens (incl. test mints)</h2></div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">RedClaw</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$RCLAW</span></div>
+          <a href="https://explorer.solana.com/address/5euUdaCZ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">MyCoin</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$MYCN</span></div>
+          <a href="https://explorer.solana.com/address/5yTAVDTQ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">TestTokenomics</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TTOK</span></div>
+          <a href="https://explorer.solana.com/address/89tSZ4s3?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">PhoenixFire</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$PHNX</span></div>
+          <a href="https://explorer.solana.com/address/9krF3cJuL4qXJdmNWcfDyMNBp6vrogtCNhnwTW6SMib8?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">SolFire</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$SFIRE</span></div>
+          <a href="https://explorer.solana.com/address/G8jA9oewoQd9KNrJAKSq3cZ1gYvyr5Gs2z7vhGtntDpR?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">TestDrop</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TDRP</span></div>
+          <a href="https://explorer.solana.com/address/C2qUAg3K?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">FactoryTest</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$FTEST</span></div>
+          <a href="https://explorer.solana.com/address/Eu8jLXjZ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+        <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
+          <div><span style="font-weight:600;color:var(--t1)">TestCoin</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TEST</span></div>
+          <a href="https://explorer.solana.com/address/GjLmbJSA?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center">Includes test mints from development. Production deploys shown in "Deployed Tokens" above.</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ═══════ AGENT INSTRUCTIONS TAB ═══════ -->
+<div class="tab-content" id="tab-agent">
+<main>
+  <div style="text-align:center;padding:32px 0 24px">
+    <h1 style="font-size:32px;font-weight:700;letter-spacing:-.03em;margin-bottom:8px">🤖 Agent <span style="color:var(--ac)">Instructions</span></h1>
+    <p style="color:var(--t2);font-size:15px;max-width:600px;margin:0 auto">Machine-readable guide for AI agents to help users create tokens on ClawdNation.</p>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>📋 What is ClawdNation?</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+      <p><strong style="color:var(--t1)">ClawdNation</strong> is an AI-powered token factory on <strong style="color:var(--t1)">Solana</strong>. Users create tokens by posting a tweet with <code style="font-family:var(--m);background:var(--bge);padding:2px 6px;border-radius:3px;color:var(--ac)">#clawdnation</code> on X (Twitter). The bot automatically:</p>
+      <ul style="margin:12px 0 12px 20px;list-style:disc">
+        <li>Mints a new SPL token (Token-2022 program) on Solana</li>
+        <li>Creates a Raydium CPMM liquidity pool (token/SOL pair)</li>
+        <li>Distributes tokens according to fixed tokenomics (70% LP, 10% creator, 10% treasury, 10% burned)</li>
+        <li>Posts confirmation with token details and explorer links</li>
+      </ul>
+      <p>The entire process takes <strong style="color:var(--gnt)">under 30 seconds</strong> from tweet to tradeable token.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>🚀 How to Create a Token</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+      <h3 style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:12px">Step 1: Compose the Tweet</h3>
+      <p>Post a tweet to <a href="https://x.com/clawdnation" target="_blank">@clawdnation</a> containing:</p>
+
+      <div style="background:var(--bge);border-radius:var(--r);padding:16px;margin:12px 0;font-family:var(--m);font-size:12px;line-height:2">
+        <div style="color:var(--t3);margin-bottom:8px">// Required fields:</div>
+        <div><span style="color:var(--ac)">hashtag:</span> <span style="color:var(--t1)">#clawdnation</span> <span style="color:var(--t3)">— triggers the bot</span></div>
+        <div><span style="color:var(--ac)">name:</span> <span style="color:var(--t1)">Token Name</span> <span style="color:var(--t3)">— full name (e.g. "PhoenixFire")</span></div>
+        <div><span style="color:var(--ac)">symbol:</span> <span style="color:var(--t1)">$TICKER</span> <span style="color:var(--t3)">— 3-6 chars (e.g. "$PHNX")</span></div>
+        <div><span style="color:var(--ac)">wallet:</span> <span style="color:var(--t1)">Solana address</span> <span style="color:var(--t3)">— creator's wallet for token receipt</span></div>
+        <div style="color:var(--t3);margin-top:8px">// Optional:</div>
+        <div><span style="color:var(--bl)">description:</span> <span style="color:var(--t1)">Short description</span> <span style="color:var(--t3)">— what the token is about</span></div>
+      </div>
+
+      <h4 style="font-size:13px;font-weight:600;color:var(--t1);margin:16px 0 8px">Example Tweet Formats:</h4>
+      <div style="background:var(--bg);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin:8px 0;font-size:13px">
+        <div style="color:var(--t1);margin-bottom:4px;font-weight:600">Simple format:</div>
+        <div style="color:var(--t2);font-style:italic">"#clawdnation create PhoenixFire $PHNX — Rise from the ashes 🔥 wallet: 7ivQ...nyZ6Ly"</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin:8px 0;font-size:13px">
+        <div style="color:var(--t1);margin-bottom:4px;font-weight:600">Natural language:</div>
+        <div style="color:var(--t2);font-style:italic">"Hey #clawdnation launch a token called MoonCat, ticker $MCAT, it's a community cat meme coin. My wallet is 7ivQ...nyZ6Ly"</div>
+      </div>
+
+      <h3 style="font-size:15px;font-weight:700;color:var(--t1);margin:24px 0 12px">Step 2: Pay Creation Fee</h3>
+      <p>After the bot detects your tweet, it replies with a payment address. Send the required SOL to complete:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
+        <div style="background:var(--bge);padding:12px;border-radius:var(--r);text-align:center">
+          <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--or)">0.05 SOL</div>
+          <div style="font-size:11px;color:var(--t3);text-transform:uppercase;margin-top:2px">Creation Fee (Devnet)</div>
+        </div>
+        <div style="background:var(--bge);padding:12px;border-radius:var(--r);text-align:center">
+          <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--gnt)">~30 seconds</div>
+          <div style="font-size:11px;color:var(--t3);text-transform:uppercase;margin-top:2px">Time to Token</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:15px;font-weight:700;color:var(--t1);margin:24px 0 12px">Step 3: Token is Live</h3>
+      <p>Once payment is confirmed, the bot automatically:</p>
+      <ol style="margin:8px 0 0 20px;list-style:decimal;line-height:2">
+        <li>Mints the token on Solana (1,000,000,000 supply, 9 decimals)</li>
+        <li>Creates metadata (name, symbol, description)</li>
+        <li>Creates a Raydium CPMM liquidity pool paired with SOL</li>
+        <li>Sends creator allocation (10%) to the specified wallet</li>
+        <li>Burns 10% of supply permanently</li>
+        <li>Replies on X with token details, explorer link, and pool link</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>⚙️ Token Specifications</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:2">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:16px">
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">Network</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">Solana</div>
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">Program</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">Token-2022 (SPL)</div>
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">Total Supply</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">1,000,000,000</div>
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">Decimals</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">9</div>
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">LP DEX</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">Raydium CPMM</div>
+        <div style="background:var(--bgc);padding:10px 14px"><strong style="color:var(--t1)">Swap Fee</strong></div>
+        <div style="background:var(--bgc);padding:10px 14px;font-family:var(--m)">0.25%</div>
+      </div>
+
+      <h4 style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:8px">Tokenomics (per token created):</h4>
+      <div style="background:var(--bge);border-radius:var(--r);padding:14px;font-family:var(--m);font-size:12px;line-height:2">
+        <div><span style="color:var(--bl)">70%</span> → Liquidity Pool (Raydium, paired with SOL)</div>
+        <div><span style="color:var(--gnt)">10%</span> → Creator (linear vesting, 1/12th per month for 12 months)</div>
+        <div><span style="color:var(--or)">10%</span> → Treasury (ecosystem growth)</div>
+        <div><span style="color:var(--ac)">10%</span> → Burned permanently 🔥</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>🔌 API Reference</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+      <p style="margin-bottom:12px">Agents can query these endpoints programmatically:</p>
+
+      <div style="background:var(--bge);border-radius:var(--r);padding:14px;margin:8px 0;font-family:var(--m);font-size:12px;line-height:2">
+        <div style="color:var(--t3);margin-bottom:4px">// List all launched tokens</div>
+        <div><span style="color:var(--gnt)">GET</span> <a href="/api/tokens" style="color:var(--ac)">/api/tokens</a></div>
+        <div style="color:var(--t3)">→ { tokens: [...], count: N }</div>
+        <div style="color:var(--t3);margin-top:8px">// Token economics & bootstrap status</div>
+        <div><span style="color:var(--gnt)">GET</span> <a href="/api/economics" style="color:var(--ac)">/api/economics</a></div>
+        <div style="color:var(--t3)">→ { token, bootstrap, distribution, ... }</div>
+        <div style="color:var(--t3);margin-top:8px">// Network configuration</div>
+        <div><span style="color:var(--gnt)">GET</span> <a href="/api/config" style="color:var(--ac)">/api/config</a></div>
+        <div style="color:var(--t3)">→ { network, rpc, explorer, explorerSuffix }</div>
+      </div>
+
+      <h4 style="font-size:13px;font-weight:600;color:var(--t1);margin:16px 0 8px">Token Object Schema:</h4>
+      <div style="background:var(--bge);border-radius:var(--r);padding:14px;font-family:var(--m);font-size:11px;line-height:1.8;overflow-x:auto">
+<pre style="margin:0;color:var(--t2)">{
+  "name": "PhoenixFire",        <span style="color:var(--t3)">// token name</span>
+  "symbol": "PHNX",             <span style="color:var(--t3)">// ticker symbol</span>
+  "mint": "9krF3cJu...",        <span style="color:var(--t3)">// Solana mint address</span>
+  "description": "Rise from..", <span style="color:var(--t3)">// optional description</span>
+  "creator": "@clawdnation",    <span style="color:var(--t3)">// X handle of creator</span>
+  "tweetId": "201828...",       <span style="color:var(--t3)">// original tweet ID</span>
+  "recipientWallet": "7ivQ..",  <span style="color:var(--t3)">// creator's Solana wallet</span>
+  "explorer": "https://...",    <span style="color:var(--t3)">// Solana explorer link</span>
+  "createdAt": "2026-02-02...", <span style="color:var(--t3)">// ISO timestamp</span>
+  "paymentTx": "qfV9DB...",    <span style="color:var(--t3)">// payment transaction sig</span>
+  "onChain": {                  <span style="color:var(--t3)">// live on-chain data</span>
+    "holders": 3,
+    "totalSupply": 1000000000,
+    "topHolders": [{ "address": "...", "amount": "...", "pct": "70.00" }]
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>🤖 Agent Prompt Template</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+      <p style="margin-bottom:12px">Use this template when helping a user create a token:</p>
+      <div style="background:var(--bge);border-radius:var(--r);padding:16px;font-family:var(--m);font-size:12px;line-height:1.8;color:var(--t2)">
+        <div style="color:var(--gnt);margin-bottom:8px">// Information to collect from user:</div>
+        <div>1. <span style="color:var(--t1)">Token name</span> — What should it be called?</div>
+        <div>2. <span style="color:var(--t1)">Ticker symbol</span> — 3-6 uppercase letters (e.g. $PHNX)</div>
+        <div>3. <span style="color:var(--t1)">Description</span> — Brief tagline (optional but recommended)</div>
+        <div>4. <span style="color:var(--t1)">Solana wallet address</span> — Where to receive creator tokens</div>
+        <div style="color:var(--gnt);margin-top:12px">// Then instruct user to:</div>
+        <div>1. Tweet: "#clawdnation [name] $[SYMBOL] — [description] wallet: [address]"</div>
+        <div>2. Wait for bot reply with payment address (~10 seconds)</div>
+        <div>3. Send 0.05 SOL to the payment address</div>
+        <div>4. Token is created and tradeable in ~30 seconds</div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 16px;background:var(--gnb);border-radius:var(--r);border:1px solid rgba(0,200,83,0.2)">
+        <strong style="color:var(--gnt)">💡 Tips for agents:</strong>
+        <ul style="margin:8px 0 0 16px;list-style:disc;line-height:2">
+          <li>Validate the Solana wallet address format (base58, 32-44 chars)</li>
+          <li>Suggest creative names/tickers if user is stuck</li>
+          <li>Remind user they need SOL in their wallet for the creation fee</li>
+          <li>After creation, they can check their token at <code style="font-family:var(--m);background:var(--bg);padding:1px 4px;border-radius:2px">/api/tokens</code></li>
+          <li>Creator tokens vest linearly over 12 months (1/12th per month)</li>
+          <li>The token is immediately tradeable on Raydium after creation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>⚠️ Important Notes</h2></div>
+    <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
+      <ul style="margin:0 0 0 16px;list-style:disc;line-height:2.2">
+        <li><strong style="color:var(--t1)">Network:</strong> Currently on <strong style="color:var(--or)">Solana Devnet</strong> — tokens are for testing only</li>
+        <li><strong style="color:var(--t1)">Fee:</strong> 0.05 SOL per token creation (devnet SOL, free from faucet)</li>
+        <li><strong style="color:var(--t1)">Immutable:</strong> Once created, token parameters cannot be changed</li>
+        <li><strong style="color:var(--t1)">LP Locked:</strong> Liquidity pool tokens are owned by ClawdNation, not the creator</li>
+        <li><strong style="color:var(--t1)">Vesting:</strong> Creator allocation (10%) vests linearly over 12 months</li>
+        <li><strong style="color:var(--t1)">Burn:</strong> 10% is burned at creation — supply is deflationary</li>
+        <li><strong style="color:var(--t1)">$CLWDN:</strong> ClawdNation's governance token — staking earns LP fees from all pools</li>
+      </ul>
+    </div>
+  </div>
+</main>
+</div>
+
+<div class="cta-bar">
+  <h2>Ready to launch? 🔴</h2>
+  <p>Tweet your token idea and we'll mint it on Solana in under 30 seconds.</p>
+  <a href="https://x.com/clawdnation" target="_blank" class="btn btn-ac">Launch on X</a>
+  <a href="#economics" class="btn btn-out">📊 Economics</a>
+</div>
+
+<footer><p>ClawdNation — token factory, staking & airdrop · <a href="/api/tokens">API</a></p></footer>
+
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+<!-- Wallet Picker Modal -->
+<style>
+.wallet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.wallet-overlay.open{display:flex}
+.wallet-modal{background:var(--bgc);border:1px solid var(--brd);border-radius:var(--rl);padding:24px;width:360px;max-width:90vw;animation:wmIn .2s ease}
+@keyframes wmIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.wallet-modal h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.wallet-modal .wm-sub{font-size:13px;color:var(--t2);margin-bottom:16px}
+.wallet-modal .wm-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--t2);font-size:20px;cursor:pointer}
+.wallet-list{display:flex;flex-direction:column;gap:8px}
+.wallet-opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--brd);border-radius:var(--r);cursor:pointer;transition:all .15s;background:var(--bg)}
+.wallet-opt:hover{border-color:var(--ac);background:var(--bge)}
+.wallet-opt img{width:32px;height:32px;border-radius:8px}
+.wallet-opt .wo-name{font-size:14px;font-weight:600;flex:1}
+.wallet-opt .wo-tag{font-size:11px;color:var(--gnt);background:var(--gnb);padding:2px 8px;border-radius:10px}
+.wallet-opt.wo-disabled{opacity:.4;cursor:default;pointer-events:none}
+.wm-nowallets{font-size:13px;color:var(--t2);text-align:center;padding:20px 0}
+.wm-nowallets a{color:var(--ac)}
+</style>
+<div class="wallet-overlay" id="walletOverlay" onclick="if(event.target===this)closeWalletModal()">
+  <div class="wallet-modal" style="position:relative">
+    <button class="wm-close" onclick="closeWalletModal()">&times;</button>
+    <h3>Connect Wallet</h3>
+    <div class="wm-sub">Choose a wallet to connect</div>
+    <div class="wallet-list" id="walletList"></div>
+  </div>
+</div>
+
+<script>
+// Wallet detection & picker
+// Brave aggressively registers on window.solana AND can shadow window.phantom
+// We detect each wallet by its unique flags and always show all that are installed
+var KNOWN_WALLETS=[
+  {name:'Phantom',icon:'https://phantom.app/img/phantom-icon-purple.svg',
+    detect:function(){var p=window.phantom?.solana; return p&&p.isPhantom},
+    getProvider:function(){return window.phantom.solana}},
+  {name:'Solflare',icon:'https://solflare.com/favicon.ico',
+    detect:function(){return window.solflare?.isSolflare},
+    getProvider:function(){return window.solflare}},
+  {name:'Backpack',icon:'https://backpack.app/favicon.ico',
+    detect:function(){return window.backpack?.isBackpack},
+    getProvider:function(){return window.backpack}},
+  {name:'Brave Wallet',icon:'https://brave.com/static-assets/images/brave-logo-sans-text.svg',
+    detect:function(){
+      // Brave injects its own provider on window.solana (without isPhantom)
+      // Also check navigator for Brave
+      if(window.braveSolana) return true;
+      try{return navigator.brave&&navigator.brave.isBrave&&window.solana&&!window.solana.isPhantom}catch(e){return false}
+    },
+    getProvider:function(){return window.braveSolana||window.solana}},
+  {name:'Coinbase Wallet',icon:'https://www.coinbase.com/favicon.ico',
+    detect:function(){return window.coinbaseSolana},
+    getProvider:function(){return window.coinbaseSolana}},
+];
+
+var _walletCallback=null;
+
+function detectWallets(){
+  return KNOWN_WALLETS.filter(function(w){try{return w.detect()}catch(e){return false}});
+}
+
+function renderWalletList(){
+  var list=document.getElementById('walletList');
+  var available=detectWallets();
+  window._availableWallets=available;
+  if(!available.length){
+    list.innerHTML='<div class="wm-nowallets">No Solana wallets detected. Please install a Solana wallet extension.</div>';
+  } else {
+    var networkNote=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.network==='devnet')
+      ?'<div style="padding:8px 16px;margin-bottom:8px;font-size:11px;color:var(--gnt);background:rgba(0,200,83,0.08);border-radius:8px;text-align:center">🔗 This site uses <strong>Solana Devnet</strong> — no real funds needed. Transactions are sent to devnet RPC automatically.</div>'
+      :'';
+    list.innerHTML=networkNote+available.map(function(w,i){
+      return '<div class="wallet-opt" onclick="selectWallet('+i+')" data-idx="'+i+'"><img src="'+w.icon+'" alt="'+w.name+'" onerror="this.style.display=\'none\'"><span class="wo-name">'+w.name+'</span><span class="wo-tag">Detected</span></div>';
+    }).join('');
+  }
+}
+
+function openWalletModal(callback){
+  _walletCallback=callback;
+  renderWalletList();
+  document.getElementById('walletOverlay').classList.add('open');
+  // Extensions can be slow to inject — re-scan after a short delay
+  setTimeout(renderWalletList, 500);
+}
+
+function closeWalletModal(){document.getElementById('walletOverlay').classList.remove('open');_walletCallback=null}
+
+window.selectWallet=async function(idx){
+  var w=window._availableWallets[idx];
+  if(!w)return;
+  try{
+    var provider=w.getProvider();
+    var cb=_walletCallback; // grab before close clears it
+    var resp=await provider.connect();
+    localStorage.setItem('clwdn_wallet',w.name);
+    closeWalletModal();
+    if(cb)cb(provider,resp);
+  }catch(e){console.error('Wallet connect error:',e)}
+};
+
+// Shared wallet state
+var walletProvider=null,walletConn=null,walletAddr=null;
+
+function onWalletConnected(provider,resp){
+  walletProvider=provider;
+  walletConn=new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.devnet.solana.com','confirmed');
+  walletAddr=resp.publicKey.toBase58();
+  var short=walletAddr.slice(0,4)+'…'+walletAddr.slice(-4);
+
+  // Check if site is devnet and show network info
+  var cfg=window.CLWDN_CONFIG||{};
+  if(cfg.network==='devnet'){
+    // Verify we're actually talking to devnet by checking genesis hash
+    walletConn.getGenesisHash().then(function(hash){
+      var isDevnet=hash==='EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+      var banner=document.getElementById('networkBanner');
+      if(banner){
+        banner.style.display='flex';
+        banner.className=isDevnet?'net-banner devnet':'net-banner mainnet';
+        banner.innerHTML=isDevnet
+          ?'<span>🔗 Connected to <strong>Solana Devnet</strong> — transactions use free devnet SOL</span>'
+          :'<span>⚠️ Connected but RPC mismatch detected — ensure your wallet is set to Devnet</span>';
+      }
+    }).catch(function(){});
+
+    // For Phantom: try to switch to devnet if supported
+    if(provider.isPhantom&&provider.request){
+      try{
+        provider.request({method:'disconnect'}).then(function(){
+          // Phantom doesn't support network switching via API
+          // The dApp RPC handles it — just show the user what network they're on
+        }).catch(function(){});
+      }catch(e){}
+    }
+  }
+
+  // Update ALL connect buttons across the page
+  document.querySelectorAll('[data-wallet-btn]').forEach(function(btn){
+    btn.textContent='✓ '+short;
+    btn.disabled=true;
+  });
+
+  // Nav wallet display
+  var navEl=document.getElementById('walletNav');
+  navEl.innerHTML='<span style="font-family:var(--m);font-size:12px;color:var(--t2)" id="navWalletBalance">loading...</span>'
+    +'<span style="font-family:var(--m);font-size:12px;padding:4px 10px;background:var(--bge);border-radius:6px;color:var(--t1)">'+short+'</span>';
+
+  // Fetch CLWDN balance (TODO: replace with actual CLWDN mint address)
+  fetchClwdnBalance(walletAddr);
+
+  // Airdrop UI
+  document.getElementById('adWalletInfo').style.display='block';
+  document.getElementById('adWalletInfo').innerHTML='Connected: <span style="font-family:var(--m);color:var(--t1)">'+walletAddr+'</span>';
+  document.getElementById('adCheckInput').value=walletAddr;
+  if(window.checkEligibility) window.checkEligibility();
+}
+
+function fetchClwdnBalance(addr){
+  // TODO: query actual CLWDN token account balance
+  // For now show 0
+  var el=document.getElementById('navWalletBalance');
+  if(el) el.innerHTML='<span style="color:var(--ac);font-weight:600">0 CLWDN</span>';
+}
+
+window.connectWallet=function(){
+  if(walletAddr){return} // already connected
+  openWalletModal(onWalletConnected);
+};
+
+// Auto-reconnect on page load if user previously connected
+(function autoReconnect(){
+  var lastWallet=localStorage.getItem('clwdn_wallet');
+  if(!lastWallet) return;
+  // Wait for extensions to inject
+  setTimeout(function(){
+    var match=KNOWN_WALLETS.find(function(w){return w.name===lastWallet&&w.detect()});
+    if(!match) return;
+    try{
+      var provider=match.getProvider();
+      // Try silent reconnect first, fall back to regular connect
+      var tryConnect=provider.connect({onlyIfTrusted:true});
+      if(tryConnect&&tryConnect.then){
+        tryConnect.then(function(resp){
+          onWalletConnected(provider,resp);
+        }).catch(function(){
+          // Silent failed — try regular connect (user already approved before)
+          provider.connect().then(function(resp){
+            onWalletConnected(provider,resp);
+          }).catch(function(){
+            localStorage.removeItem('clwdn_wallet');
+          });
+        });
+      }
+    }catch(e){
+      // Provider doesn't support onlyIfTrusted, try direct
+      try{
+        provider.connect().then(function(resp){
+          onWalletConnected(provider,resp);
+        }).catch(function(){localStorage.removeItem('clwdn_wallet')});
+      }catch(e2){}
+    }
+  },500);
+})();
+
+</script>
+<script>
+(function(){
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+      document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+      tab.classList.add('active');
+      document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+      history.replaceState(null,null,'#'+tab.dataset.tab);
+    });
+  });
+  function checkHash(){
+    var h=window.location.hash.replace('#','');
+    if(h==='staking'||h==='airdrop'||h==='tokens'||h==='economics'||h==='deploys'||h==='agent'){
+      document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===h)});
+      document.querySelectorAll('.tab-content').forEach(function(c){c.classList.toggle('active',c.id==='tab-'+h)});
+    }
+  }
+  checkHash();window.addEventListener('hashchange',checkHash);
+
+  function esc(s){if(!s)return'';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+  function ago(ts){if(!ts)return'—';var d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/6e4);if(m<1)return'just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago'}
+  function shAddr(a){return a?a.slice(0,6)+'…'+a.slice(-4):''}
+
+  async function loadT(){
+    try{
+      var r=await fetch('/api/tokens');var d=await r.json();var t=d.tokens||[];
+      var grid=document.getElementById('tGrid');
+      var $=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v};
+      $('xTok',t.length);
+      $('tabTokCnt',t.length);
+      var creators=new Set(t.map(function(x){return x.creator}));
+      $('xCreators',creators.size);
+      $('xVol',(t.length*0.05).toFixed(2));
+      $('stkTvl','0 CLWDN');
+      $('stkApr','—');
+      $('stkFees','0 SOL');
+      $('stkStakers','0');
+
+      if(!t.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px">🐾</div><div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px">No tokens launched yet</div><div style="font-size:14px;color:var(--t2);max-width:400px;margin:0 auto">Be the first! Tweet at <a href=\'https://x.com/clawdnation\' target=\'_blank\' style=\'color:var(--ac)\'>@clawdnation</a> to launch your token on Solana.</div></div>';return}
+
+      grid.innerHTML=t.map(function(x){
+        var initial=(x.symbol||'?').charAt(0);
+        var cfg=window.CLWDN_CONFIG||{cluster:'?cluster=devnet'};
+        var eBase='https://explorer.solana.com';
+        var payTxLink=x.paymentTx?eBase+'/tx/'+x.paymentTx+cfg.cluster:'';
+        var tweetLink=x.tweetId?'https://x.com/clawdnation/status/'+x.tweetId:'';
+        var poolLink=x.poolExplorer||'';
+        var oc=x.onChain||{};var holders=oc.holders||0;
+        var supply=oc.totalSupply?Number(oc.totalSupply).toLocaleString():'—';
+        var topH=(oc.topHolders||[]).filter(function(h){return parseFloat(h.amount)>0});
+
+        var holdersHtml='';
+        if(topH.length){
+          holdersHtml='<div class="tok-holders"><div class="tok-holders-title">Top Holders</div>'
+            +topH.map(function(h){var pct=parseFloat(h.pct)||0;
+              return '<div class="holder-row"><a class="holder-addr" href="'+eBase+'/address/'+esc(h.address)+cfg.cluster+'" target="_blank">'+shAddr(h.address)+'</a><div class="holder-bar-bg"><div class="holder-bar" style="width:'+Math.min(pct,100)+'%"></div></div><span class="holder-pct">'+pct.toFixed(1)+'%</span></div>'
+            }).join('')+'</div>';
+        }
+
+        var tknmHtml='<div class="tok-tokenomics"><div class="tok-tokenomics-title">Tokenomics</div>'
+          +'<div class="tknm-bar"><div style="width:70%;background:var(--bl)"></div><div style="width:10%;background:var(--gn)"></div><div style="width:10%;background:var(--or)"></div><div style="width:10%;background:var(--ac)"></div></div>'
+          +'<div class="tknm-legend"><div class="tknm-item"><div class="tknm-dot" style="background:var(--bl)"></div>70% LP</div><div class="tknm-item"><div class="tknm-dot" style="background:var(--gn)"></div>10% Creator</div><div class="tknm-item"><div class="tknm-dot" style="background:var(--or)"></div>10% Treasury</div><div class="tknm-item"><div class="tknm-dot" style="background:var(--ac)"></div>10% Burn</div></div></div>';
+
+        return '<div class="tok-card" data-mint="'+esc(x.mint)+'">'
+          +'<div class="tok-head"><div class="tok-id"><div class="tok-icon">'+esc(initial)+'</div><div><div class="tok-name">'+esc(x.name)+'</div><div class="tok-sym">$'+esc(x.symbol)+'</div></div></div><div style="text-align:right"><div class="tok-time">'+ago(x.createdAt)+'</div><div class="creator"><span class="creator-dot"></span>'+esc(x.creator||'anon')+'</div></div></div>'
+          +(x.description?'<div class="tok-desc">"'+esc(x.description)+'"</div>':'')
+          +'<div class="tok-stats"><div class="tok-stat"><div class="tok-stat-val">'+supply+'</div><div class="tok-stat-lbl">Supply</div></div><div class="tok-stat"><div class="tok-stat-val">'+holders+'</div><div class="tok-stat-lbl">Holders</div></div><div class="tok-stat"><div class="tok-stat-val">Token-2022</div><div class="tok-stat-lbl">Program</div></div></div>'
+          +tknmHtml+holdersHtml
+          +'<div class="tok-mint"><div class="tok-mint-lbl">Mint Address</div><div class="tok-mint-val" onclick="copyMint(\''+esc(x.mint)+'\')"><span>'+esc(x.mint)+'</span><span class="copy-hint">Click to copy</span></div></div>'
+          +'<div class="tok-links">'
+          +'<a class="tok-link" href="'+esc(x.explorer)+'" target="_blank">🔍 Explorer</a>'
+          +(payTxLink?'<a class="tok-link green" href="'+payTxLink+'" target="_blank">💸 Payment TX</a>':'')
+          +(poolLink?'<a class="tok-link orange" href="'+poolLink+'" target="_blank">💧 Raydium Pool</a>':'')
+          +(tweetLink?'<a class="tok-link red" href="'+tweetLink+'" target="_blank">🐦 Tweet</a>':'')
+          +'</div></div>';
+      }).join('');
+    }catch(e){document.getElementById('tGrid').innerHTML='<div class="ld2" style="grid-column:1/-1">Failed to load tokens</div>'}
+  }
+
+  window.copyMint=function(mint){navigator.clipboard.writeText(mint).then(function(){var el=document.querySelector('[data-mint="'+mint+'"] .copy-hint');if(el){el.textContent='Copied!';setTimeout(function(){el.textContent='Click to copy'},1500)}})};
+
+  // Airdrop: update eligible creators count
+  async function loadAirdropStats(){
+    try{
+      var r=await fetch('/api/tokens');var d=await r.json();var t=d.tokens||[];
+      var creators=new Set(t.map(function(x){return x.creator}));
+      document.getElementById('adEligible').textContent=creators.size;
+      document.getElementById('adTokensLaunched').textContent=t.length;
+    }catch(e){}
+  }
+  loadAirdropStats();
+
+  // Airdrop wallet connect — uses shared connectWallet()
+
+  // Eligibility checker
+  window.checkEligibility=function(){
+    var input=document.getElementById('adCheckInput').value.trim();
+    var result=document.getElementById('adCheckResult');
+    if(!input){result.innerHTML='<span style="color:var(--ac)">Enter your X handle or wallet address</span>';return}
+    result.innerHTML='<span style="color:var(--t2)">Checking...</span>';
+    fetch('/api/tokens').then(function(r){return r.json()}).then(function(d){
+      var tokens=d.tokens||[];
+      var q=input.toLowerCase().replace('@','');
+      var myTokens=tokens.filter(function(t){
+        return (t.creator||'').toLowerCase().replace('@','')==q || (t.recipientWallet||'').toLowerCase()==q.toLowerCase()
+      });
+      if(myTokens.length>0){
+        var est=myTokens.length*50000; // rough estimate
+        result.innerHTML='<div style="background:var(--gnb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--gnt);font-weight:700">✅ ELIGIBLE!</span><br><span style="font-size:13px;color:var(--t2)">'+myTokens.length+' token(s) found — estimated allocation: <strong style="color:var(--gnt);font-family:var(--m)">~'+est.toLocaleString()+' CLWDN</strong></span></div>';
+      } else {
+        result.innerHTML='<div style="background:var(--acb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--ac);font-weight:700">❌ Not eligible yet</span><br><span style="font-size:13px;color:var(--t2)">No tokens found for this account. <a href="https://x.com/clawdnation" target="_blank" style="color:var(--ac)">Launch a token now →</a></span></div>';
+      }
+    }).catch(function(){result.innerHTML='<span style="color:var(--ac)">Error checking — try again</span>'});
+  };
+
+  loadT();setInterval(loadT,30000);
+
+  // Load deploys
+  async function loadDeploys(){
+    try{
+      var r=await fetch('/api/tokens');var d=await r.json();var t=d.tokens||[];
+      var grid=document.getElementById('deploysGrid');
+      document.getElementById('deployCount').textContent=t.length+' tokens';
+      if(!t.length){grid.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px">No completed deploys yet.</div>';return}
+      grid.innerHTML=t.map(function(x){
+        var eBase='https://explorer.solana.com';
+        var cluster=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'?cluster=devnet';
+        return '<div style="background:var(--bge);border-radius:var(--r);padding:14px">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+          +'<div><span style="font-weight:700;font-size:15px;color:var(--t1)">'+esc(x.name)+'</span> <span style="font-family:var(--m);color:var(--ac);font-size:13px;font-weight:600">$'+esc(x.symbol)+'</span></div>'
+          +'<span style="font-size:11px;color:var(--t3)">'+ago(x.createdAt)+'</span>'
+          +'</div>'
+          +(x.description?'<div style="font-size:12px;color:var(--t2);font-style:italic;margin-bottom:8px">"'+esc(x.description)+'"</div>':'')
+          +'<div style="font-family:var(--m);font-size:11px;color:var(--t2);word-break:break-all;margin-bottom:8px">'
+          +'<span style="color:var(--t3)">Mint:</span> '+esc(x.mint)
+          +'</div>'
+          +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+          +'<a href="'+esc(x.explorer)+'" target="_blank" style="font-size:11px;color:var(--bl);background:var(--blb);padding:3px 8px;border-radius:10px;text-decoration:none">🔍 Token Explorer</a>'
+          +(x.paymentTx?'<a href="'+eBase+'/tx/'+esc(x.paymentTx)+cluster+'" target="_blank" style="font-size:11px;color:var(--gnt);background:var(--gnb);padding:3px 8px;border-radius:10px;text-decoration:none">💸 Payment TX</a>':'')
+          +'<span style="font-size:11px;color:var(--t3);padding:3px 8px">by '+esc(x.creator||'anon')+'</span>'
+          +'</div></div>';
+      }).join('');
+    }catch(e){document.getElementById('deploysGrid').innerHTML='<div style="color:var(--ac);text-align:center;padding:20px">Failed to load</div>'}
+  }
+  loadDeploys();
+})();
+</script>
+
+<!-- Economics tab logic -->
+<script>
+(function(){
+  var ECO_PRICE = 0.0001;
+  var ECO_PAYMENT_ADDR = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
+  var ECO_EXPLORER = 'https://explorer.solana.com';
+  var ECO_CLUSTER = (window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'?cluster=devnet';
+  var ecoBalance = null;
+
+  function sh(a){var s=a.toString();return s.slice(0,4)+'…'+s.slice(-4)}
+
+  async function ecoRefreshBal(){
+    if(!walletAddr||!walletConn)return;
+    try{var pk=new solanaWeb3.PublicKey(walletAddr);var b=await walletConn.getBalance(pk);ecoBalance=b/solanaWeb3.LAMPORTS_PER_SOL;ecoUpdateUI()}catch(e){}
+  }
+
+  function ecoUpdateUI(){
+    var info=document.getElementById('ecoWalletInfoBar');
+    var addr=document.getElementById('ecoWAddr');
+    var bal=document.getElementById('ecoWBal');
+    var bbtn=document.getElementById('ecoBuyBtn');
+    var blbl=document.getElementById('ecoBuyLabel');
+    var mx=document.getElementById('ecoMaxBtn');
+
+    if(walletAddr){
+      var bs=ecoBalance!==null?ecoBalance.toFixed(4)+' SOL':'…';
+      info.style.display='flex';addr.textContent=sh(walletAddr);bal.textContent=bs;
+      mx.style.display='inline-block';
+      var s=parseFloat(document.getElementById('inSol').value)||0;
+      if(s>0){bbtn.disabled=false;blbl.textContent='🔗 Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN'}
+      else{bbtn.disabled=true;blbl.textContent='Enter SOL Amount'}
+    } else {
+      info.style.display='none';mx.style.display='none';
+      bbtn.disabled=true;blbl.textContent='Connect Wallet to Participate';
+    }
+  }
+
+  // Watch for wallet connection changes
+  var _ecoCheck=setInterval(function(){
+    if(walletAddr){ecoUpdateUI();ecoRefreshBal();clearInterval(_ecoCheck)}
+  },1000);
+
+  window.ecoCalc = function(src){
+    var si=document.getElementById('inSol'),ci=document.getElementById('inClwdn');
+    var sum=document.getElementById('buySummary'),ss=document.getElementById('sumSol'),sc=document.getElementById('sumClwdn');
+    var sol,clwdn;
+    if(src==='sol'){sol=parseFloat(si.value)||0;clwdn=Math.floor(sol/ECO_PRICE);ci.value=clwdn>0?clwdn:''}
+    else{clwdn=parseInt(ci.value)||0;sol=clwdn*ECO_PRICE;si.value=sol>0?sol:''}
+    if(sol>0&&clwdn>0){
+      sum.style.display='block';
+      ss.textContent=sol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:6})+' SOL';
+      sc.textContent=clwdn.toLocaleString()+' CLWDN';
+      if(walletAddr){document.getElementById('ecoBuyBtn').disabled=false;document.getElementById('ecoBuyLabel').textContent='🔗 Contribute '+clwdn.toLocaleString()+' CLWDN'}
+    } else {sum.style.display='none';if(walletAddr){document.getElementById('ecoBuyBtn').disabled=true;document.getElementById('ecoBuyLabel').textContent='Enter SOL Amount'}}
+  };
+
+  window.ecoSetMax = function(){
+    if(ecoBalance===null)return;
+    var mx=Math.max(0,ecoBalance-0.01);
+    document.getElementById('inSol').value=mx.toFixed(4);ecoCalc('sol');
+  };
+
+  window.ecoDoBuy = async function(){
+    var st=document.getElementById('ecoBuyStatus'),btn=document.getElementById('ecoBuyBtn'),lbl=document.getElementById('ecoBuyLabel');
+    if(!walletAddr||!walletProvider){connectWallet();return}
+    var sol=parseFloat(document.getElementById('inSol').value)||0;
+    if(sol<=0)return;
+    if(sol<0.001){ecoShowSt('error','Minimum contribution: 0.001 SOL');return}
+    if(ecoBalance!==null&&sol>ecoBalance-0.005){ecoShowSt('error','Insufficient balance. You have '+ecoBalance.toFixed(4)+' SOL.');return}
+
+    try{
+      btn.disabled=true;lbl.textContent='⏳ Creating transaction…';ecoShowSt('pending','Preparing transaction…');
+      var conn=walletConn||new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.devnet.solana.com','confirmed');
+      var fromPubkey=new solanaWeb3.PublicKey(walletAddr);
+      var lam=Math.round(sol*solanaWeb3.LAMPORTS_PER_SOL);
+      var to=new solanaWeb3.PublicKey(ECO_PAYMENT_ADDR);
+      var tx=new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({fromPubkey:fromPubkey,toPubkey:to,lamports:lam}));
+      var bh=await conn.getLatestBlockhash('confirmed');
+      tx.recentBlockhash=bh.blockhash;tx.feePayer=fromPubkey;
+
+      lbl.textContent='⏳ Confirm in Wallet…';ecoShowSt('pending','Please confirm in your wallet…');
+      // Use signTransaction + sendRawTransaction via our RPC (not wallet's RPC)
+      // This ensures the TX goes to the correct network (devnet/mainnet)
+      var signedTx;
+      var sig;
+      if(walletProvider.signTransaction){
+        signedTx=await walletProvider.signTransaction(tx);
+        sig=await conn.sendRawTransaction(signedTx.serialize());
+      } else {
+        // Fallback for wallets that only support signAndSendTransaction
+        var result=await walletProvider.signAndSendTransaction(tx);
+        sig=result.signature;
+      }
+
+      lbl.textContent='⏳ Confirming…';
+      ecoShowSt('pending','Transaction sent! Confirming… <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View TX</a>');
+      // Poll for confirmation with timeout instead of relying on blockhash expiry
+      var confirmed=false;
+      for(var attempt=0;attempt<30;attempt++){
+        try{
+          var status=await conn.getSignatureStatus(sig);
+          if(status&&status.value&&status.value.confirmationStatus){
+            if(status.value.confirmationStatus==='confirmed'||status.value.confirmationStatus==='finalized'){confirmed=true;break}
+            if(status.value.err){throw new Error('Transaction failed on-chain')}
+          }
+        }catch(pollErr){}
+        await new Promise(function(r){setTimeout(r,2000)});
+      }
+      if(!confirmed){ecoShowSt('pending','Transaction sent but confirmation is slow. Check explorer: <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View TX</a>');btn.disabled=false;lbl.textContent='🔗 Contribute More';return}
+
+      var clwdn=Math.floor(sol/ECO_PRICE);
+      ecoShowSt('success','✅ Contributed '+sol+' SOL — you will receive '+clwdn.toLocaleString()+' CLWDN shortly. <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View on Explorer →</a>');
+      lbl.textContent='✅ Contribution Complete!';
+      document.getElementById('inSol').value='';document.getElementById('inClwdn').value='';document.getElementById('buySummary').style.display='none';
+      setTimeout(async function(){await ecoRefreshBal();btn.disabled=false;lbl.textContent='🔗 Contribute More'},3000);
+    } catch(e){
+      console.error(e);var msg=e.message||'Transaction failed';
+      if(msg.includes('User rejected'))msg='Transaction cancelled by user.';
+      ecoShowSt('error','❌ '+msg);btn.disabled=false;
+      var c2=Math.floor(sol/ECO_PRICE);lbl.textContent='🔗 Contribute '+c2.toLocaleString()+' CLWDN';
+    }
+  };
+
+  function ecoShowSt(type,html){var el=document.getElementById('ecoBuyStatus');el.className='buy-status '+type;el.innerHTML=html}
+
+  window.ecoCopyAddr = function(){
+    navigator.clipboard.writeText(ECO_PAYMENT_ADDR).then(function(){
+      document.getElementById('ecoCopyHint').textContent='Copied!';
+      setTimeout(function(){document.getElementById('ecoCopyHint').textContent='Click to copy'},1500);
+    });
+  };
+
+  // Metrics
+  async function ecoLoadMetrics(){
+    try{var r=await fetch('/api/tokens');var d=await r.json();document.getElementById('mTokens').textContent=d.count||0}catch(e){}
+    try{
+      var r2=await fetch('/api/economics');var e=await r2.json();
+      if(e.bootstrap){
+        document.getElementById('mSol').textContent=e.bootstrap.contributedSol||0;
+        document.getElementById('mClwdn').textContent=(e.bootstrap.distributedTokens||0).toLocaleString();
+        var pct=e.bootstrap.targetSol>0?((e.bootstrap.contributedSol/e.bootstrap.targetSol)*100):0;
+        document.getElementById('progBar').style.width=pct+'%';
+        document.getElementById('progPct').textContent=pct.toFixed(1)+'%';
+        document.getElementById('progSol').textContent=e.bootstrap.contributedSol||0;
+        document.getElementById('progClwdn').textContent=((e.bootstrap.distributedTokens||0)/1e6).toFixed(1)+'M';
+      }
+    }catch(e){}
+  }
+  ecoLoadMetrics();setInterval(ecoLoadMetrics,30000);
+})();
+</script>
+
+<script>
+function copySkill(){
+  navigator.clipboard.writeText('Read https://clawdnation.com/skill.md and follow the instructions to join ClawdNation').then(function(){
+    var card=document.getElementById('skillCopy');
+    card.classList.add('copied');
+    setTimeout(function(){card.classList.remove('copied')},1500);
+  });
+}
+</script>
+</body>
+</html>

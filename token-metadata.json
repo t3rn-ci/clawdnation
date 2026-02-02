@@ -1,0 +1,17 @@
+{
+  "name": "ClawdNation",
+  "symbol": "CLWDN",
+  "description": "ClawdNation — community staking & token factory for the t3rn ecosystem. Stake TRN, earn rewards, create tokens. On-chain proof, non-custodial.",
+  "image": "https://clawdnation.com/logo.jpg",
+  "external_url": "https://clawdnation.com",
+  "attributes": [],
+  "properties": {
+    "category": "currency",
+    "creators": [
+      {
+        "address": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
+        "share": 100
+      }
+    ]
+  }
+}

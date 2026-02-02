@@ -1,0 +1,17 @@
+{
+  "name": "TestCoin",
+  "symbol": "TEST",
+  "description": "E2E test token",
+  "image": "https://clawdnation.com/logo.jpg",
+  "external_url": "https://clawdnation.com",
+  "attributes": [],
+  "properties": {
+    "category": "currency",
+    "creators": [
+      {
+        "address": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
+        "share": 100
+      }
+    ]
+  }
+}
