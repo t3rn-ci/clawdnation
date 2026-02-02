@@ -4,7 +4,9 @@
  * For bot-created factory tokens that skip bonding curve
  * Direct LP creation with fixed tokenomics
  *
- * Usage: node factory-no-bootstrap.js [--token-name TOKEN] [--lp-sol AMOUNT]
+ * Usage:
+ *   node factory-no-bootstrap.js [--token-name TOKEN] [--lp-sol AMOUNT]         # devnet
+ *   node factory-no-bootstrap.js --mainnet [--token-name TOKEN] [--lp-sol AMT]  # mainnet (PRODUCTION)
  *
  * Tokenomics (standard factory):
  * - 40% Liquidity (LP) - LOCKED FOREVER (LP burned)
@@ -29,8 +31,16 @@ const {
 const fs = require('fs');
 const path = require('path');
 
+// Parse command-line args
+const args = process.argv.slice(2);
+const isMainnet = args.includes('--mainnet');
+const isDryRun = args.includes('--dry-run');
+
 // Configuration
-const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
+const NETWORK = isMainnet ? 'mainnet-beta' : 'devnet';
+const RPC = isMainnet
+  ? (process.env.MAINNET_RPC || 'https://api.mainnet-beta.solana.com')
+  : (process.env.DEVNET_RPC || 'https://api.devnet.solana.com');
 const conn = new Connection(RPC, 'confirmed');
 
 // Load authority
@@ -58,17 +68,34 @@ console.log('╚═════════════════════�
 
 async function main() {
   // Parse arguments
-  const args = process.argv.slice(2);
   const tokenName = args.find(a => a.startsWith('--token-name'))?.split('=')[1] || 'TEST';
   const lpSOL = parseFloat(args.find(a => a.startsWith('--lp-sol'))?.split('=')[1] || DEFAULT_LP_SOL);
 
+  if (isMainnet) {
+    console.log('🚨 MAINNET MODE - THIS WILL CREATE REAL TOKENS! 🚨\n');
+    if (!isDryRun) {
+      console.log('⚠️  You have 10 seconds to cancel (Ctrl+C)...\n');
+      await new Promise(r => setTimeout(r, 10000));
+    }
+  } else {
+    console.log('🧪 DEVNET MODE - Testing with devnet\n');
+  }
+
   console.log('📋 CONFIGURATION:\n');
+  console.log('  Network:', NETWORK);
+  console.log('  RPC:', RPC);
   console.log('  Mode: NO BOOTSTRAP (Direct LP)');
   console.log('  Token Name:', tokenName);
   console.log('  Total Supply:', DEFAULT_SUPPLY.toLocaleString());
   console.log('  LP SOL Amount:', lpSOL, 'SOL');
   console.log('  Authority:', authority.publicKey.toBase58());
+  console.log('  Dry Run:', isDryRun ? 'YES (no transactions)' : 'NO (real transactions)');
   console.log('');
+
+  if (isDryRun) {
+    console.log('✅ DRY RUN - Would create token with these parameters\n');
+    return;
+  }
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   console.log('TOKENOMICS (NO BOOTSTRAP):\n');

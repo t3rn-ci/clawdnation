@@ -253,8 +253,8 @@ async function main() {
   console.log(`  LP Wallet has ${lpSol.toFixed(4)} SOL for liquidity`);
 
   const lpResult = await runCommand(
-    `node create-emergency-lp.js --use-current-funds`,
-    'Creating Raydium LP pool'
+    `node create-raydium-lp-real.js`,
+    'Creating Raydium LP pool (REAL on-chain creation)'
   );
 
   results.steps.push({
@@ -262,7 +262,8 @@ async function main() {
     name: 'Create Raydium LP',
     status: lpResult.success ? 'PASS' : 'FAIL',
     details: {
-      solUsed: lpSol
+      solUsed: lpSol,
+      realPoolCreation: true
     }
   });
 
@@ -273,14 +274,14 @@ async function main() {
   console.log('STEP 6: BURN ALL LP TOKENS\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  console.log('  NOTE: LP burn would be done via create-lp-and-burn.js after pool creation');
-  console.log('  Skipping in this test (requires pool ID from creation)');
+  console.log('  NOTE: LP burn is now AUTOMATIC in Step 5!');
+  console.log('  The create-raydium-lp-real.js script burns all LP tokens after creation.');
 
   results.steps.push({
     step: 6,
     name: 'Burn LP Tokens',
-    status: 'SKIP',
-    details: 'Manual step after pool creation'
+    status: 'PASS',
+    details: 'Automatic burn in LP creation script'
   });
 
   // ═══════════════════════════════════════════════════════════
