@@ -16,11 +16,13 @@ const { createOrder, checkPayments, loadOrders } = require('../solana/payment-mo
 const { createToken } = require('../solana/token-factory');
 
 // Load env
-const envPath = path.join(__dirname, '..', '.env.twitter');
+// Load from .env first, then .env.twitter as fallback
+const envFiles = [path.join(__dirname, '..', '.env'), path.join(__dirname, '..', '.env.twitter')];
+const envPath = envFiles.find(f => fs.existsSync(f));
 if (fs.existsSync(envPath)) {
   fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
     const [k, ...v] = line.split('=');
-    if (k && v.length) process.env[k.trim()] = v.join('=').trim();
+    if (k && !k.startsWith("#") && v.length) process.env[k.trim()] = v.join('=').trim();
   });
 }
 
