@@ -22,6 +22,8 @@ const { getStats, getAllocation, checkContributions } = require('./solana/bootst
 // Start bootstrap monitor polling
 setInterval(checkContributions, 15000);
 checkContributions().catch(() => {});
+const PAGE_404 = fs.existsSync(path.join(__dirname, "404.html")) ? fs.readFileSync(path.join(__dirname, "404.html"), "utf8") : "<h1>404</h1>";
+function serve404(res) { res.writeHead(404, {"Content-Type":"text/html"}); return res.end(PAGE_404); }
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.md': 'text/markdown; charset=utf-8' };
 
 function loadOrders() {
@@ -485,7 +487,6 @@ const server = http.createServer(async (req, res) => {
   if (req.url === '/economics' || req.url === '/economics/') {
     const fp = path.join(__dirname, 'economics.html');
     return fs.readFile(fp, (err, data) => {
-      if (err) { res.writeHead(404); return res.end('404'); }
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(data);
     });
@@ -498,8 +499,7 @@ const server = http.createServer(async (req, res) => {
   const blocked = ['.env', '.git', 'node_modules', 'serve.js', 'bootstrap/', 'dispenser/', 'solana/orders', 'solana/bootstrap', 'solana/vesting', 'solana/seen-txs', 'solana/create-', 'solana/init-', 'solana/setup-', 'solana/payment-', 'solana/dispenser-', 'solana/e2e-', 'twitter/processed', 'twitter/bot', 'twitter/tweet', 'twitter/post', 'twitter/delete', 'package.json', 'package-lock'];
   const normalizedFile = decodeURIComponent(file).toLowerCase();
   if (normalizedFile.includes('..') || blocked.some(function(b) { return normalizedFile.includes(b); })) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    return res.end('403 Forbidden');
+    return serve404(res);
   }
 
   const filePath = path.join(__dirname, file);
@@ -507,16 +507,14 @@ const server = http.createServer(async (req, res) => {
   // SECURITY: Ensure resolved path stays within project dir (prevent path traversal)
   const resolvedPath = path.resolve(filePath);
   if (!resolvedPath.startsWith(path.resolve(__dirname))) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    return res.end('403 Forbidden');
+    return serve404(res);
   }
 
   const ext = path.extname(filePath);
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      return res.end('404');
+      return serve404(res);
     }
     // Inject network config into HTML files
     if (ext === '.html') {
