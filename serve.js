@@ -493,7 +493,24 @@ const server = http.createServer(async (req, res) => {
 
   // Static files
   let file = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+
+  // SECURITY: Block sensitive paths
+  const blocked = ['.env', '.git', 'node_modules', 'serve.js', 'bootstrap/', 'dispenser/', 'solana/orders', 'solana/bootstrap', 'solana/vesting', 'solana/seen-txs', 'solana/create-', 'solana/init-', 'solana/setup-', 'solana/payment-', 'solana/dispenser-', 'solana/e2e-', 'twitter/processed', 'twitter/bot', 'twitter/tweet', 'twitter/post', 'twitter/delete', 'package.json', 'package-lock'];
+  const normalizedFile = decodeURIComponent(file).toLowerCase();
+  if (normalizedFile.includes('..') || blocked.some(function(b) { return normalizedFile.includes(b); })) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    return res.end('403 Forbidden');
+  }
+
   const filePath = path.join(__dirname, file);
+
+  // SECURITY: Ensure resolved path stays within project dir (prevent path traversal)
+  const resolvedPath = path.resolve(filePath);
+  if (!resolvedPath.startsWith(path.resolve(__dirname))) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    return res.end('403 Forbidden');
+  }
+
   const ext = path.extname(filePath);
 
   fs.readFile(filePath, (err, data) => {
