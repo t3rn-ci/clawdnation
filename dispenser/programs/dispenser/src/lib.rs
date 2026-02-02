@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TransferChecked};
 use anchor_spl::token_interface::{Mint, TokenAccount};
 
-declare_id!("fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi");
+declare_id!("5wJ2J89xMnbfK5JtZvvFn2Fp8NkMbv9tKm2xpQdp1R62");
 
 #[program]
 pub mod clwdn_dispenser {

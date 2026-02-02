@@ -11,7 +11,7 @@ const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 console.log('Authority:', authority.publicKey.toBase58());
 
 const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
-const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
+const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
 const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
 
 // Anchor discriminator = sha256("global:<instruction_name>")[0..8]
@@ -56,35 +56,42 @@ async function initDispenser() {
 }
 
 async function initBootstrap() {
-  console.log('\n=== Initializing Bootstrap ===');
+  console.log("\n=== Initializing Bootstrap ===");
   
   const [statePda, stateBump] = PublicKey.findProgramAddressSync(
-    [Buffer.from('bootstrap')], BOOTSTRAP_PROGRAM
+    [Buffer.from("bootstrap")], BOOTSTRAP_PROGRAM
   );
-  console.log('State PDA:', statePda.toBase58());
+  console.log("State PDA:", statePda.toBase58());
 
   const existing = await conn.getAccountInfo(statePda);
   if (existing) {
-    console.log('Bootstrap already initialized!');
+    console.log("Bootstrap already initialized!");
     return;
   }
 
-  // Build instruction: initialize(target_sol: u64, allocation_cap: u64)
-  // target_sol = 10000, allocation_cap = 200_000_000 (200M CLWDN raw with 9 decimals = 200_000_000_000_000_000)
-  const disc = anchorDisc('initialize');
-  const data = Buffer.alloc(8 + 8 + 8);
+  // Build instruction: initialize(params: BootstrapParams)
+  // BootstrapParams { start_rate: u64, end_rate: u64, allocation_cap: u64, min_contribution: u64, max_per_wallet: u64 }
+  const disc = anchorDisc("initialize");
+  const data = Buffer.alloc(8 + 8*5);
   disc.copy(data, 0);
-  // target_sol = 10000 (u64 LE)
-  data.writeBigUInt64LE(10000n, 8);
-  // allocation_cap = 200_000_000_000_000_000 (200M * 10^9 decimals)
-  data.writeBigUInt64LE(200_000_000_000_000_000n, 16);
+  // start_rate = 10_000 (1 SOL = 10K CLWDN best rate)
+  data.writeBigUInt64LE(10_000_000_000_000n, 8); // 10K CLWDN * 10^9 decimals
+  // end_rate = 40_000 (1 SOL = 40K CLWDN worst rate)  
+  data.writeBigUInt64LE(40_000_000_000_000n, 16); // 40K CLWDN * 10^9 decimals
+  // allocation_cap = 200_000_000 (200M CLWDN)
+  data.writeBigUInt64LE(200_000_000_000_000_000n, 24); // 200M CLWDN * 10^9 decimals
+  // min_contribution = 100_000_000 (0.1 SOL in lamports)
+  data.writeBigUInt64LE(100_000_000n, 32);
+  // max_per_wallet = 10_000_000_000 (10 SOL in lamports)
+  data.writeBigUInt64LE(10_000_000_000n, 40);
 
-  // Treasury = authority wallet (receives SOL)
   const ix = new TransactionInstruction({
     programId: BOOTSTRAP_PROGRAM,
     keys: [
       { pubkey: statePda, isSigner: false, isWritable: true },
-      { pubkey: authority.publicKey, isSigner: false, isWritable: true }, // treasury
+      { pubkey: authority.publicKey, isSigner: false, isWritable: true }, // lp_wallet
+      { pubkey: authority.publicKey, isSigner: false, isWritable: true }, // master_wallet
+      { pubkey: authority.publicKey, isSigner: false, isWritable: true }, // staking_wallet
       { pubkey: authority.publicKey, isSigner: true, isWritable: true },  // authority
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
@@ -93,7 +100,7 @@ async function initBootstrap() {
 
   const tx = new Transaction().add(ix);
   const sig = await sendAndConfirmTransaction(conn, tx, [authority]);
-  console.log('Bootstrap initialized! Sig:', sig);
+  console.log("Bootstrap initialized! Sig:", sig);
 }
 
 async function main() {
