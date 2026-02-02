@@ -1,5 +1,24 @@
 # PR Review Guide: E2E Tests & Security Hardening
 
+## 🚨 CRITICAL SECURITY WARNING 🚨
+
+**BLOCKER FOR MAINNET: LP BURN IS NOT ON-CHAIN**
+
+Current LP creation and burn are handled OFF-CHAIN via JavaScript scripts. This is **INSECURE**:
+- ❌ No guarantee LP tokens get burned
+- ❌ Trust required that scripts run correctly
+- ❌ Not atomic - can fail between steps
+- ❌ Not verifiable on-chain
+
+**Required Before Mainnet:**
+LP burn MUST be implemented in bootstrap contract as atomic on-chain instruction.
+
+See `CRITICAL_SECURITY_GAP.md` for full details and implementation plan.
+
+**DO NOT DEPLOY TO MAINNET WITHOUT ON-CHAIN LP BURN.**
+
+---
+
 ## Overview
 This PR adds comprehensive E2E testing for two token launch paths and security improvements to the dispenser program.
 
