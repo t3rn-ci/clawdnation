@@ -1,0 +1,50 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "name": "Check Initial State",
+      "status": "PASS",
+      "details": {
+        "solBalance": 1.50311776,
+        "clwdnSupply": 1100000000
+      }
+    },
+    {
+      "step": 2,
+      "name": "Check Dispenser Operator",
+      "status": "WARN",
+      "details": {
+        "note": "NOT authorized - distributions will fail"
+      }
+    },
+    {
+      "step": 3,
+      "name": "Initialize Bootstrap",
+      "status": "SKIP",
+      "details": "Already initialized or failed"
+    },
+    {
+      "step": 4,
+      "name": "Self-Boot",
+      "status": "FAIL",
+      "error": "airdrop to 3mDSS5qrF7Fwp4bzM7x7SDaaWLxj7yL92yAhNWALRakP failed: Internal error"
+    },
+    {
+      "step": 5,
+      "name": "Create Raydium LP",
+      "status": "FAIL",
+      "details": {
+        "solUsed": 0
+      }
+    },
+    {
+      "step": 6,
+      "name": "Burn LP Tokens",
+      "status": "SKIP",
+      "details": "Manual step after pool creation"
+    }
+  ],
+  "startTime": 1770069823817,
+  "endTime": 1770069826393,
+  "duration": 2.576
+}
