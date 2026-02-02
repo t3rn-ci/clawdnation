@@ -1,0 +1,49 @@
+╔═══════════════════════════════════════════════════════════╗
+║       E2E TEST: NO-BOOTSTRAP PATH (Factory)               ║
+╚═══════════════════════════════════════════════════════════╝
+
+📋 TEST CONFIGURATION:
+
+  Network: Devnet
+  Authority: HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87
+  Token Name: E2ETEST
+  LP SOL: 1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: CHECK INITIAL STATE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Authority SOL: 1.5031 SOL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 2: CREATE TOKEN WITH FACTORY (AUTO-RENOUNCE)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🔧 Creating token with factory (includes authority renouncement)...
+   Running: node factory-no-bootstrap.js --token-name=E2ETEST --lp-sol=1
+
+❌ Command failed: Command failed: node factory-no-bootstrap.js --token-name=E2ETEST --lp-sol=1
+node:internal/modules/cjs/loader:1386
+  throw err;
+  ^
+
+Error: Cannot find module '/Users/mbultra/projects/clawdnation/factory-no-bootstrap.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.21.1
+
