@@ -184,12 +184,40 @@ For mainnet:
 
 ## Status
 
-- [ ] Research Raydium CPMM program interface
-- [ ] Add anchor-spl dependency
-- [ ] Implement `create_lp_and_burn` instruction
+- [x] Research Raydium CPMM program interface ✅
+- [x] Add anchor-spl dependency ✅
+- [x] Implement `create_lp_and_burn` instruction ✅
+- [ ] Fix compilation issues (dependency version conflicts) 🚧
 - [ ] Unit tests
 - [ ] E2E tests
 - [ ] Devnet verification
 - [ ] Mainnet ready
 
-**CURRENT: NOT SAFE FOR MAINNET**
+**CURRENT: IMPLEMENTATION IN PROGRESS**
+
+### Implementation Progress:
+
+✅ **Completed (Commit XXX):**
+- Added Raydium CP-Swap dependency to bootstrap/Cargo.toml
+- Upgraded Anchor to 0.32.1 to match Raydium
+- Implemented `create_lp_and_burn` instruction with:
+  - CPI to Raydium CPMM initialize
+  - Atomic LP token burn
+  - Authority checks
+  - Bootstrap complete validation
+- Added `CreateLPAndBurn` accounts struct with all required Raydium accounts
+- Added `BootstrapNotComplete` error
+
+🚧 **In Progress:**
+- Resolving raydium-cp-swap compilation issues
+- Version conflicts between anchor-spl token vs token_interface
+
+⏱️ **Remaining:**
+- Fix compilation (est. 1-2 hours)
+- Test on local validator (est. 1 hour)
+- Test on devnet (est. 1 hour)
+
+**Total Time Spent:** ~3 hours
+**Estimated Remaining:** 2-4 hours
+
+**STILL NOT SAFE FOR MAINNET UNTIL TESTED**

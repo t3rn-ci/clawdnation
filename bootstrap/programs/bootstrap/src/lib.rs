@@ -1,5 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{self, Burn, Mint, Token, TokenAccount},
+    token_interface::{Mint as InterfaceMint, TokenAccount as InterfaceTokenAccount, TokenInterface},
+};
+use raydium_cp_swap::{
+    cpi,
+    program::RaydiumCpSwap,
+    states::{AmmConfig, OBSERVATION_SEED, POOL_LP_MINT_SEED, POOL_SEED, POOL_VAULT_SEED},
+};
 
 declare_id!("GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe");
 
@@ -370,6 +380,93 @@ pub mod clwdn_bootstrap {
         msg!("Authority transferred to: {}", pending);
         Ok(())
     }
+
+    /// Create Raydium LP and BURN all LP tokens (ATOMIC)
+    /// Can only be called after bootstrap is complete
+    /// SECURITY: LP tokens are burned in the same transaction
+    pub fn create_lp_and_burn(
+        ctx: Context<CreateLPAndBurn>,
+        clwdn_amount: u64,
+        sol_amount: u64,
+        open_time: u64,
+    ) -> Result<()> {
+        let state = &ctx.accounts.state;
+
+        // Verify bootstrap is complete (SOL has been collected)
+        require!(
+            state.total_contributed_lamports > 0,
+            BootstrapError::BootstrapNotComplete
+        );
+
+        // Verify authority
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            BootstrapError::Unauthorized
+        );
+
+        msg!("Creating Raydium LP with {} CLWDN and {} SOL", clwdn_amount, sol_amount);
+
+        // 1. CPI to Raydium CPMM to create pool
+        let cpi_accounts = cpi::accounts::Initialize {
+            creator: ctx.accounts.lp_wallet.to_account_info(),
+            amm_config: ctx.accounts.amm_config.to_account_info(),
+            authority: ctx.accounts.pool_authority.to_account_info(),
+            pool_state: ctx.accounts.pool_state.to_account_info(),
+            token_0_mint: ctx.accounts.token_0_mint.to_account_info(),
+            token_1_mint: ctx.accounts.token_1_mint.to_account_info(),
+            lp_mint: ctx.accounts.lp_mint.to_account_info(),
+            creator_token_0: ctx.accounts.lp_token_0.to_account_info(),
+            creator_token_1: ctx.accounts.lp_token_1.to_account_info(),
+            creator_lp_token: ctx.accounts.lp_token_account.to_account_info(),
+            token_0_vault: ctx.accounts.token_0_vault.to_account_info(),
+            token_1_vault: ctx.accounts.token_1_vault.to_account_info(),
+            create_pool_fee: ctx.accounts.create_pool_fee.to_account_info(),
+            observation_state: ctx.accounts.observation_state.to_account_info(),
+            token_program: ctx.accounts.token_program.to_account_info(),
+            token_0_program: ctx.accounts.token_0_program.to_account_info(),
+            token_1_program: ctx.accounts.token_1_program.to_account_info(),
+            associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
+            system_program: ctx.accounts.system_program.to_account_info(),
+            rent: ctx.accounts.rent.to_account_info(),
+        };
+
+        // Use LP wallet's authority via seeds
+        let lp_wallet_bump = ctx.bumps.lp_wallet;
+        let state_key = state.key();
+        let seeds = &[
+            b"lp_wallet".as_ref(),
+            state_key.as_ref(),
+            &[lp_wallet_bump],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.cp_swap_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
+        cpi::initialize(cpi_ctx, clwdn_amount, sol_amount, open_time)?;
+
+        msg!("Raydium LP created successfully");
+
+        // 2. BURN ALL LP tokens to System Program (11111...)
+        let lp_balance = ctx.accounts.lp_token_account.amount;
+        require!(lp_balance > 0, BootstrapError::InvalidAmount);
+
+        let burn_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Burn {
+                mint: ctx.accounts.lp_mint.to_account_info(),
+                from: ctx.accounts.lp_token_account.to_account_info(),
+                authority: ctx.accounts.lp_wallet.to_account_info(),
+            },
+            signer_seeds,
+        );
+        token::burn(burn_ctx, lp_balance)?;
+
+        msg!("🔥 BURNED {} LP tokens - liquidity permanently locked!", lp_balance);
+        Ok(())
+    }
 }
 
 /// Calculate current rate on bonding curve
@@ -479,6 +576,147 @@ pub struct AcceptAuthority<'info> {
     #[account(mut, seeds = [b"bootstrap"], bump = state.bump)]
     pub state: Account<'info, BootstrapState>,
     pub new_authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct CreateLPAndBurn<'info> {
+    pub cp_swap_program: Program<'info, RaydiumCpSwap>,
+
+    #[account(seeds = [b"bootstrap"], bump = state.bump)]
+    pub state: Account<'info, BootstrapState>,
+
+    pub authority: Signer<'info>,
+
+    /// LP wallet (PDA that holds SOL) - acts as creator for Raydium pool
+    /// CHECK: LP wallet PDA with SOL
+    #[account(
+        mut,
+        seeds = [b"lp_wallet", state.key().as_ref()],
+        bump
+    )]
+    pub lp_wallet: UncheckedAccount<'info>,
+
+    /// Raydium AMM config (fee tier, etc.)
+    pub amm_config: Box<Account<'info, AmmConfig>>,
+
+    /// CHECK: Pool vault and lp mint authority
+    #[account(
+        seeds = [
+            raydium_cp_swap::AUTH_SEED.as_bytes(),
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub pool_authority: UncheckedAccount<'info>,
+
+    /// CHECK: Pool state PDA, init by cp-swap
+    #[account(
+        mut,
+        seeds = [
+            POOL_SEED.as_bytes(),
+            amm_config.key().as_ref(),
+            token_0_mint.key().as_ref(),
+            token_1_mint.key().as_ref(),
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub pool_state: UncheckedAccount<'info>,
+
+    /// Token_0 mint (must be < token_1 mint key)
+    #[account(
+        constraint = token_0_mint.key() < token_1_mint.key(),
+        mint::token_program = token_0_program,
+    )]
+    pub token_0_mint: Box<InterfaceAccount<'info, InterfaceMint>>,
+
+    /// Token_1 mint (must be > token_0 mint key)
+    #[account(
+        mint::token_program = token_1_program,
+    )]
+    pub token_1_mint: Box<InterfaceAccount<'info, InterfaceMint>>,
+
+    /// CHECK: Pool LP mint, init by cp-swap
+    #[account(
+        mut,
+        seeds = [
+            POOL_LP_MINT_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub lp_mint: UncheckedAccount<'info>,
+
+    /// LP wallet's token 0 account
+    #[account(
+        mut,
+        token::mint = token_0_mint,
+        token::authority = lp_wallet,
+    )]
+    pub lp_token_0: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+
+    /// LP wallet's token 1 account
+    #[account(
+        mut,
+        token::mint = token_1_mint,
+        token::authority = lp_wallet,
+    )]
+    pub lp_token_1: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+
+    /// LP token account for LP wallet (to burn from)
+    #[account(mut)]
+    pub lp_token_account: Box<InterfaceAccount<'info, InterfaceTokenAccount>>,
+
+    /// CHECK: Token_0 vault, init by cp-swap
+    #[account(
+        mut,
+        seeds = [
+            POOL_VAULT_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+            token_0_mint.key().as_ref()
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub token_0_vault: UncheckedAccount<'info>,
+
+    /// CHECK: Token_1 vault, init by cp-swap
+    #[account(
+        mut,
+        seeds = [
+            POOL_VAULT_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+            token_1_mint.key().as_ref()
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub token_1_vault: UncheckedAccount<'info>,
+
+    /// Create pool fee account (0.15 SOL fee receiver)
+    /// CHECK: Raydium fee receiver address
+    #[account(mut)]
+    pub create_pool_fee: UncheckedAccount<'info>,
+
+    /// CHECK: Oracle observation state, init by cp-swap
+    #[account(
+        mut,
+        seeds = [
+            OBSERVATION_SEED.as_bytes(),
+            pool_state.key().as_ref(),
+        ],
+        seeds::program = cp_swap_program,
+        bump,
+    )]
+    pub observation_state: UncheckedAccount<'info>,
+
+    pub token_program: Program<'info, Token>,
+    pub token_0_program: Interface<'info, TokenInterface>,
+    pub token_1_program: Interface<'info, TokenInterface>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 // ═══ STATE ═══
@@ -599,4 +837,6 @@ pub enum BootstrapError {
     ExceedsMaxPerWallet,
     #[msg("Bootstrap already complete")]
     BootstrapComplete,
+    #[msg("Bootstrap not complete - cannot create LP yet")]
+    BootstrapNotComplete,
 }
