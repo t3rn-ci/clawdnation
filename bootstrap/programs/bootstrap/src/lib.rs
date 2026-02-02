@@ -5,7 +5,7 @@ use anchor_spl::{
     token::{self, Burn, Token},
 };
 
-declare_id!("6watePT1wd7HfL3z8jKY3C6KeSFbfwdChPD9TBAQiEhN");
+declare_id!("BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN");
 
 /// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
 ///
@@ -124,13 +124,13 @@ pub mod clwdn_bootstrap {
 
         // Calculate CLWDN for this contribution at current rate
         // Multiply first to avoid precision loss for amounts < 1 SOL
-        let clwdn_lamports = amount_lamports
-            .checked_mul(current_rate)
+        let clwdn_lamports = (amount_lamports as u128)
+            .checked_mul(current_rate as u128)
             .ok_or(BootstrapError::Overflow)?;
 
         let clwdn_amount = clwdn_lamports
             .checked_div(1_000_000_000)
-            .ok_or(BootstrapError::Overflow)?;
+            .ok_or(BootstrapError::Overflow)? as u64;
 
         // Check if this would exceed allocation cap
         let new_allocated = state
@@ -376,6 +376,52 @@ pub mod clwdn_bootstrap {
         Ok(())
     }
 
+
+
+
+
+    /// Close bootstrap state (authority only) — reclaims rent
+    pub fn close_state(ctx: Context<CloseState>) -> Result<()> {
+        let state = &ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            BootstrapError::Unauthorized
+        );
+        msg!("Bootstrap state closed");
+        Ok(())
+    }
+    /// Update bootstrap parameters (authority only, only before first contribution)
+    pub fn update_params(
+        ctx: Context<AdminAction>,
+        params: BootstrapParams,
+    ) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            BootstrapError::Unauthorized
+        );
+        require!(
+            state.total_contributed_lamports == 0,
+            BootstrapError::BootstrapComplete
+        );
+        require!(params.start_rate > 0, BootstrapError::InvalidParams);
+        require!(params.end_rate >= params.start_rate, BootstrapError::InvalidParams);
+        require!(params.allocation_cap > 0, BootstrapError::InvalidParams);
+        require!(params.min_contribution > 0, BootstrapError::InvalidParams);
+        require!(params.max_per_wallet >= params.min_contribution, BootstrapError::InvalidParams);
+        
+        state.start_rate = params.start_rate;
+        state.end_rate = params.end_rate;
+        state.allocation_cap = params.allocation_cap;
+        state.min_contribution = params.min_contribution;
+        state.max_per_wallet = params.max_per_wallet;
+        
+        msg!("Bootstrap params updated");
+        msg!("Start rate: {} CLWDN/SOL", params.start_rate);
+        msg!("End rate: {} CLWDN/SOL", params.end_rate);
+        msg!("Allocation: {} CLWDN", params.allocation_cap);
+        Ok(())
+    }
     /// BURN LP tokens (ATOMIC, ON-CHAIN)
     /// Can only be called after bootstrap is complete
     /// SECURITY: LP tokens are burned in a verifiable on-chain transaction
@@ -526,6 +572,15 @@ pub struct MarkDistributed<'info> {
     pub operator: Signer<'info>,
 }
 
+
+
+#[derive(Accounts)]
+pub struct CloseState<'info> {
+    #[account(mut, seeds = [b"bootstrap"], bump = state.bump, close = authority)]
+    pub state: Account<'info, BootstrapState>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
 #[derive(Accounts)]
 pub struct AdminAction<'info> {
     #[account(mut, seeds = [b"bootstrap"], bump = state.bump)]

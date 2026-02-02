@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-bootstrap = "6watePT1wd7HfL3z8jKY3C6KeSFbfwdChPD9TBAQiEhN"
+bootstrap = "BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN"
 
 [registry]
 url = "https://api.apr.dev"

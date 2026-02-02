@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-dispenser = "fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi"
+dispenser = "5wJ2J89xMnbfK5JtZvvFn2Fp8NkMbv9tKm2xpQdp1R62"
 
 [programs.devnet]
-dispenser = "fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi"
+dispenser = "5wJ2J89xMnbfK5JtZvvFn2Fp8NkMbv9tKm2xpQdp1R62"
 
 [registry]
 url = "https://api.apr.dev"
