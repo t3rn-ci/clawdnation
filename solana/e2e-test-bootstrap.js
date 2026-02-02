@@ -110,10 +110,40 @@ async function main() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 2: Initialize Bootstrap (if not already)
+  // STEP 2: Check Dispenser Operator Authorization
   // ═══════════════════════════════════════════════════════════
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  console.log('STEP 2: INITIALIZE BONDING CURVE\n');
+  console.log('STEP 2: CHECK DISPENSER OPERATOR\n');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+  const operatorCheckResult = await runCommand(
+    'node fix-dispenser-operator.js',
+    'Checking dispenser operator authorization'
+  );
+
+  const isAuthorized = operatorCheckResult.stdout && operatorCheckResult.stdout.includes('✅ STATUS: ALREADY AUTHORIZED');
+
+  if (!isAuthorized) {
+    console.log('⚠️  WARNING: Wallet is NOT a dispenser operator!');
+    console.log('   Dispenser distributions will FAIL until operator is added.');
+    console.log('   See DISPENSER_OPERATOR_FIX.md for solutions.\n');
+  }
+
+  results.steps.push({
+    step: 2,
+    name: 'Check Dispenser Operator',
+    status: isAuthorized ? 'PASS' : 'WARN',
+    details: {
+      authorized: isAuthorized,
+      note: isAuthorized ? 'Operator authorized' : 'NOT authorized - distributions will fail'
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // STEP 3: Initialize Bootstrap (if not already)
+  // ═══════════════════════════════════════════════════════════
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  console.log('STEP 3: INITIALIZE BONDING CURVE\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   const initResult = await runCommand(
@@ -122,17 +152,17 @@ async function main() {
   );
 
   results.steps.push({
-    step: 2,
+    step: 3,
     name: 'Initialize Bootstrap',
     status: initResult.success ? 'PASS' : 'SKIP',
     details: initResult.success ? 'Initialized' : 'Already initialized or failed'
   });
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 3: Self-Boot with SOL Contribution
+  // STEP 4: Self-Boot with SOL Contribution
   // ═══════════════════════════════════════════════════════════
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  console.log('STEP 3: SELF-BOOT WITH SOL CONTRIBUTION\n');
+  console.log('STEP 4: SELF-BOOT WITH SOL CONTRIBUTION\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   console.log(`  Contributing ${contributionSol} SOL to bootstrap...\n`);
@@ -189,7 +219,7 @@ async function main() {
                         Math.abs(stakingGain - contributionSol * 0.1) < 0.01;
 
     results.steps.push({
-      step: 3,
+      step: 4,
       name: 'Self-Boot & 80/10/10 Split',
       status: splitCorrect ? 'PASS' : 'FAIL',
       details: {
@@ -208,14 +238,14 @@ async function main() {
 
   } catch (err) {
     console.log('❌ Self-boot failed:', err.message);
-    results.steps.push({ step: 3, name: 'Self-Boot', status: 'FAIL', error: err.message });
+    results.steps.push({ step: 4, name: 'Self-Boot', status: 'FAIL', error: err.message });
   }
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 4: Create Raydium LP with Accumulated SOL
+  // STEP 5: Create Raydium LP with Accumulated SOL
   // ═══════════════════════════════════════════════════════════
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  console.log('STEP 4: CREATE RAYDIUM LP\n');
+  console.log('STEP 5: CREATE RAYDIUM LP\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   const lpBalanceFinal = await conn.getBalance(lpWallet);
@@ -228,7 +258,7 @@ async function main() {
   );
 
   results.steps.push({
-    step: 4,
+    step: 5,
     name: 'Create Raydium LP',
     status: lpResult.success ? 'PASS' : 'FAIL',
     details: {
@@ -237,17 +267,17 @@ async function main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 5: Burn ALL LP Tokens
+  // STEP 6: Burn ALL LP Tokens
   // ═══════════════════════════════════════════════════════════
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  console.log('STEP 5: BURN ALL LP TOKENS\n');
+  console.log('STEP 6: BURN ALL LP TOKENS\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   console.log('  NOTE: LP burn would be done via create-lp-and-burn.js after pool creation');
   console.log('  Skipping in this test (requires pool ID from creation)');
 
   results.steps.push({
-    step: 5,
+    step: 6,
     name: 'Burn LP Tokens',
     status: 'SKIP',
     details: 'Manual step after pool creation'
