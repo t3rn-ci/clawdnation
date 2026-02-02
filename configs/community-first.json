@@ -1,0 +1,64 @@
+{
+  "launchMode": "no-bootstrap",
+  "network": "devnet",
+  "token": {
+    "name": "CommunityToken",
+    "symbol": "COMM",
+    "supply": 1000000000,
+    "decimals": 9
+  },
+  "tokenomics": {
+    "liquidity": 40,
+    "team": 10,
+    "staking": 20,
+    "community": 20,
+    "treasury": 10
+  },
+  "distribution": {
+    "liquidity": 400000000,
+    "team": 100000000,
+    "staking": 200000000,
+    "community": 200000000,
+    "treasury": 100000000
+  },
+  "vesting": {
+    "team": {
+      "enabled": true,
+      "cliff": 7776000,
+      "duration": 23328000,
+      "description": "3 month cliff + 9 month linear"
+    },
+    "staking": {
+      "enabled": true,
+      "cliff": 0,
+      "duration": 126144000,
+      "description": "4 year linear vest"
+    },
+    "community": {
+      "enabled": false,
+      "cliff": 0,
+      "duration": 0,
+      "description": "Immediate for airdrops"
+    },
+    "treasury": {
+      "enabled": false,
+      "cliff": 0,
+      "duration": 0,
+      "description": "DAO controlled"
+    }
+  },
+  "liquidity": {
+    "initialSOL": 15,
+    "initialPrice": 35000,
+    "feeRate": 30,
+    "burnLP": true
+  },
+  "security": {
+    "mintAuthority": null,
+    "freezeAuthority": null,
+    "supplyFixed": true,
+    "lpBurned": true,
+    "vestingDeployed": true,
+    "treasuryMultisig": true
+  }
+}
