@@ -1,0 +1,76 @@
+{
+  "launchMode": "bootstrap",
+  "network": "devnet",
+  "token": {
+    "name": "MyToken",
+    "symbol": "MTK",
+    "supply": 1000000000,
+    "decimals": 9
+  },
+  "tokenomics": {
+    "liquidity": 50,
+    "team": 15,
+    "staking": 15,
+    "community": 10,
+    "treasury": 10
+  },
+  "distribution": {
+    "liquidity": 500000000,
+    "team": 150000000,
+    "staking": 150000000,
+    "community": 100000000,
+    "treasury": 100000000
+  },
+  "vesting": {
+    "team": {
+      "enabled": true,
+      "cliff": 15552000,
+      "duration": 31104000,
+      "description": "6 month cliff + 12 month linear"
+    },
+    "staking": {
+      "enabled": true,
+      "cliff": 0,
+      "duration": 126144000,
+      "description": "4 year linear vest"
+    },
+    "community": {
+      "enabled": false,
+      "cliff": 0,
+      "duration": 0,
+      "description": "Immediate distribution"
+    },
+    "treasury": {
+      "enabled": false,
+      "cliff": 0,
+      "duration": 0,
+      "description": "Multisig controlled"
+    }
+  },
+  "bootstrap": {
+    "enabled": true,
+    "startRate": 10000,
+    "endRate": 40000,
+    "allocationCap": 100000000,
+    "minContribution": 0.1,
+    "maxPerWallet": 10,
+    "targetRaise": 4000,
+    "lpSplit": 80,
+    "masterSplit": 10,
+    "stakingSplit": 10
+  },
+  "liquidity": {
+    "initialSOL": 10,
+    "initialPrice": 40000,
+    "feeRate": 30,
+    "burnLP": true
+  },
+  "security": {
+    "mintAuthority": null,
+    "freezeAuthority": null,
+    "supplyFixed": true,
+    "lpBurned": true,
+    "vestingDeployed": true,
+    "treasuryMultisig": false
+  }
+}
