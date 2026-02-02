@@ -187,13 +187,14 @@ For mainnet:
 - [x] Research Raydium CPMM program interface ✅
 - [x] Add anchor-spl dependency ✅
 - [x] Implement `create_lp_and_burn` instruction ✅
-- [ ] Fix compilation issues (dependency version conflicts) 🚧
+- [x] Archive OFF-CHAIN LP scripts (30 scripts moved to solana/archive/) ✅
+- [ ] Fix compilation issues (dependency version conflicts) ⚠️ BLOCKED
 - [ ] Unit tests
 - [ ] E2E tests
 - [ ] Devnet verification
 - [ ] Mainnet ready
 
-**CURRENT: IMPLEMENTATION IN PROGRESS**
+**CURRENT: BLOCKED ON DEPENDENCY CONFLICTS**
 
 ### Implementation Progress:
 
@@ -217,7 +218,49 @@ For mainnet:
 - Test on local validator (est. 1 hour)
 - Test on devnet (est. 1 hour)
 
-**Total Time Spent:** ~3 hours
-**Estimated Remaining:** 2-4 hours
+**Total Time Spent:** ~5 hours
+**Estimated Remaining:** 4-8 hours (blocked on dependencies)
 
 **STILL NOT SAFE FOR MAINNET UNTIL TESTED**
+
+---
+
+## Compilation Blockers (2026-02-02)
+
+### Issue: raydium-cp-swap Dependency Incompatibility
+
+**Problem**: `raydium-cp-swap` from GitHub fails to compile with both Anchor 0.31.1 and 0.32.1
+
+**Error**: 48 compilation errors in raydium-cp-swap:
+```
+error[E0599]: no function or associated item named `create_type` found for struct `anchor_spl::token_interface::Mint`
+error[E0599]: no associated item named `DISCRIMINATOR` found for struct `anchor_spl::token_interface::Mint`
+error[E0599]: no function or associated item named `insert_types` found for struct `anchor_spl::token_interface::Mint`
+```
+
+**Root Cause**: Raydium's token_interface usage doesn't match current anchor-spl versions
+
+**Attempted Fixes**:
+1. ✗ Upgrade to Anchor 0.32.1 (same errors)
+2. ✗ Downgrade to Anchor 0.29.0 (solana-instruction version conflict)
+3. ✗ Change InterfaceAccount to UncheckedAccount (still fails in raydium code)
+
+**Options**:
+1. **Fork raydium-cp-swap** and fix compatibility issues
+2. **Use raw instruction data** instead of CPI helpers
+3. **Wait for raydium-cp-swap update** to match anchor-spl
+4. **Use older anchor-spl** that matches raydium's expectations
+5. **Implement raw Raydium CPMM calls** without using their SDK
+
+**Recommendation**: Option 2 (raw instruction data) is fastest path forward.
+This bypasses the CPI helper issues by constructing Raydium initialize instruction manually.
+
+### Next Steps (When Unblocked)
+
+1. Implement raw instruction approach for Raydium CPMM initialize
+2. Test LP creation + burn on local validator
+3. Test on devnet
+4. Verify burn transaction on Solana Explorer
+5. Audit security before mainnet
+
+**ETA**: 4-8 hours once compilation resolved
