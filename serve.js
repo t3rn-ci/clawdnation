@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3333;
 const NETWORK = process.env.NETWORK || 'devnet';
 const EXPLORER_CLUSTER = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
-const ORDERS_PATH = path.join(__dirname, 'solana', 'orders.json');
+const ORDERS_PATH = path.join(__dirname, 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const VESTING_PATH = path.join(__dirname, 'solana', 'vesting.json');
 const CLWDN_MINT = '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
 const PAYMENT_WALLET = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
@@ -22,6 +22,8 @@ const { getStats, getAllocation, checkContributions } = require('./solana/bootst
 // Start bootstrap monitor polling
 setInterval(checkContributions, 15000);
 checkContributions().catch(() => {});
+const PAGE_404 = fs.existsSync(path.join(__dirname, "404.html")) ? fs.readFileSync(path.join(__dirname, "404.html"), "utf8") : "<h1>404</h1>";
+function serve404(res) { res.writeHead(404, {"Content-Type":"text/html"}); return res.end(PAGE_404); }
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.md': 'text/markdown; charset=utf-8' };
 
 function loadOrders() {
@@ -264,6 +266,44 @@ const server = http.createServer(async (req, res) => {
     const stats = getStats();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify(stats));
+  }
+
+  // POST /api/rpc — proxy Solana RPC calls (avoids CORS issues with public RPC)
+  if (req.url === '/api/rpc' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const parsed = JSON.parse(body);
+        // Whitelist safe read-only methods
+        const allowed = ['getBalance', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
+          'getAccountInfo', 'getTokenSupply', 'getTokenLargestAccounts', 'getGenesisHash',
+          'getLatestBlockhash', 'getRecentBlockhash', 'getSignatureStatuses',
+          'getTransaction', 'getSlot', 'getHealth', 'getVersion'];
+        if (!allowed.includes(parsed.method)) {
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          return res.end(JSON.stringify({ error: 'Method not allowed' }));
+        }
+        const result = await solanaRpc(parsed.method, parsed.params || []);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ jsonrpc: '2.0', result: result?.result, id: parsed.id }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -1, message: e.message }, id: null }));
+      }
+    });
+    return;
+  }
+
+  // OPTIONS /api/rpc — CORS preflight
+  if (req.url === '/api/rpc' && req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, solana-client',
+      'Access-Control-Max-Age': '86400'
+    });
+    return res.end();
   }
 
   // GET /api/health
@@ -510,7 +550,6 @@ const server = http.createServer(async (req, res) => {
   if (req.url === '/economics' || req.url === '/economics/') {
     const fp = path.join(__dirname, 'economics.html');
     return fs.readFile(fp, (err, data) => {
-      if (err) { res.writeHead(404); return res.end('404'); }
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(data);
     });
@@ -518,7 +557,22 @@ const server = http.createServer(async (req, res) => {
 
   // Static files
   let file = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+
+  // SECURITY: Block sensitive paths
+  const blocked = ['.env', '.git', 'node_modules', 'serve.js', 'bootstrap/', 'dispenser/', 'solana/orders', 'solana/bootstrap', 'solana/vesting', 'solana/seen-txs', 'solana/create-', 'solana/init-', 'solana/setup-', 'solana/payment-', 'solana/dispenser-', 'solana/e2e-', 'twitter/processed', 'twitter/bot', 'twitter/tweet', 'twitter/post', 'twitter/delete', 'package.json', 'package-lock'];
+  const normalizedFile = decodeURIComponent(file).toLowerCase();
+  if (normalizedFile.includes('..') || blocked.some(function(b) { return normalizedFile.includes(b); })) {
+    return serve404(res);
+  }
+
   const filePath = path.join(__dirname, file);
+
+  // SECURITY: Ensure resolved path stays within project dir (prevent path traversal)
+  const resolvedPath = path.resolve(filePath);
+  if (!resolvedPath.startsWith(path.resolve(__dirname))) {
+    return serve404(res);
+  }
+
   const ext = path.extname(filePath);
 
   // Security: Block path traversal and sensitive files
@@ -531,8 +585,7 @@ const server = http.createServer(async (req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      return res.end('<h1>404 Not Found</h1><p>The requested resource was not found</p>');
+      return serve404(res);
     }
     // Inject network config into HTML files
     if (ext === '.html') {

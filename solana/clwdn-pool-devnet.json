@@ -1,0 +1,27 @@
+{
+  "network": "devnet",
+  "txId": "MLyMPnJzyMCdxpAXSpCrwYn9HdsLMwDk45G2CCauhHnFeDodJTZWjWEXuuh5D28mtKcSp2NCq3CxANYo8jB9zU7",
+  "poolId": "7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
+  "poolKeys": {
+    "poolId": "7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
+    "configId": "HTVWgp8CbUsRNmRE1p9RBYqopxe2qiyApSkiTFLrfxaW",
+    "authority": "CXniRufdq5xL8t8jZAPxsPZDpuudwuJSPWnbcD5Y5Nxq",
+    "lpMint": "HkfVPWChZURpWKtv97zFKh89sAxbpiCkjWndGboawBUz",
+    "vaultA": "3usoVaHNcFJD9yPiKzyX7DkJg48w244XNRK8bknrFZA8",
+    "vaultB": "3tnZQt1PYa8JeFn9Dm7MnMfse5XcRziVsq9ZGt3cTgRD",
+    "observationId": "GSD94XDUXck5yX7K3zHecRGhQWErQzjr33TqrkquewAg",
+    "mintA": "[object Object]",
+    "mintB": "[object Object]",
+    "programId": "DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb",
+    "poolFeeAccount": "3oE58BKVt8KuYkGxx8zBojugnymWmBiyafWgMrnb6eYy",
+    "feeConfig": "[object Object]"
+  },
+  "clwdnMint": "2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3",
+  "clwdnAmount": "4000000000000",
+  "solAmount": "1000000000",
+  "initialPriceSolPerClwdn": 0.00025,
+  "explorer": "https://explorer.solana.com/tx/MLyMPnJzyMCdxpAXSpCrwYn9HdsLMwDk45G2CCauhHnFeDodJTZWjWEXuuh5D28mtKcSp2NCq3CxANYo8jB9zU7?cluster=devnet",
+  "poolExplorer": "https://explorer.solana.com/address/7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA?cluster=devnet",
+  "raydium": "https://raydium.io/pools/7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
+  "createdAt": "2026-02-02T17:49:06.020Z"
+}

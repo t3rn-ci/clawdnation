@@ -1,18 +1,35 @@
+# Dependencies
 node_modules/
-*.bak*
+
+# Environment / Secrets
 .env
 .env.*
 *.pem
 *.key
+
+# Solana keypairs
 *.json.bak
+*wallet*.json
+devnet-test-wallet.json
+
+# Runtime data
 solana/orders.json
+solana/orders-mainnet.json
 solana/vesting.json
 solana/bootstrap.json
 solana/seen-txs.json
-twitter/processed-tweets.json
+
+# Build artifacts
 target/
 dispenser/target/
 bootstrap/target/
+
+# Backups
+*.bak*
+
+# Twitter bot runtime
+twitter/*.png
+twitter/processed-tweets.json
+
+# OS
 .DS_Store
-*wallet*.json
-devnet-test-wallet.json
