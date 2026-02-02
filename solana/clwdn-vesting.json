@@ -1,0 +1,38 @@
+{
+  "allocations": [
+    {
+      "id": "staking",
+      "category": "Staking Rewards",
+      "recipient": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+      "totalAmount": 150000000,
+      "claimedAmount": 0,
+      "vestingMonths": 48,
+      "monthlyUnlock": 3125000,
+      "cliff": 0,
+      "startDate": "2026-02-02T18:43:49.634Z",
+      "lastClaim": null,
+      "claimCount": 0,
+      "status": "active"
+    },
+    {
+      "id": "team",
+      "category": "Team",
+      "recipient": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+      "totalAmount": 150000000,
+      "claimedAmount": 0,
+      "vestingMonths": 12,
+      "monthlyUnlock": 12500000,
+      "cliff": 6,
+      "startDate": "2026-02-02T18:43:49.634Z",
+      "lastClaim": null,
+      "claimCount": 0,
+      "status": "cliff"
+    }
+  ],
+  "metadata": {
+    "mint": "2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3",
+    "authority": "HWUY5PNiKB9gSD6ZNUseRE4T5r1KpxAbrhnyZzy48B87",
+    "createdAt": "2026-02-02T18:43:49.634Z",
+    "network": "devnet"
+  }
+}

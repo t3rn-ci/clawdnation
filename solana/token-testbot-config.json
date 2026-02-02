@@ -1,0 +1,34 @@
+{
+  "mode": "no-bootstrap",
+  "tokenName": "TESTBOT",
+  "mint": "98wE7AwX6bTSMF4X1u9xxTthZi1XrEeNjk1skhoXm1t5",
+  "supply": 1000000000,
+  "decimals": 9,
+  "tokenomics": {
+    "liquidity": 50,
+    "team": 15,
+    "staking": 15,
+    "community": 10,
+    "treasury": 10
+  },
+  "distribution": {
+    "liquidity": 500000000,
+    "team": 150000000,
+    "staking": 150000000,
+    "community": 100000000,
+    "treasury": 100000000
+  },
+  "accounts": {
+    "liquidity": "CzKW7RsghhuYqLgMxvQWuFFV2RdJq4G1geZpfPLqTKf5",
+    "team": "CzKW7RsghhuYqLgMxvQWuFFV2RdJq4G1geZpfPLqTKf5",
+    "staking": "CzKW7RsghhuYqLgMxvQWuFFV2RdJq4G1geZpfPLqTKf5",
+    "community": "CzKW7RsghhuYqLgMxvQWuFFV2RdJq4G1geZpfPLqTKf5",
+    "treasury": "CzKW7RsghhuYqLgMxvQWuFFV2RdJq4G1geZpfPLqTKf5"
+  },
+  "lp": {
+    "sol": 5,
+    "tokens": 500000000,
+    "initialPrice": 100000000
+  },
+  "timestamp": "2026-02-02T20:27:36.848Z"
+}

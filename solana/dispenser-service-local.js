@@ -1,35 +1,30 @@
+#!/usr/bin/env node
 /**
- * Dispenser Service — watches bootstrap for new contributions and distributes CLWDN
- * 
- * Flow:
- * 1. Poll bootstrap contributor records for undistributed allocations
- * 2. For each undistributed record:
- *    a. Queue distribution via dispenser program (add_recipient)
- *    b. Execute distribution (distribute)
- *    c. Mark as distributed on bootstrap program
+ * Dispenser Service (Local) — watches bootstrap for new contributions and distributes CLWDN
+ * Modified to use local keypair at ~/.config/solana/id.json
  */
 
 const { Connection, Keypair, PublicKey, Transaction, TransactionInstruction, SystemProgram, sendAndConfirmTransaction } = require('@solana/web3.js');
-const { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+const { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
 const crypto = require('crypto');
 const fs = require('fs');
+const path = require('path');
 
 const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const conn = new Connection(RPC, 'confirmed');
 
-const path = require('path');
-const authorityPath = process.env.AUTHORITY_KEYPAIR || path.join(process.env.HOME, '.config/solana/id.json');
-const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
+const KEYPAIR_PATH = process.env.SOLANA_KEYPAIR || path.join(process.env.HOME, '.config/solana/id.json');
+console.log('Loading authority keypair from:', KEYPAIR_PATH);
+const authorityKey = JSON.parse(fs.readFileSync(KEYPAIR_PATH, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
 const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
-const BOOTSTRAP_PROGRAM = new PublicKey('GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe');
+const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
 
 const [DISPENSER_STATE] = PublicKey.findProgramAddressSync([Buffer.from('state')], DISPENSER_PROGRAM);
 const [BOOTSTRAP_STATE] = PublicKey.findProgramAddressSync([Buffer.from('bootstrap')], BOOTSTRAP_PROGRAM);
 
-// Vault = token account owned by dispenser state PDA
 let VAULT = null;
 
 function anchorDisc(name) {
@@ -42,18 +37,15 @@ function accountDisc(name) {
 
 async function getOrCreateVault() {
   if (VAULT) return VAULT;
-  // Find the ATA for the dispenser state PDA
   const ata = await getOrCreateAssociatedTokenAccount(
     conn, authority, CLWDN_MINT, DISPENSER_STATE, true, 'confirmed', undefined, TOKEN_PROGRAM_ID
   );
   VAULT = ata.address;
-  console.log('Vault:', VAULT.toBase58(), 'Balance:', ata.amount.toString());
+  console.log('Vault:', VAULT.toBase58(), 'Balance:', Number(ata.amount) / 1e9, 'CLWDN');
   return VAULT;
 }
 
-// Parse ContributorRecord from account data
 function parseContributorRecord(data) {
-  // Skip 8-byte discriminator
   const contributor = new PublicKey(data.slice(8, 40));
   const totalContributedLamports = data.readBigUInt64LE(40);
   const totalAllocatedClwdn = data.readBigUInt64LE(48);
@@ -64,7 +56,6 @@ function parseContributorRecord(data) {
 }
 
 async function findUndistributedContributions() {
-  // Get all accounts owned by bootstrap program with ContributorRecord discriminator
   const disc = accountDisc('ContributorRecord');
   const accounts = await conn.getProgramAccounts(BOOTSTRAP_PROGRAM, {
     filters: [{ memcmp: { offset: 0, bytes: require('bs58').encode(disc) } }],
@@ -83,38 +74,33 @@ async function findUndistributedContributions() {
 async function distributeToContributor(record) {
   const contributionId = `bootstrap-${record.contributor.toBase58().slice(0, 16)}-${record.contributionCount}`;
   const amount = record.totalAllocatedClwdn;
-  
+
   console.log(`\n  Distributing ${Number(amount) / 1e9} CLWDN to ${record.contributor.toBase58()}`);
   console.log(`  Contribution ID: ${contributionId}`);
 
-  // 1. Get/create recipient token account
   const recipientTA = await getOrCreateAssociatedTokenAccount(
     conn, authority, CLWDN_MINT, record.contributor, false, 'confirmed', undefined, TOKEN_PROGRAM_ID
   );
   console.log(`  Recipient token account: ${recipientTA.address.toBase58()}`);
 
-  // 2. Check if distribution PDA already exists
   const [distPda] = PublicKey.findProgramAddressSync(
     [Buffer.from('dist'), Buffer.from(contributionId)], DISPENSER_PROGRAM
   );
   console.log(`  Distribution PDA: ${distPda.toBase58()}`);
-  
+
   const existingDist = await conn.getAccountInfo(distPda);
   let needsQueue = true;
   let needsDistribute = true;
-  
+
   if (existingDist) {
-    // Parse distribution status: skip 8(disc) + 4(strlen) + 64(max string) + 32(pubkey) + 8(amount) = 116, status byte
     const statusOffset = 8 + 4 + 64 + 32 + 8;
     const status = existingDist.data[statusOffset];
     console.log(`  Distribution PDA already exists, status: ${status === 0 ? 'Queued' : status === 1 ? 'Distributed' : 'Cancelled'}`);
-    
+
     if (status === 1) {
-      // Already distributed, just mark on bootstrap
       needsQueue = false;
       needsDistribute = false;
     } else if (status === 0) {
-      // Queued but not distributed yet — skip add, go to distribute
       needsQueue = false;
     }
   }
@@ -124,7 +110,6 @@ async function distributeToContributor(record) {
   const sigs = [];
 
   try {
-    // Step 1: Queue (add_recipient) — only if PDA doesn't exist
     if (needsQueue) {
       console.log('  Step 1: Queuing distribution...');
       const addDisc = anchorDisc('add_recipient');
@@ -151,14 +136,12 @@ async function distributeToContributor(record) {
       console.log(`  ✅ Queued: ${sig1}`);
       console.log(`     Explorer: https://explorer.solana.com/tx/${sig1}?cluster=devnet`);
       sigs.push(sig1);
-      
-      // Wait a moment for state to settle
+
       await new Promise(r => setTimeout(r, 2000));
     } else {
       console.log('  Step 1: Skipped (already queued)');
     }
 
-    // Step 2: Distribute — only if not already distributed
     if (needsDistribute) {
       console.log('  Step 2: Executing distribution...');
       const distDisc = anchorDisc('distribute');
@@ -190,7 +173,6 @@ async function distributeToContributor(record) {
       console.log('  Step 2: Skipped (already distributed)');
     }
 
-    // Step 3: Mark distributed on bootstrap
     console.log('  Step 3: Marking as distributed on bootstrap...');
     const markDisc = anchorDisc('mark_distributed');
     const markIx = new TransactionInstruction({
@@ -219,18 +201,16 @@ async function distributeToContributor(record) {
 }
 
 async function runService() {
-  console.log('🔴 Dispenser Service Starting');
+  console.log('🔴 Dispenser Service Starting (Local Mode)');
   console.log('  Authority:', authority.publicKey.toBase58());
   console.log('  Dispenser:', DISPENSER_PROGRAM.toBase58());
   console.log('  Bootstrap:', BOOTSTRAP_PROGRAM.toBase58());
   console.log('  CLWDN Mint:', CLWDN_MINT.toBase58());
 
-  // Check vault
   await getOrCreateVault();
 
-  // Poll loop
   const POLL_INTERVAL = parseInt(process.env.DISPENSER_POLL_INTERVAL || '15000');
-  
+
   async function poll() {
     try {
       const undistributed = await findUndistributedContributions();

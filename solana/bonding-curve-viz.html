@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClawdNation Bonding Curve Visualizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .control-group input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-box .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-box .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .example-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .example-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .example-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .example-item:last-child {
+            border-bottom: none;
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ClawdNation Bonding Curve</h1>
+            <p>Linear Price Discovery Mechanism</p>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Curve Parameters</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>Start Rate (CLWDN/SOL)</label>
+                    <input type="number" id="startRate" value="10000" min="1000" step="1000">
+                </div>
+                <div class="control-group">
+                    <label>End Rate (CLWDN/SOL)</label>
+                    <input type="number" id="endRate" value="40000" min="10000" step="1000">
+                </div>
+                <div class="control-group">
+                    <label>Total CLWDN (millions)</label>
+                    <input type="number" id="totalCLWDN" value="100" min="10" step="10">
+                </div>
+                <div class="control-group">
+                    <label>Min Contribution (SOL)</label>
+                    <input type="number" id="minContrib" value="0.1" min="0.01" step="0.1">
+                </div>
+            </div>
+            <button class="button" onclick="updateChart()">Update Chart</button>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📈 Bonding Curve Visualization</h2>
+                <div class="chart-container">
+                    <canvas id="bondingCurveChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Distribution Chart</h2>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Key Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Expected SOL Raised</div>
+                    <div class="value" id="expectedSOL">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Average Rate</div>
+                    <div class="value" id="avgRate">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Early Bird Bonus</div>
+                    <div class="value" id="earlyBonus">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">LP Rate</div>
+                    <div class="value" id="lpRate">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💡 Example Contributions</h2>
+            <div class="example-box" id="examples">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔐 Security Features</h2>
+            <div class="example-box">
+                <div class="example-item">
+                    <span>✅ Anti-Bot Minimum</span>
+                    <span><strong id="minContribDisplay">0.1 SOL</strong></span>
+                </div>
+                <div class="example-item">
+                    <span>✅ Anti-Whale Max</span>
+                    <span><strong>10 SOL per wallet</strong></span>
+                </div>
+                <div class="example-item">
+                    <span>✅ Anti-Sandwich</span>
+                    <span><strong>Rate locked before TX</strong></span>
+                </div>
+                <div class="example-item">
+                    <span>✅ Transparent Curve</span>
+                    <span><strong>Parameters immutable</strong></span>
+                </div>
+                <div class="example-item">
+                    <span>✅ Emergency Pause</span>
+                    <span><strong>Authority can pause</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bondingChart, distributionChart;
+
+        function calculateCurve(startRate, endRate, totalCLWDN) {
+            const points = 100;
+            const data = [];
+            let totalSOL = 0;
+
+            for (let i = 0; i <= points; i++) {
+                const progress = i / points;
+                const clwdnSold = totalCLWDN * progress;
+                const rate = startRate + (endRate - startRate) * progress;
+
+                // Calculate incremental SOL
+                if (i > 0) {
+                    const prevProgress = (i - 1) / points;
+                    const prevRate = startRate + (endRate - startRate) * prevProgress;
+                    const clwdnIncrement = totalCLWDN / points;
+                    const solIncrement = clwdnIncrement / ((rate + prevRate) / 2);
+                    totalSOL += solIncrement;
+                }
+
+                data.push({
+                    x: clwdnSold,
+                    y: rate,
+                    sol: totalSOL
+                });
+            }
+
+            return data;
+        }
+
+        function updateChart() {
+            const startRate = parseInt(document.getElementById('startRate').value);
+            const endRate = parseInt(document.getElementById('endRate').value);
+            const totalCLWDN = parseInt(document.getElementById('totalCLWDN').value) * 1_000_000;
+            const minContrib = parseFloat(document.getElementById('minContrib').value);
+
+            const curveData = calculateCurve(startRate, endRate, totalCLWDN);
+            const avgRate = (startRate + endRate) / 2;
+            const expectedSOL = totalCLWDN / avgRate;
+            const lpSOL = expectedSOL * 0.8; // 80% to LP
+            const lpRate = (totalCLWDN * 4) / lpSOL; // 400M CLWDN / LP SOL
+
+            // Update stats
+            document.getElementById('expectedSOL').textContent = expectedSOL.toFixed(0);
+            document.getElementById('avgRate').textContent = avgRate.toLocaleString();
+            document.getElementById('earlyBonus').textContent = ((endRate / startRate - 1) * 100).toFixed(0) + '%';
+            document.getElementById('lpRate').textContent = lpRate.toLocaleString();
+            document.getElementById('minContribDisplay').textContent = minContrib + ' SOL';
+
+            // Update bonding curve chart
+            if (bondingChart) bondingChart.destroy();
+            bondingChart = new Chart(document.getElementById('bondingCurveChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'CLWDN per SOL',
+                        data: curveData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'CLWDN Sold (millions)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1_000_000).toFixed(0) + 'M';
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Rate (CLWDN per SOL)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return (context[0].parsed.x / 1_000_000).toFixed(1) + 'M CLWDN sold';
+                                },
+                                label: function(context) {
+                                    return 'Rate: ' + context.parsed.y.toLocaleString() + ' CLWDN/SOL';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update distribution chart
+            if (distributionChart) distributionChart.destroy();
+            distributionChart = new Chart(document.getElementById('distributionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bootstrap (10%)', 'LP (40%)', 'Staking (15%)', 'Team (15%)', 'Community (10%)', 'Treasury (10%)'],
+                    datasets: [{
+                        data: [10, 40, 15, 15, 10, 10],
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#4facfe',
+                            '#43e97b',
+                            '#fa709a'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Update examples
+            const examplesDiv = document.getElementById('examples');
+            examplesDiv.innerHTML = '<h3>Sample Contributions</h3>';
+
+            const samplePoints = [0, 0.25, 0.5, 0.75, 1.0];
+            samplePoints.forEach(progress => {
+                const clwdn = totalCLWDN * progress;
+                const rate = startRate + (endRate - startRate) * progress;
+                const solFor1 = 1_000_000 / rate; // 1M CLWDN
+
+                const div = document.createElement('div');
+                div.className = 'example-item';
+                div.innerHTML = `
+                    <span>${(progress * 100).toFixed(0)}% Complete (${(clwdn / 1_000_000).toFixed(0)}M CLWDN)</span>
+                    <span><strong>${rate.toLocaleString()} CLWDN/SOL</strong></span>
+                `;
+                examplesDiv.appendChild(div);
+            });
+        }
+
+        // Initialize on load
+        updateChart();
+
+        // Update on input change
+        ['startRate', 'endRate', 'totalCLWDN', 'minContrib'].forEach(id => {
+            document.getElementById(id).addEventListener('change', updateChart);
+        });
+    </script>
+</body>
+</html>

@@ -1,65 +1,33 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe");
+declare_id!("BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN");
 
-/// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
-///
-/// Security Features:
-/// - Anti-bot: Per-wallet caps
-/// - Anti-sniping: Minimum contribution amount
-/// - Anti-sandwich: Rate calculated BEFORE contribution
-/// - Transparent: All parameters on-chain
-/// - Immutable: Curve parameters locked at init
+/// Fixed rate: 1 SOL = 10,000 CLWDN (with 9 decimals = 10_000_000_000_000 raw)
+const CLWDN_PER_SOL: u64 = 10_000;
+const CLWDN_DECIMALS: u8 = 9;
 
-// Default curve parameters (can be customized)
-const DEFAULT_START_RATE: u64 = 10_000; // 1 SOL = 10K CLWDN (best rate)
-const DEFAULT_END_RATE: u64 = 40_000;   // 1 SOL = 40K CLWDN (worst rate)
-const DEFAULT_MIN_CONTRIBUTION: u64 = 100_000_000; // 0.1 SOL minimum (anti-bot)
-const DEFAULT_MAX_PER_WALLET: u64 = 10_000_000_000; // 10 SOL max per wallet (anti-whale)
-
-// SOL Distribution: 80/10/10
-const LP_PERCENT: u64 = 80;
-const MASTER_WALLET_PERCENT: u64 = 10;
-const STAKING_PERCENT: u64 = 10;
+/// SOL Distribution: 80/10/10
+const LP_PERCENT: u64 = 80; // 80% to LP
+const MASTER_WALLET_PERCENT: u64 = 10; // 10% to ClawdNation master
+const STAKING_PERCENT: u64 = 10; // 10% to staking rewards
 
 #[program]
 pub mod clwdn_bootstrap {
     use super::*;
 
-    /// Initialize with bonding curve parameters
+    /// Initialize the bootstrap program with 3 destination wallets
     pub fn initialize(
         ctx: Context<Initialize>,
-        params: BootstrapParams,
+        target_sol: u64,
+        allocation_cap: u64,
     ) -> Result<()> {
         let state = &mut ctx.accounts.state;
-
-        // Validate parameters
-        require!(params.allocation_cap > 0, BootstrapError::InvalidParams);
-        require!(params.start_rate > 0, BootstrapError::InvalidParams);
-        require!(params.end_rate >= params.start_rate, BootstrapError::InvalidParams);
-        require!(params.min_contribution > 0, BootstrapError::InvalidParams);
-        require!(
-            params.max_per_wallet >= params.min_contribution,
-            BootstrapError::InvalidParams
-        );
-
         state.authority = ctx.accounts.authority.key();
         state.pending_authority = None;
         state.lp_wallet = ctx.accounts.lp_wallet.key();
         state.master_wallet = ctx.accounts.master_wallet.key();
         state.staking_wallet = ctx.accounts.staking_wallet.key();
-
-        // Curve parameters (IMMUTABLE after init)
-        state.start_rate = params.start_rate;
-        state.end_rate = params.end_rate;
-        state.allocation_cap = params.allocation_cap;
-
-        // Anti-bot parameters
-        state.min_contribution = params.min_contribution;
-        state.max_per_wallet = params.max_per_wallet;
-
-        // State
         state.paused = false;
         state.total_contributed_lamports = 0;
         state.total_allocated_clwdn = 0;
@@ -67,97 +35,45 @@ pub mod clwdn_bootstrap {
         state.lp_received_lamports = 0;
         state.master_received_lamports = 0;
         state.staking_received_lamports = 0;
-        state.bootstrap_complete = false;
+        state.target_sol_lamports = target_sol
+            .checked_mul(1_000_000_000)
+            .ok_or(BootstrapError::Overflow)?;
+        state.allocation_cap = allocation_cap;
         state.bump = ctx.bumps.state;
-
-        msg!("Bootstrap initialized with bonding curve");
-        msg!("Start rate: {} CLWDN/SOL", params.start_rate);
-        msg!("End rate: {} CLWDN/SOL", params.end_rate);
-        msg!("Allocation: {} CLWDN", params.allocation_cap);
-        msg!("Min contribution: {} lamports", params.min_contribution);
-        msg!("Max per wallet: {} lamports", params.max_per_wallet);
-
+        msg!(
+            "Bootstrap initialized. Target: {} SOL, Cap: {} CLWDN",
+            target_sol,
+            allocation_cap
+        );
+        msg!("SOL Distribution: 80% LP, 10% Master, 10% Staking");
         Ok(())
     }
 
-    /// Contribute SOL with bonding curve pricing
+    /// Contribute SOL — automatically splits 80/10/10
     pub fn contribute_sol(
         ctx: Context<ContributeSol>,
         amount_lamports: u64,
     ) -> Result<()> {
         let state = &mut ctx.accounts.state;
-        let record = &mut ctx.accounts.contributor_record;
-
-        // Security checks
         require!(!state.paused, BootstrapError::Paused);
-        require!(!state.bootstrap_complete, BootstrapError::BootstrapComplete);
         require!(amount_lamports > 0, BootstrapError::InvalidAmount);
 
-        // Anti-bot: Minimum contribution
+        // Calculate CLWDN allocation (based on FULL contribution, not reduced)
+        let clwdn_amount = (amount_lamports as u128)
+            .checked_mul(CLWDN_PER_SOL as u128)
+            .ok_or(BootstrapError::Overflow)? as u64;
+
+        // Check allocation cap
         require!(
-            amount_lamports >= state.min_contribution,
-            BootstrapError::BelowMinimum
+            state
+                .total_allocated_clwdn
+                .checked_add(clwdn_amount)
+                .ok_or(BootstrapError::Overflow)?
+                <= state.allocation_cap,
+            BootstrapError::AllocationCapExceeded
         );
 
-        // Anti-whale: Per-wallet cap
-        let new_total = record
-            .total_contributed_lamports
-            .checked_add(amount_lamports)
-            .ok_or(BootstrapError::Overflow)?;
-        require!(
-            new_total <= state.max_per_wallet,
-            BootstrapError::ExceedsMaxPerWallet
-        );
-
-        // Calculate current rate based on CLWDN already distributed
-        // This is calculated BEFORE the contribution (anti-sandwich)
-        let current_rate = calculate_current_rate(
-            state.total_allocated_clwdn,
-            state.allocation_cap,
-            state.start_rate,
-            state.end_rate,
-        )?;
-
-        // Calculate CLWDN for this contribution at current rate
-        let sol_amount = amount_lamports
-            .checked_div(1_000_000_000)
-            .ok_or(BootstrapError::Overflow)?;
-
-        let clwdn_amount = sol_amount
-            .checked_mul(current_rate)
-            .ok_or(BootstrapError::Overflow)?;
-
-        // Check if this would exceed allocation cap
-        let new_allocated = state
-            .total_allocated_clwdn
-            .checked_add(clwdn_amount)
-            .ok_or(BootstrapError::Overflow)?;
-
-        if new_allocated > state.allocation_cap {
-            // Calculate how much CLWDN is left and adjust contribution
-            let remaining_clwdn = state.allocation_cap
-                .checked_sub(state.total_allocated_clwdn)
-                .ok_or(BootstrapError::AllocationCapExceeded)?;
-
-            // Recalculate SOL needed for remaining CLWDN
-            let adjusted_sol = remaining_clwdn
-                .checked_div(current_rate)
-                .ok_or(BootstrapError::Overflow)?;
-
-            let adjusted_lamports = adjusted_sol
-                .checked_mul(1_000_000_000)
-                .ok_or(BootstrapError::Overflow)?;
-
-            // Only accept what's needed
-            require!(
-                adjusted_lamports > 0,
-                BootstrapError::AllocationCapExceeded
-            );
-
-            msg!("Bootstrap completing: adjusted contribution to {} lamports", adjusted_lamports);
-        }
-
-        // Calculate 80/10/10 splits
+        // Calculate splits (80/10/10)
         let lp_amount = amount_lamports
             .checked_mul(LP_PERCENT)
             .ok_or(BootstrapError::Overflow)?
@@ -176,7 +92,19 @@ pub mod clwdn_bootstrap {
             .checked_div(100)
             .ok_or(BootstrapError::Overflow)?;
 
-        // Atomic transfers to all three wallets
+        // Verify splits sum correctly (handle rounding)
+        let total_split = lp_amount
+            .checked_add(master_amount)
+            .ok_or(BootstrapError::Overflow)?
+            .checked_add(staking_amount)
+            .ok_or(BootstrapError::Overflow)?;
+
+        require!(
+            total_split <= amount_lamports,
+            BootstrapError::SplitError
+        );
+
+        // Transfer SOL to LP wallet (80%)
         system_program::transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
@@ -188,6 +116,7 @@ pub mod clwdn_bootstrap {
             lp_amount,
         )?;
 
+        // Transfer SOL to Master wallet (10%)
         system_program::transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
@@ -199,6 +128,7 @@ pub mod clwdn_bootstrap {
             master_amount,
         )?;
 
+        // Transfer SOL to Staking wallet (10%)
         system_program::transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
@@ -210,8 +140,9 @@ pub mod clwdn_bootstrap {
             staking_amount,
         )?;
 
-        // Update contributor record
-        let is_new = record.total_contributed_lamports == 0;
+        // Update or create contributor record
+        let record = &mut ctx.accounts.contributor_record;
+        let is_new = record.total_contributed_lamports == 0 && record.contribution_count == 0;
 
         record.contributor = ctx.accounts.contributor.key();
         record.total_contributed_lamports = record
@@ -258,48 +189,36 @@ pub mod clwdn_bootstrap {
                 .ok_or(BootstrapError::Overflow)?;
         }
 
-        // Check if bootstrap is complete
-        if state.total_allocated_clwdn >= state.allocation_cap {
-            state.bootstrap_complete = true;
-            msg!("🎉 BOOTSTRAP COMPLETE!");
-        }
-
-        // Calculate next rate for transparency
-        let next_rate = calculate_current_rate(
-            state.total_allocated_clwdn,
-            state.allocation_cap,
-            state.start_rate,
-            state.end_rate,
-        )?;
-
-        // Emit detailed event
+        // Emit event for dispenser service to pick up
         emit!(ContributionEvent {
             contributor: ctx.accounts.contributor.key(),
             amount_lamports,
             clwdn_allocated: clwdn_amount,
-            rate_used: current_rate,
-            next_rate,
             lp_amount,
             master_amount,
             staking_amount,
             total_contributed: record.total_contributed_lamports,
             total_allocated: record.total_allocated_clwdn,
-            global_progress: state.total_allocated_clwdn * 100 / state.allocation_cap,
             contribution_count: record.contribution_count,
             timestamp: Clock::get()?.unix_timestamp,
         });
 
-        msg!("Contribution: {} SOL → {} CLWDN at rate {}",
-             amount_lamports / 1_000_000_000,
-             clwdn_amount,
-             current_rate);
-        msg!("Next rate: {} CLWDN/SOL", next_rate);
-        msg!("Progress: {}%", state.total_allocated_clwdn * 100 / state.allocation_cap);
-
+        msg!(
+            "Contribution: {} lamports from {} → {} CLWDN allocated",
+            amount_lamports,
+            ctx.accounts.contributor.key(),
+            clwdn_amount
+        );
+        msg!(
+            "Split: {} LP, {} Master, {} Staking",
+            lp_amount,
+            master_amount,
+            staking_amount
+        );
         Ok(())
     }
 
-    /// Mark a contributor as distributed
+    /// Mark a contributor as distributed (called by dispenser service after CLWDN transfer)
     pub fn mark_distributed(ctx: Context<MarkDistributed>) -> Result<()> {
         let state = &ctx.accounts.state;
         require!(
@@ -316,10 +235,11 @@ pub mod clwdn_bootstrap {
             timestamp: Clock::get()?.unix_timestamp,
         });
 
+        msg!("Marked as distributed: {}", record.contributor);
         Ok(())
     }
 
-    /// Emergency pause (anti-exploit)
+    /// Pause contributions
     pub fn pause(ctx: Context<AdminAction>) -> Result<()> {
         let state = &mut ctx.accounts.state;
         require!(
@@ -327,11 +247,11 @@ pub mod clwdn_bootstrap {
             BootstrapError::Unauthorized
         );
         state.paused = true;
-        msg!("⚠️ Bootstrap PAUSED");
+        msg!("Bootstrap PAUSED");
         Ok(())
     }
 
-    /// Unpause
+    /// Unpause contributions
     pub fn unpause(ctx: Context<AdminAction>) -> Result<()> {
         let state = &mut ctx.accounts.state;
         require!(
@@ -339,11 +259,37 @@ pub mod clwdn_bootstrap {
             BootstrapError::Unauthorized
         );
         state.paused = false;
-        msg!("✅ Bootstrap UNPAUSED");
+        msg!("Bootstrap UNPAUSED");
         Ok(())
     }
 
-    /// 2-step authority transfer
+    /// Update target SOL
+    pub fn update_target(ctx: Context<AdminAction>, new_target_sol: u64) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            BootstrapError::Unauthorized
+        );
+        state.target_sol_lamports = new_target_sol
+            .checked_mul(1_000_000_000)
+            .ok_or(BootstrapError::Overflow)?;
+        msg!("Target updated to {} SOL", new_target_sol);
+        Ok(())
+    }
+
+    /// Update allocation cap
+    pub fn update_cap(ctx: Context<AdminAction>, new_cap: u64) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(
+            ctx.accounts.authority.key() == state.authority,
+            BootstrapError::Unauthorized
+        );
+        state.allocation_cap = new_cap;
+        msg!("Allocation cap updated to {}", new_cap);
+        Ok(())
+    }
+
+    /// 2-step authority transfer — propose
     pub fn transfer_authority(ctx: Context<AdminAction>, new_authority: Pubkey) -> Result<()> {
         let state = &mut ctx.accounts.state;
         require!(
@@ -355,7 +301,7 @@ pub mod clwdn_bootstrap {
         Ok(())
     }
 
-    /// Accept authority transfer
+    /// 2-step authority transfer — accept
     pub fn accept_authority(ctx: Context<AcceptAuthority>) -> Result<()> {
         let state = &mut ctx.accounts.state;
         let pending = state
@@ -372,40 +318,6 @@ pub mod clwdn_bootstrap {
     }
 }
 
-/// Calculate current rate on bonding curve
-/// Linear interpolation: start_rate → end_rate based on CLWDN sold
-fn calculate_current_rate(
-    clwdn_sold: u64,
-    allocation_cap: u64,
-    start_rate: u64,
-    end_rate: u64,
-) -> Result<u64> {
-    // Progress = (CLWDN sold / total CLWDN) * 100
-    // Using checked math to prevent overflow
-    let progress = clwdn_sold
-        .checked_mul(10000) // Scale for precision (100.00%)
-        .ok_or(BootstrapError::Overflow)?
-        .checked_div(allocation_cap)
-        .ok_or(BootstrapError::Overflow)?;
-
-    // Rate = start + (end - start) * progress / 10000
-    let rate_range = end_rate
-        .checked_sub(start_rate)
-        .ok_or(BootstrapError::Overflow)?;
-
-    let rate_increase = rate_range
-        .checked_mul(progress)
-        .ok_or(BootstrapError::Overflow)?
-        .checked_div(10000)
-        .ok_or(BootstrapError::Overflow)?;
-
-    let current_rate = start_rate
-        .checked_add(rate_increase)
-        .ok_or(BootstrapError::Overflow)?;
-
-    Ok(current_rate)
-}
-
 // ═══ ACCOUNTS ═══
 
 #[derive(Accounts)]
@@ -418,13 +330,13 @@ pub struct Initialize<'info> {
         bump
     )]
     pub state: Account<'info, BootstrapState>,
-    /// CHECK: LP wallet receives 80% of SOL
+    /// CHECK: LP wallet to receive 80% of SOL
     #[account(mut)]
     pub lp_wallet: UncheckedAccount<'info>,
-    /// CHECK: Master wallet receives 10% of SOL
+    /// CHECK: Master wallet to receive 10% of SOL (ClawdNation fee)
     #[account(mut)]
     pub master_wallet: UncheckedAccount<'info>,
-    /// CHECK: Staking wallet receives 10% of SOL
+    /// CHECK: Staking wallet to receive 10% of SOL
     #[account(mut)]
     pub staking_wallet: UncheckedAccount<'info>,
     #[account(mut)]
@@ -446,13 +358,13 @@ pub struct ContributeSol<'info> {
     pub contributor_record: Account<'info, ContributorRecord>,
     #[account(mut)]
     pub contributor: Signer<'info>,
-    /// CHECK: Must match state.lp_wallet
+    /// CHECK: LP wallet must match state.lp_wallet
     #[account(mut, constraint = lp_wallet.key() == state.lp_wallet @ BootstrapError::InvalidWallet)]
     pub lp_wallet: UncheckedAccount<'info>,
-    /// CHECK: Must match state.master_wallet
+    /// CHECK: Master wallet must match state.master_wallet
     #[account(mut, constraint = master_wallet.key() == state.master_wallet @ BootstrapError::InvalidWallet)]
     pub master_wallet: UncheckedAccount<'info>,
-    /// CHECK: Must match state.staking_wallet
+    /// CHECK: Staking wallet must match state.staking_wallet
     #[account(mut, constraint = staking_wallet.key() == state.staking_wallet @ BootstrapError::InvalidWallet)]
     pub staking_wallet: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
@@ -491,25 +403,15 @@ pub struct BootstrapState {
     pub lp_wallet: Pubkey,
     pub master_wallet: Pubkey,
     pub staking_wallet: Pubkey,
-
-    // Bonding curve parameters (IMMUTABLE)
-    pub start_rate: u64,
-    pub end_rate: u64,
-    pub allocation_cap: u64,
-
-    // Anti-bot parameters
-    pub min_contribution: u64,
-    pub max_per_wallet: u64,
-
-    // State
     pub paused: bool,
-    pub bootstrap_complete: bool,
     pub total_contributed_lamports: u64,
     pub total_allocated_clwdn: u64,
     pub contributor_count: u64,
     pub lp_received_lamports: u64,
     pub master_received_lamports: u64,
     pub staking_received_lamports: u64,
+    pub target_sol_lamports: u64,
+    pub allocation_cap: u64,
     pub bump: u8,
 }
 
@@ -524,29 +426,6 @@ pub struct ContributorRecord {
     pub distributed: bool,
 }
 
-// ═══ PARAMETERS ═══
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
-pub struct BootstrapParams {
-    pub start_rate: u64,
-    pub end_rate: u64,
-    pub allocation_cap: u64,
-    pub min_contribution: u64,
-    pub max_per_wallet: u64,
-}
-
-impl Default for BootstrapParams {
-    fn default() -> Self {
-        Self {
-            start_rate: DEFAULT_START_RATE,
-            end_rate: DEFAULT_END_RATE,
-            allocation_cap: 100_000_000, // 100M CLWDN
-            min_contribution: DEFAULT_MIN_CONTRIBUTION,
-            max_per_wallet: DEFAULT_MAX_PER_WALLET,
-        }
-    }
-}
-
 // ═══ EVENTS ═══
 
 #[event]
@@ -554,14 +433,11 @@ pub struct ContributionEvent {
     pub contributor: Pubkey,
     pub amount_lamports: u64,
     pub clwdn_allocated: u64,
-    pub rate_used: u64,
-    pub next_rate: u64,
     pub lp_amount: u64,
     pub master_amount: u64,
     pub staking_amount: u64,
     pub total_contributed: u64,
     pub total_allocated: u64,
-    pub global_progress: u64,
     pub contribution_count: u64,
     pub timestamp: i64,
 }
@@ -591,12 +467,6 @@ pub enum BootstrapError {
     InvalidWallet,
     #[msg("No pending authority transfer")]
     NoPendingTransfer,
-    #[msg("Invalid parameters")]
-    InvalidParams,
-    #[msg("Below minimum contribution")]
-    BelowMinimum,
-    #[msg("Exceeds maximum per wallet")]
-    ExceedsMaxPerWallet,
-    #[msg("Bootstrap already complete")]
-    BootstrapComplete,
+    #[msg("Split calculation error")]
+    SplitError,
 }

@@ -1,11 +1,12 @@
 [toolchain]
+anchor_version = "0.31.1"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-bootstrap = "BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN"
+bootstrap = "GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe"
 
 [registry]
 url = "https://api.apr.dev"

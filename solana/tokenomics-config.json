@@ -1,0 +1,13 @@
+{
+  "name": "Factory Default",
+  "description": "Proven 70/10/10/10 split with 12-month founder vesting",
+  "liquidityPercent": 70,
+  "founderPercent": 10,
+  "treasuryPercent": 10,
+  "launchPercent": 10,
+  "founderVestingMonths": 12,
+  "launchMode": "burn",
+  "launchDistribution": null,
+  "createdAt": "2026-02-02T18:35:07.153Z",
+  "updatedAt": "2026-02-02T18:35:07.153Z"
+}

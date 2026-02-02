@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe");
+declare_id!("BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN");
 
 /// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
 ///

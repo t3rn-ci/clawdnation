@@ -70,14 +70,14 @@ async function initBootstrap() {
   }
 
   // Build instruction: initialize(target_sol: u64, allocation_cap: u64)
-  // target_sol = 10000, allocation_cap = 100_000_000 (100M CLWDN raw with 9 decimals = 100_000_000_000_000_000)
+  // target_sol = 10000, allocation_cap = 200_000_000 (200M CLWDN raw with 9 decimals = 200_000_000_000_000_000)
   const disc = anchorDisc('initialize');
   const data = Buffer.alloc(8 + 8 + 8);
   disc.copy(data, 0);
   // target_sol = 10000 (u64 LE)
   data.writeBigUInt64LE(10000n, 8);
-  // allocation_cap = 100_000_000_000_000_000 (100M * 10^9 decimals)
-  data.writeBigUInt64LE(100_000_000_000_000_000n, 16);
+  // allocation_cap = 200_000_000_000_000_000 (200M * 10^9 decimals)
+  data.writeBigUInt64LE(200_000_000_000_000_000n, 16);
 
   // Treasury = authority wallet (receives SOL)
   const ix = new TransactionInstruction({
