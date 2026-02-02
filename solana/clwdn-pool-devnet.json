@@ -1,15 +1,15 @@
 {
   "network": "devnet",
-  "txId": "5nyPAfBtAhxhvBhtQZ3jQE4vqkbfdbjGYSsdmxsp9qrFYAyDj5EfWoE9PzfJunHYD5JoDUHPYcW7Yfzv8bBui8d4",
-  "poolId": "EoJLFfUheFN8gKx4Z5rGS6PvgCxMGQXeWxZwL6eLDJEo",
+  "txId": "MLyMPnJzyMCdxpAXSpCrwYn9HdsLMwDk45G2CCauhHnFeDodJTZWjWEXuuh5D28mtKcSp2NCq3CxANYo8jB9zU7",
+  "poolId": "7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
   "poolKeys": {
-    "poolId": "EoJLFfUheFN8gKx4Z5rGS6PvgCxMGQXeWxZwL6eLDJEo",
-    "configId": "5MxLgy9oPdTC3YgkiePHqr3EoCRD9uLVYRQS2ANAs7wy",
+    "poolId": "7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
+    "configId": "HTVWgp8CbUsRNmRE1p9RBYqopxe2qiyApSkiTFLrfxaW",
     "authority": "CXniRufdq5xL8t8jZAPxsPZDpuudwuJSPWnbcD5Y5Nxq",
-    "lpMint": "5aaY4HMYaG3DJWiot2EQop5aq1mb7RuZociZ4ecVU2sZ",
-    "vaultA": "8DKjDiTFgiDmZE1Jr6ne7mJ5yJ4xhYDSNWJuXqfs4iF4",
-    "vaultB": "6QNJJndTR3vktRq2Aq2nXxpnBPBed4TBMaN78mmVBD7R",
-    "observationId": "2p7e7pzqJwuPQ8bUu5JrRj8KBj6LLvSsvPh9F7fmpn8N",
+    "lpMint": "HkfVPWChZURpWKtv97zFKh89sAxbpiCkjWndGboawBUz",
+    "vaultA": "3usoVaHNcFJD9yPiKzyX7DkJg48w244XNRK8bknrFZA8",
+    "vaultB": "3tnZQt1PYa8JeFn9Dm7MnMfse5XcRziVsq9ZGt3cTgRD",
+    "observationId": "GSD94XDUXck5yX7K3zHecRGhQWErQzjr33TqrkquewAg",
     "mintA": "[object Object]",
     "mintB": "[object Object]",
     "programId": "DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb",
@@ -17,11 +17,11 @@
     "feeConfig": "[object Object]"
   },
   "clwdnMint": "2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3",
-  "clwdnAmount": "400000000000000000",
+  "clwdnAmount": "4000000000000",
   "solAmount": "1000000000",
-  "initialPriceSolPerClwdn": 2.5e-9,
-  "explorer": "https://explorer.solana.com/tx/5nyPAfBtAhxhvBhtQZ3jQE4vqkbfdbjGYSsdmxsp9qrFYAyDj5EfWoE9PzfJunHYD5JoDUHPYcW7Yfzv8bBui8d4?cluster=devnet",
-  "poolExplorer": "https://explorer.solana.com/address/EoJLFfUheFN8gKx4Z5rGS6PvgCxMGQXeWxZwL6eLDJEo?cluster=devnet",
-  "raydium": "https://raydium.io/pools/EoJLFfUheFN8gKx4Z5rGS6PvgCxMGQXeWxZwL6eLDJEo",
-  "createdAt": "2026-02-02T17:38:03.341Z"
+  "initialPriceSolPerClwdn": 0.00025,
+  "explorer": "https://explorer.solana.com/tx/MLyMPnJzyMCdxpAXSpCrwYn9HdsLMwDk45G2CCauhHnFeDodJTZWjWEXuuh5D28mtKcSp2NCq3CxANYo8jB9zU7?cluster=devnet",
+  "poolExplorer": "https://explorer.solana.com/address/7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA?cluster=devnet",
+  "raydium": "https://raydium.io/pools/7kDyppYQ62Nm63MSTp1Nw3dVLq2yiC5ifHpvVJk1JwWA",
+  "createdAt": "2026-02-02T17:49:06.020Z"
 }

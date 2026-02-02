@@ -135,7 +135,10 @@ async function createClwdnPool(clwdnAmount, solAmount) {
     throw new Error('No CPMM fee configs found');
   }
 
-  console.log('   Using fee config: ' + feeConfigs[0].id + ' (index: ' + feeConfigs[0].index + ')');
+  // Select fee config by index (default 0, use --feeConfigIndex to pick another)
+  const feeIdx = parseInt(process.env.FEE_CONFIG_INDEX || '0');
+  const selectedFeeConfig = feeConfigs[feeIdx] || feeConfigs[0];
+  console.log('   Using fee config: ' + selectedFeeConfig.id + ' (index: ' + selectedFeeConfig.index + ', tradeFee: ' + selectedFeeConfig.tradeFeeRate + ')');
 
   // Program IDs
   const programId = IS_MAINNET
@@ -155,7 +158,7 @@ async function createClwdnPool(clwdnAmount, solAmount) {
     mintAAmount: clwdnAmount,
     mintBAmount: solAmount,
     startTime: new BN(0),
-    feeConfig: feeConfigs[0],
+    feeConfig: selectedFeeConfig,
     associatedOnly: false,
     ownerInfo: {
       useSOLBalance: true,
