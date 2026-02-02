@@ -37,13 +37,23 @@ const ADDRESSES = {
     cpmmProgram: 'CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C',
   },
   mainnet: {
-    clwdnMint: process.env.MAINNET_CLWDN_MINT || 'REPLACE_WITH_MAINNET_MINT',
-    lpWallet: process.env.MAINNET_LP_WALLET || 'REPLACE_WITH_MAINNET_LP_WALLET',
+    clwdnMint: process.env.MAINNET_CLWDN_MINT || '',
+    lpWallet: process.env.MAINNET_LP_WALLET || '',
     cpmmProgram: 'CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C',
   }
 };
 
 const config = ADDRESSES[isMainnet ? 'mainnet' : 'devnet'];
+
+// Validate mainnet addresses
+if (isMainnet && (!config.clwdnMint || !config.lpWallet)) {
+  console.error('❌ Mainnet addresses not configured!');
+  console.error('   Please set environment variables:');
+  console.error('   - MAINNET_CLWDN_MINT');
+  console.error('   - MAINNET_LP_WALLET');
+  process.exit(1);
+}
+
 const CLWDN_MINT = new PublicKey(config.clwdnMint);
 const LP_WALLET = new PublicKey(config.lpWallet);
 const SOL_MINT = new PublicKey('So11111111111111111111111111111111111111112');
@@ -57,30 +67,29 @@ if (!fs.existsSync(authorityPath)) {
 const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
-console.log('╔════════════════════════════════════════════════════════════╗');
-console.log('║         REAL RAYDIUM LP CREATION                           ║');
-console.log('╚════════════════════════════════════════════════════════════╝\n');
-
-if (isMainnet) {
-  console.log('🚨 MAINNET MODE - THIS WILL USE REAL FUNDS! 🚨\n');
-  if (!isDryRun) {
-    console.log('⚠️  You have 10 seconds to cancel (Ctrl+C)...\n');
-    await new Promise(r => setTimeout(r, 10000));
-  }
-} else {
-  console.log('🧪 DEVNET MODE - Testing with devnet tokens\n');
-}
-
-console.log('📋 CONFIGURATION:\n');
-console.log('  Network:', NETWORK);
-console.log('  RPC:', RPC);
-console.log('  Authority:', authority.publicKey.toBase58());
-console.log('  LP Wallet:', LP_WALLET.toBase58());
-console.log('  CLWDN Mint:', CLWDN_MINT.toBase58());
-console.log('  Dry Run:', isDryRun ? 'YES (no transactions)' : 'NO (real transactions)');
-console.log('');
-
 async function main() {
+  console.log('╔════════════════════════════════════════════════════════════╗');
+  console.log('║         REAL RAYDIUM LP CREATION                           ║');
+  console.log('╚════════════════════════════════════════════════════════════╝\n');
+
+  if (isMainnet) {
+    console.log('🚨 MAINNET MODE - THIS WILL USE REAL FUNDS! 🚨\n');
+    if (!isDryRun) {
+      console.log('⚠️  You have 10 seconds to cancel (Ctrl+C)...\n');
+      await new Promise(r => setTimeout(r, 10000));
+    }
+  } else {
+    console.log('🧪 DEVNET MODE - Testing with devnet tokens\n');
+  }
+
+  console.log('📋 CONFIGURATION:\n');
+  console.log('  Network:', NETWORK);
+  console.log('  RPC:', RPC);
+  console.log('  Authority:', authority.publicKey.toBase58());
+  console.log('  LP Wallet:', LP_WALLET.toBase58());
+  console.log('  CLWDN Mint:', CLWDN_MINT.toBase58());
+  console.log('  Dry Run:', isDryRun ? 'YES (no transactions)' : 'NO (real transactions)');
+  console.log('');
   console.log('━━━ STEP 1: Check LP Wallet Funds ━━━\n');
 
   const lpBalance = await conn.getBalance(LP_WALLET);
