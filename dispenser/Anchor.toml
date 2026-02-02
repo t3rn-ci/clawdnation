@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-dispenser = "GmsCrZcVdArUFKrBHRpycuUUaSTr9HgwzuqnsvbXsNBV"
+dispenser = "fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi"
 
 [programs.devnet]
 dispenser = "fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi"
