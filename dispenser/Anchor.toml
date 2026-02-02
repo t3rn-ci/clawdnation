@@ -9,7 +9,7 @@ skip-lint = false
 dispenser = "GmsCrZcVdArUFKrBHRpycuUUaSTr9HgwzuqnsvbXsNBV"
 
 [programs.devnet]
-dispenser = "5ZrZDAEWC6rK4PU3QWndUoKofmLnEAEE4EciDdhn4pBx"
+dispenser = "fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi"
 
 [registry]
 url = "https://api.apr.dev"

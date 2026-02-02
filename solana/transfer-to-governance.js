@@ -23,7 +23,7 @@ const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 // Program IDs
 const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
+const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
 
 // Load governance addresses
 const governanceAddressesPath = path.join(__dirname, 'governance-addresses.json');
@@ -183,7 +183,7 @@ async function main() {
     console.log('    - new_authority: [Bootstrap Governance]');
     console.log('');
     console.log('For Dispenser:');
-    console.log('  Program: AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
+    console.log('  Program: fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
     console.log('  Instruction: accept_authority()');
     console.log('  Accounts:');
     console.log('    - state: [dispenser PDA]');

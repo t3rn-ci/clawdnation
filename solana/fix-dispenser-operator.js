@@ -18,7 +18,7 @@ const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const conn = new Connection(RPC, 'confirmed');
 
 // Dispenser program
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
+const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
 
 // Load authority
 const authorityPath = process.env.AUTHORITY_KEYPAIR || path.join(process.env.HOME, '.config/solana/id.json');

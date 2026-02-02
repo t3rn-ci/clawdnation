@@ -11,7 +11,7 @@ const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const { Keypair } = require('@solana/web3.js');
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
+const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
 
 const [dispenserState] = PublicKey.findProgramAddressSync(
   [Buffer.from('state')],

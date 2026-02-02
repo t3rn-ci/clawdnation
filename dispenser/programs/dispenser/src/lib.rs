@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TransferChecked};
 use anchor_spl::token_interface::{Mint, TokenAccount};
 
-declare_id!("5ZrZDAEWC6rK4PU3QWndUoKofmLnEAEE4EciDdhn4pBx");
+declare_id!("fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi");
 
 #[program]
 pub mod clwdn_dispenser {
@@ -184,22 +184,25 @@ pub mod clwdn_dispenser {
         let current_slot = clock.slot;
         let slots_per_hour = 7200; // ~2 slots/sec * 3600 sec = 7200 slots/hour
 
-        let state_mut = &mut ctx.accounts.state;
+        // Do rate limiting checks (mutable scope)
+        {
+            let state_mut = &mut ctx.accounts.state;
 
-        // Reset window if an hour has passed
-        if current_slot - state_mut.last_distribution_slot > slots_per_hour {
-            state_mut.last_distribution_slot = current_slot;
-            state_mut.distributions_this_window = 0;
+            // Reset window if an hour has passed
+            if current_slot - state_mut.last_distribution_slot > slots_per_hour {
+                state_mut.last_distribution_slot = current_slot;
+                state_mut.distributions_this_window = 0;
+            }
+
+            // Check rate limit
+            require!(
+                state_mut.distributions_this_window < state_mut.rate_limit_per_window,
+                DispenserError::RateLimitExceeded
+            );
+
+            // Increment distribution counter
+            state_mut.distributions_this_window += 1;
         }
-
-        // Check rate limit
-        require!(
-            state_mut.distributions_this_window < state_mut.rate_limit_per_window,
-            DispenserError::RateLimitExceeded
-        );
-
-        // Increment distribution counter
-        state_mut.distributions_this_window += 1;
 
         // Transfer from vault to recipient using PDA signer
         let seeds = &[b"state".as_ref(), &[bump]];
@@ -224,6 +227,7 @@ pub mod clwdn_dispenser {
         dist.distributed_at = Clock::get()?.unix_timestamp;
 
         // Fix #4: checked addition
+        let state_mut = &mut ctx.accounts.state;
         state_mut.total_distributed = state_mut
             .total_distributed
             .checked_add(amount)
