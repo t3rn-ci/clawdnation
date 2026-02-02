@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3333;
 const NETWORK = process.env.NETWORK || 'devnet';
 const EXPLORER_CLUSTER = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
-const ORDERS_PATH = path.join(__dirname, 'solana', 'orders.json');
+const ORDERS_PATH = path.join(__dirname, 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const VESTING_PATH = path.join(__dirname, 'solana', 'vesting.json');
 const CLWDN_MINT = '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
 const PAYMENT_WALLET = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
@@ -201,6 +201,44 @@ const server = http.createServer(async (req, res) => {
     const stats = getStats();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify(stats));
+  }
+
+  // POST /api/rpc — proxy Solana RPC calls (avoids CORS issues with public RPC)
+  if (req.url === '/api/rpc' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const parsed = JSON.parse(body);
+        // Whitelist safe read-only methods
+        const allowed = ['getBalance', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
+          'getAccountInfo', 'getTokenSupply', 'getTokenLargestAccounts', 'getGenesisHash',
+          'getLatestBlockhash', 'getRecentBlockhash', 'getSignatureStatuses',
+          'getTransaction', 'getSlot', 'getHealth', 'getVersion'];
+        if (!allowed.includes(parsed.method)) {
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          return res.end(JSON.stringify({ error: 'Method not allowed' }));
+        }
+        const result = await solanaRpc(parsed.method, parsed.params || []);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ jsonrpc: '2.0', result: result?.result, id: parsed.id }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -1, message: e.message }, id: null }));
+      }
+    });
+    return;
+  }
+
+  // OPTIONS /api/rpc — CORS preflight
+  if (req.url === '/api/rpc' && req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, solana-client',
+      'Access-Control-Max-Age': '86400'
+    });
+    return res.end();
   }
 
   // GET /api/health
