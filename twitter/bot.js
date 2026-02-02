@@ -15,6 +15,16 @@ const path = require('path');
 const { createOrder, checkPayments, loadOrders } = require('../solana/payment-monitor');
 const { createToken } = require('../solana/token-factory');
 
+// Self-birth module
+const { BOT_USER_ID, isSelfBirthTweet, executeSelfBirth, GENESIS_TWEET } = require("../solana/self-birth");
+const { Keypair } = require("@solana/web3.js");
+let authority = null;
+try {
+  const authorityKey = JSON.parse(fs.readFileSync(process.env.AUTHORITY_KEYPAIR || "/root/.config/solana/clawdnation.json", "utf8"));
+  authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
+  console.log("🔑 Self-birth enabled:", authority.publicKey.toBase58().slice(0,16) + "...");
+} catch(e) { console.warn("⚠️ Self-birth disabled:", e.message); }
+
 // Load env
 // Load from .env first, then .env.twitter as fallback
 const envFiles = [path.join(__dirname, '..', '.env'), path.join(__dirname, '..', '.env.twitter')];
@@ -167,6 +177,19 @@ async function pollTwitter() {
 
       // Parse launch request
       const data = parseLaunchRequest(t.text);
+
+
+      // Self-birth: bot detects its own genesis tweet
+      if (isSelfBirthTweet(t) && authority) {
+        console.log("🦞 SELF-BIRTH TWEET DETECTED!");
+        processed.tweets[t.id] = { status: "self-birth", started: Date.now() };
+        saveProcessed(processed);
+        const result = await executeSelfBirth(authority, tweet, t.id);
+        processed.tweets[t.id].status = result.success ? "self-birth-complete" : "self-birth-failed";
+        processed.tweets[t.id].result = result;
+        saveProcessed(processed);
+        continue;
+      }
 
       if (!data.name && !data.symbol) {
         console.log('   Skipping — no token details found');
