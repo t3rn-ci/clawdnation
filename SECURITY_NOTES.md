@@ -79,25 +79,38 @@ Without path traversal protection, attackers could:
 
 ## Test Coverage
 
-**Current Status**: 33 passing, 4 failing (89% pass rate) ✅
+**Current Status**: 37 passing, 0 failing (100% pass rate) 🎉✅
 
-**FIXED (2026-02-02)**: Critical program ID mismatch resolved
+**FIXED (2026-02-02)**: All test failures resolved
+
+### Fix #1: Critical program ID mismatch
 - **Problem**: Anchor.toml had wrong program ID for localnet (GmsCrZcVdArUFKrBHRpycuUUaSTr9HgwzuqnsvbXsNBV)
 - **Solution**: Updated to match declare_id! in lib.rs (fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi)
 - **Result**: Tests recovered from 3/33 to 33/37 passing
 
-**Remaining 4 Failures** (non-security):
-1. Max 10 operators enforcement (edge case)
-2. Authority transfer propose (serialization issue)
-3. Wrong person accept transfer (depends on #2)
-4. Full transfer cycle (depends on #2)
+### Fix #2: Account reallocation for dynamic state
+- **Problem**: 4 tests failing due to missing realloc when state grows
+  1. Max 10 operators not enforced
+  2. Authority transfer serialization failed (Vec/Option growth)
+  3. Wrong person accept transfer (dependent)
+  4. Full transfer cycle (dependent)
+- **Root Cause**: ManageOperator, TransferAuthority, AcceptAuthority missing System program for realloc
+- **Solution**:
+  - Added max 10 operators check + realloc to add_operator
+  - Added realloc to transfer_authority for Option<Pubkey>
+  - Added System program to all three account structs
+  - Added TooManyOperators error code
+- **Result**: All 37 tests now passing (100%)
 
-All core security tests pass:
+All security tests pass:
 - ✅ Distribution security (drain attacks blocked)
 - ✅ Operator privilege escalation blocked
+- ✅ Max operators enforced (10 limit)
+- ✅ Authority transfer 2-step process secure
 - ✅ Cancel/double-distribute blocked
 - ✅ Account ownership checks
 - ✅ State accounting (overflow protection)
+- ✅ Wrong recipient/vault/mint rejected
 
 ## Summary
 
