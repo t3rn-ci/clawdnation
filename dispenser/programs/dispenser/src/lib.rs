@@ -42,7 +42,16 @@ pub mod clwdn_dispenser {
             DispenserError::Unauthorized
         );
         if !state.operators.contains(&new_operator) {
+            require!(
+                state.operators.len() < 10,
+                DispenserError::TooManyOperators
+            );
             state.operators.push(new_operator);
+
+            // Realloc account if needed
+            let new_space = 8 + DispenserState::INIT_SPACE;
+            let account_info = ctx.accounts.state.to_account_info();
+            account_info.realloc(new_space, false)?;
         }
         msg!("Operator added: {}", new_operator);
         Ok(())
@@ -69,6 +78,12 @@ pub mod clwdn_dispenser {
             DispenserError::Unauthorized
         );
         state.pending_authority = Some(new_authority);
+
+        // Realloc account for Option<Pubkey> if needed
+        let new_space = 8 + DispenserState::INIT_SPACE;
+        let account_info = ctx.accounts.state.to_account_info();
+        account_info.realloc(new_space, false)?;
+
         msg!("Authority transfer proposed to: {}", new_authority);
         Ok(())
     }
@@ -342,21 +357,27 @@ pub struct Initialize<'info> {
 pub struct ManageOperator<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub operator: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct TransferAuthority<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct AcceptAuthority<'info> {
     #[account(mut, seeds = [b"state"], bump = state.bump)]
     pub state: Account<'info, DispenserState>,
+    #[account(mut)]
     pub new_authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -490,4 +511,6 @@ pub enum DispenserError {
     AmountTooLarge,
     #[msg("Rate limit exceeded - too many distributions this window")]
     RateLimitExceeded,
+    #[msg("Maximum number of operators (10) reached")]
+    TooManyOperators,
 }
