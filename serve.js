@@ -143,6 +143,10 @@ const BLOCKED_PATHS = [
   '.git', '.gitignore',
   'node_modules',
   'solana/orders.json', 'solana/vesting.json', 'solana/bootstrap.json',
+  'solana/seen-txs.json',
+  'solana/dispenser-', 'solana/e2e-', 'solana/archive/',
+  'twitter/processed-tweets.json', 'twitter/bot',
+  'bootstrap/', 'dispenser/',
   'serve.js', 'package.json', 'package-lock.json',
   'Cargo.toml', 'Cargo.lock',
   '.pem', '.key', 'wallet', 'keypair',
@@ -163,13 +167,34 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
 
-  // POST /api/rpc — Solana RPC proxy (CORS workaround)
+  // POST /api/rpc — Solana RPC proxy (CORS workaround, READ-ONLY)
   if (req.url === '/api/rpc' && req.method === 'POST') {
+    // Whitelist of allowed read-only RPC methods
+    const ALLOWED_METHODS = [
+      'getAccountInfo', 'getBalance', 'getBlockHeight', 'getBlockTime',
+      'getClusterNodes', 'getEpochInfo', 'getHealth', 'getInflationReward',
+      'getLatestBlockhash', 'getMinimumBalanceForRentExemption',
+      'getMultipleAccounts', 'getProgramAccounts', 'getRecentBlockhash',
+      'getSignatureStatuses', 'getSlot', 'getStakeActivation',
+      'getSupply', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
+      'getTokenLargestAccounts', 'getTokenSupply', 'getTransaction',
+      'getTransactionCount', 'getVersion', 'getVoteAccounts'
+    ];
+
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', async () => {
       try {
         const rpcReq = JSON.parse(body);
+
+        // Block write methods for security
+        if (!ALLOWED_METHODS.includes(rpcReq.method)) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({
+            error: `Method '${rpcReq.method}' not allowed. This proxy only supports read-only methods.`
+          }));
+        }
+
         const rpcRes = await solanaRpc(rpcReq.method, rpcReq.params);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(rpcRes));
