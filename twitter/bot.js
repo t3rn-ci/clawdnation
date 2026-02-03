@@ -237,6 +237,14 @@ async function pollTwitter() {
       if (!data.symbol) data.symbol = data.name.replace(/[^A-Z]/gi, '').slice(0, 5).toUpperCase();
       if (!data.name) data.name = data.symbol;
 
+      // Never try to launch CLWDN — it already exists
+      if (data.symbol && data.symbol.toUpperCase() === "CLWDN") {
+        console.log("   Skipping — CLWDN already exists");
+        processed.tweets[t.id] = { status: "skipped", reason: "clwdn_exists" };
+        saveProcessed(processed);
+        continue;
+      }
+
       // Get user info
       const user = await getUserById(t.author_id);
       const username = user ? `@${user.username}` : t.author_id;

@@ -198,6 +198,14 @@ async function pollMoltX() {
       if (!data.symbol) data.symbol = data.name.replace(/[^A-Z]/gi, '').slice(0, 5).toUpperCase();
       if (!data.name) data.name = data.symbol;
 
+      // Never try to launch CLWDN — it already exists
+      if (data.symbol && data.symbol.toUpperCase() === "CLWDN") {
+        console.log("   Skipping — CLWDN already exists");
+        processed.posts[postId] = { status: "skipped", reason: "clwdn_exists", at: new Date().toISOString() };
+        saveProcessed(processed);
+        continue;
+      }
+
       console.log(`   Token: ${data.name} ($${data.symbol})`);
       console.log(`   From: @${authorName}`);
       console.log(`   Wallet: ${data.wallet || 'none provided'}`);
