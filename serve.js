@@ -578,7 +578,7 @@ const server = http.createServer(async (req, res) => {
     }
     // Inject network config into HTML files
     if (ext === '.html') {
-      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK === 'mainnet' ? '' : '?cluster=devnet'}",isDevnet:${NETWORK !== 'mainnet'}};</script>`;
+      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK==="mainnet"?"":"?cluster=devnet"}",isDevnet:${NETWORK!=="mainnet"},clwdnMint:"${CLWDN_MINT}",dispenserProgram:"${DISPENSER_PROGRAM}",bootstrapProgram:"${BOOTSTRAP_PROGRAM}",paymentWallet:"${PAYMENT_WALLET}"};</script>`;
       let html = data.toString();
       html = html.replace('</head>', configScript + '</head>');
       // Show/hide devnet badge based on network
