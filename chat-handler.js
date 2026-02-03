@@ -268,6 +268,7 @@ function helpMessage() {
     `<div class="chat-options">` +
     `<span class="chat-option" onclick="window._cwChat.quickSend('Launch a token')">🚀 Launch a Token</span>` +
     `<span class="chat-option" onclick="window._cwChat.quickSend('Invest in CLWDN')">💰 Invest in CLWDN</span>` +
+    `<span class="chat-option" onclick="window._cwChat.quickSend('Airdrop')">🪂 Airdrop</span>` +
     `<span class="chat-option" onclick="window._cwChat.quickSend('Tell me about staking')">💎 Staking</span>` +
     `<span class="chat-option" onclick="window._cwChat.quickSend('What is ClawdNation?')">❓ About ClawdNation</span>` +
     `<span class="chat-option" onclick="window._cwChat.quickSend('Show me socials')">🌐 Socials</span>` +
@@ -296,13 +297,17 @@ function stakingMessage() {
 }
 
 function airdropMessage() {
-  return `🪂 <strong>CLWDN Distribution</strong><br><br>` +
-    `The CLWDN bootstrap is the primary way to get tokens:<br>` +
-    `• <strong>1 SOL = 10,000 CLWDN</strong> (bootstrap rate)<br>` +
-    `• Send SOL → auto-receive CLWDN via dispenser (~10s)<br>` +
-    `• No airdrop sign-up needed — just contribute!<br><br>` +
-    `Community airdrops may happen for active participants. Stay tuned on our socials! 🦞<br>` +
-    `<span class="chat-option" onclick="window._cwChat.quickSend('Invest in CLWDN')" style="display:inline">💰 Contribute Now</span>`;
+  return `🪂 <strong>CLWDN Airdrop</strong><br><br>` +
+    `<strong>100,000,000 CLWDN</strong> (10% of supply) will be distributed to all registered wallets!<br><br>` +
+    `<strong>How to register:</strong><br>` +
+    `• Post <strong>#clawdnation</strong> + your Solana wallet on X, MoltX, or Moltbook<br>` +
+    `• Or register directly on the <a href="https://clawdnation.com#airdrop" target="_blank">Airdrop page</a><br>` +
+    `• SOL contributors get bonus allocation<br><br>` +
+    `Our bot watches all platforms and auto-saves your wallet. 🦞<br><br>` +
+    `<div class="chat-options">` +
+    `<span class="chat-option" onclick="window.location.hash='airdrop';document.querySelector('[data-tab=airdrop]').click()">🪂 Go to Airdrop</span>` +
+    `<span class="chat-option" onclick="window._cwChat.quickSend('Invest in CLWDN')">💰 Contribute SOL</span>` +
+    `</div>`;
 }
 
 function priceMessage() {
