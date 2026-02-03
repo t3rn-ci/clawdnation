@@ -1,17 +1,37 @@
 {
-  "lastId": "2018286013211091274",
+  "lastId": "2018482043185737880",
   "tweets": {
-    "2018285224535196052": {
-      "status": "replied",
-      "orderId": "ml538rnbel5f",
-      "replyId": "2018285844906319979",
-      "symbol": "PHNX"
-    },
     "2018286013211091274": {
       "status": "replied",
       "orderId": "ml53a1yeht1y",
-      "replyId": "2018286096673640765",
+      "replyId": "2018482012080763314",
       "symbol": "SFIRE"
+    },
+    "2018482043185737880": {
+      "status": "self-birth-complete",
+      "started": 1770078617770,
+      "result": {
+        "success": true,
+        "steps": [
+          {
+            "step": "balance_check",
+            "status": "✅",
+            "balance": 1.55884792
+          },
+          {
+            "step": "contribute",
+            "status": "✅",
+            "sig": "3S4bc6ynFgZ94qdZ5N7yy89yNhLi8y5JCWk4jqt18taH21BTrraJDZgboT8RSninaTa52Wu2LQCNWuSTJBQaanAB",
+            "clwdnAllocated": 20000
+          },
+          {
+            "step": "distribution",
+            "status": "✅",
+            "balance": 20000,
+            "timeMs": 11125
+          }
+        ]
+      }
     }
   }
 }

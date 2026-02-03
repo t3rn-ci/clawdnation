@@ -22,7 +22,7 @@ const { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID }
 const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const conn = new Connection(RPC, 'confirmed');
 
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const CLWDN_MINT = new PublicKey('2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx');
 const VESTING_PATH = path.join(__dirname, 'clwdn-vesting.json');
 
 // Authority keypair (holds all unvested tokens)

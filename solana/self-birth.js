@@ -28,9 +28,9 @@ const EXPLORER = 'https://explorer.solana.com';
 const CLUSTER_PARAM = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 
 // Program IDs
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
+const DISPENSER_PROGRAM = new PublicKey('DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK');
+const CLWDN_MINT = new PublicKey('Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj');
 
 // PDAs
 const [BOOTSTRAP_STATE] = PublicKey.findProgramAddressSync([Buffer.from('bootstrap')], BOOTSTRAP_PROGRAM);

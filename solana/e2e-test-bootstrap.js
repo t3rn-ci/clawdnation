@@ -37,7 +37,7 @@ const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 // Bootstrap program
 const BOOTSTRAP_PROGRAM = new PublicKey('GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe');
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const CLWDN_MINT = new PublicKey('Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj');
 
 console.log('╔═══════════════════════════════════════════════════════════╗');
 console.log('║       E2E TEST: BOOTSTRAP PATH (Self-Birth)               ║');

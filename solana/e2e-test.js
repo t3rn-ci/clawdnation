@@ -7,9 +7,9 @@ const conn = new Connection('https://api.devnet.solana.com', 'confirmed');
 const authorityKey = JSON.parse(fs.readFileSync('/root/.config/solana/clawdnation.json', 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
+const CLWDN_MINT = new PublicKey('Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
+const DISPENSER_PROGRAM = new PublicKey('DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK');
 const [BOOTSTRAP_STATE] = PublicKey.findProgramAddressSync([Buffer.from('bootstrap')], BOOTSTRAP_PROGRAM);
 const [DISPENSER_STATE] = PublicKey.findProgramAddressSync([Buffer.from('state')], DISPENSER_PROGRAM);
 

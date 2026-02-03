@@ -7,7 +7,7 @@
       "step": "Verify CLWDN Mint",
       "status": "success",
       "timestamp": "2026-02-02T18:43:49.634Z",
-      "mint": "2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3",
+      "mint": "DwPvvE2D7WsqLwoFxXoAmb4abRpF3UHanvvV3dY2fX5r",
       "supply": 1100000000,
       "authorityBalance": 0,
       "mintAuthority": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE"
@@ -61,7 +61,7 @@
       "status": "success",
       "timestamp": "2026-02-02T18:43:50.134Z",
       "mintAuthority": "GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE",
-      "command": "spl-token authorize 2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3 mint --disable --url devnet",
+      "command": "spl-token authorize DwPvvE2D7WsqLwoFxXoAmb4abRpF3UHanvvV3dY2fX5r mint --disable --url devnet",
       "details": "Mint authority still active - burn when ready for production"
     },
     {

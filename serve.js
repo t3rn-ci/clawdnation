@@ -9,9 +9,9 @@ const EXPLORER_CLUSTER = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const ORDERS_PATH = path.join(__dirname, 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const VESTING_PATH = path.join(__dirname, 'solana', 'vesting.json');
-const CLWDN_MINT = '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
+const CLWDN_MINT = 'Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj';
 const PAYMENT_WALLET = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
-const DISPENSER_PROGRAM = 'AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ';
+const DISPENSER_PROGRAM = 'DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK';
 
 function loadVesting() {
   try { return JSON.parse(fs.readFileSync(VESTING_PATH, 'utf8')); } catch { return {}; }
