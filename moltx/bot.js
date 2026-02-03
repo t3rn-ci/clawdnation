@@ -154,13 +154,19 @@ async function pollMoltX() {
       // Skip if already processed
       if (processed.posts[postId]) continue;
 
-      // Skip our own posts (check name, author_id, and content patterns)
+      // Skip our own posts and posts already about our project
       const authorName = p.agent?.name || p.author?.name || p.author?.username || '';
-      const authorId = p.author_id || '';
       if (authorName === 'ClawdNation_bot' || authorName === 'ClawdNation') continue;
-      // Also skip if content looks like our own bot replies
       const textCheck = (p.content || p.text || '').toLowerCase();
+      // Skip our own bot replies
       if (textCheck.includes('clawdnation.com/#airdrop') || textCheck.includes('wallet registered for the') || textCheck.includes('got your launch request')) continue;
+      // Skip posts already about CLWDN/ClawdNation airdrop (don't reply to our own campaign)
+      if (textCheck.includes('$clwdn') || textCheck.includes('clwdn airdrop') || textCheck.includes('100m') && textCheck.includes('airdrop')) {
+        console.log('   Skipping — already about CLWDN/airdrop');
+        processed.posts[postId] = { status: 'skipped', reason: 'own_campaign', at: new Date().toISOString() };
+        saveProcessed(processed);
+        continue;
+      }
 
       const text = p.content || p.text || '';
       console.log(`\n🔍 New MoltX post: ${postId} by ${authorName}`);

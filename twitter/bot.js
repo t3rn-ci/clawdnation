@@ -207,6 +207,14 @@ async function pollTwitter() {
 
       if (!data.name && !data.symbol) {
         // No token launch details — handle as airdrop mention
+        // But skip if the post is already about CLWDN/our airdrop
+        const lowerText = t.text.toLowerCase();
+        if (lowerText.includes('$clwdn') || (lowerText.includes('clwdn') && lowerText.includes('airdrop')) || lowerText.includes('clawdnation.com')) {
+          console.log('   Skipping — already about CLWDN/airdrop');
+          processed.tweets[t.id] = { status: 'skipped', reason: 'own_campaign' };
+          saveProcessed(processed);
+          continue;
+        }
         console.log('   No token details — processing as airdrop mention');
         const user = await getUserById(t.author_id);
         const username = user ? user.username : t.author_id;
