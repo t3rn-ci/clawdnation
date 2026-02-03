@@ -11,6 +11,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { createOrder, checkPayments, loadOrders } = require('../solana/payment-monitor');
+const { handleMention, handleWalletReply } = require('../twitter/airdrop-handler');
 
 // Load env
 const envPath = path.join(__dirname, '..', '.env');
@@ -165,8 +166,21 @@ async function pollMoltX() {
       const data = parseLaunchRequest(text);
 
       if (!data.name && !data.symbol) {
-        console.log('   Skipping — no token details found');
-        processed.posts[postId] = { status: 'skipped', reason: 'no_details', at: new Date().toISOString() };
+        // No token launch details — handle as airdrop mention
+        console.log('   No token details — processing as airdrop mention');
+        const airdropResult = handleMention({ text, author_id: authorName, id: postId }, authorName);
+        
+        if (airdropResult && airdropResult.reply) {
+          const reply = await moltxPost(airdropResult.reply, postId);
+          console.log('   Airdrop:', airdropResult.action, reply ? '(posted)' : '(failed)');
+          processed.posts[postId] = { 
+            status: 'airdrop_' + airdropResult.action,
+            replyId: reply?.id,
+            at: new Date().toISOString()
+          };
+        } else {
+          processed.posts[postId] = { status: 'airdrop_no_reply', at: new Date().toISOString() };
+        }
         saveProcessed(processed);
         continue;
       }
