@@ -12,6 +12,7 @@
  * Usage:
  *   node token-factory.js --name "Token Name" --symbol "TKN" --description "desc" --recipient "solana_address"
  */
+const NETWORK = process.env.NETWORK || "devnet";
 
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -202,7 +203,7 @@ async function createToken({ name, symbol, description, image, recipient, supply
     creator: recipientAddr,
     tokenAccount,
     metadataUri: metaUri,
-    explorer: `https://explorer.solana.com/address/${mint}?cluster=devnet`,
+    explorer: NETWORK === 'mainnet' ? `https://explorer.solana.com/address/${mint}` : `https://explorer.solana.com/address/${mint}?cluster=devnet`,
     program: TOKEN_2022_PROGRAM,
     tokenomics: {
       liquidityTokens,

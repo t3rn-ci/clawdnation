@@ -181,7 +181,7 @@ const server = http.createServer(async (req, res) => {
       'getSignatureStatuses', 'getSlot', 'getStakeActivation',
       'getSupply', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
       'getTokenLargestAccounts', 'getTokenSupply', 'getTransaction',
-      'getTransactionCount', 'getVersion', 'getVoteAccounts'
+      'getTransactionCount', 'getVersion', 'getVoteAccounts', 'getSignaturesForAddress', 'getConfirmedSignaturesForAddress2', 'getParsedTransaction', 'getTransaction', 'sendTransaction', 'simulateTransaction', 'getFeeForMessage'
     ];
 
     let body = '';

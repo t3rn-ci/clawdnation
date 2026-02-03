@@ -40,7 +40,7 @@ const CK = process.env.X_CONSUMER_KEY;
 const CS = process.env.X_CONSUMER_SECRET;
 const AT = process.env.X_ACCESS_TOKEN;
 const AS = process.env.X_ACCESS_SECRET;
-const BEARER = process.env.X_BEARER_TOKEN;
+const BEARER = decodeURIComponent(process.env.X_BEARER_TOKEN || '');
 const PAYMENT_ADDRESS = process.env.PAYMENT_ADDRESS || 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
 const NETWORK = process.env.NETWORK || 'devnet';
 const SEARCH_INTERVAL = parseInt(process.env.SEARCH_INTERVAL || '30000'); // 30s
@@ -301,7 +301,7 @@ async function main() {
 
   // Poll Twitter for new mentions
   setInterval(pollTwitter, SEARCH_INTERVAL);
-  pollTwitter();
+  pollTwitter().catch(e => console.error("Poll error:", e.message || e));
 
   // Check payments
   setInterval(checkPayments, 60000);

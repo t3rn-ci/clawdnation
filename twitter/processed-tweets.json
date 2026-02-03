@@ -1,5 +1,5 @@
 {
-  "lastId": "2018503817461919904",
+  "lastId": "2018506615645708505",
   "tweets": {
     "2018286013211091274": {
       "status": "replied",
@@ -159,6 +159,20 @@
       "orderId": "ml5y39vpii92",
       "replyId": "2018503159375696045",
       "symbol": "CLWDN"
+    },
+    "2018506197200949607": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018506153068466419": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018506615645708505": {
+      "status": "replied",
+      "orderId": "ml5yllldmtpr",
+      "replyId": "2018506745497133098",
+      "symbol": "RUMBA"
     }
   }
 }

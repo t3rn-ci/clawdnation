@@ -24,6 +24,7 @@ const ACCESS_TOKEN = process.env.X_ACCESS_TOKEN;
 const ACCESS_SECRET = process.env.X_ACCESS_SECRET;
 
 const TWEET = process.argv[2] || process.env.TWEET;
+const REPLY_TO = process.argv[3] || null;
 
 if (!TWEET) {
   console.error('Usage: node tweet.js "Your tweet text"');
@@ -61,7 +62,9 @@ function buildOAuthHeader(method, url, extraParams = {}) {
 
 async function tweet(text) {
   const url = 'https://api.x.com/2/tweets';
-  const body = JSON.stringify({ text });
+  const payload = { text };
+  if (REPLY_TO) payload.reply = { in_reply_to_tweet_id: REPLY_TO };
+  const body = JSON.stringify(payload);
   const authHeader = buildOAuthHeader('POST', url);
 
   return new Promise((resolve, reject) => {
