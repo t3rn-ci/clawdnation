@@ -42,6 +42,7 @@ const AT = process.env.X_ACCESS_TOKEN;
 const AS = process.env.X_ACCESS_SECRET;
 const BEARER = process.env.X_BEARER_TOKEN;
 const PAYMENT_ADDRESS = process.env.PAYMENT_ADDRESS || 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
+const NETWORK = process.env.NETWORK || 'devnet';
 const SEARCH_INTERVAL = parseInt(process.env.SEARCH_INTERVAL || '30000'); // 30s
 const PROCESSED_PATH = path.join(__dirname, 'processed-tweets.json');
 
@@ -172,6 +173,18 @@ async function pollTwitter() {
       // Skip if already processed
       if (processed.tweets[t.id]) continue;
 
+      // Skip own tweets UNLESS they're token launch requests (self-birth handled separately)
+      if (t.author_id === BOT_USER_ID) {
+        const hasTokenFormat = /name:|symbol:/i.test(t.text);
+        if (!hasTokenFormat) {
+          console.log(`\n⏭️  Skipping own marketing tweet: ${t.id}`);
+          processed.tweets[t.id] = { status: 'skipped', reason: 'own_marketing' };
+          saveProcessed(processed);
+          continue;
+        }
+        console.log(`\n🦞 Processing own launch request: ${t.id}`);
+      }
+
       console.log(`\n🔍 New tweet: ${t.id} by ${t.author_id}`);
       console.log(`   ${t.text.slice(0, 100)}...`);
 
@@ -273,7 +286,7 @@ https://clawdnation.com`;
       const idx = updatedOrders.findIndex(o => o.id === c.id);
       if (idx >= 0) updatedOrders[idx].tweeted = true;
     }
-    fs.writeFileSync(path.join(__dirname, '..', 'solana', 'orders.json'), JSON.stringify(updatedOrders, null, 2));
+    fs.writeFileSync(path.join(__dirname, '..', 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json'), JSON.stringify(updatedOrders, null, 2));
   }
 }
 
@@ -291,7 +304,7 @@ async function main() {
   pollTwitter();
 
   // Check payments
-  setInterval(checkPayments, 10000);
+  setInterval(checkPayments, 60000);
 
   // Check for completed orders to tweet about
   setInterval(checkCompletedOrders, 15000);

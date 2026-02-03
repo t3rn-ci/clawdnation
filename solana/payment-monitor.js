@@ -16,7 +16,8 @@ const path = require('path');
 const { createToken } = require('./token-factory');
 
 const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
-const ORDERS_PATH = path.join(__dirname, 'orders.json');
+const NETWORK = process.env.NETWORK || 'devnet';
+const ORDERS_PATH = path.join(__dirname, NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const SEEN_TX_PATH = path.join(__dirname, 'seen-txs.json');
 const MIN_PAYMENT_SOL = parseFloat(process.env.MIN_PAYMENT_SOL || '0.05');
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '10000');
