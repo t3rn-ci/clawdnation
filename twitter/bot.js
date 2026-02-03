@@ -17,6 +17,7 @@ const { createToken } = require('../solana/token-factory');
 
 // Self-birth module
 const { BOT_USER_ID, isSelfBirthTweet, executeSelfBirth, GENESIS_TWEET } = require("../solana/self-birth");
+const { handleMention, handleWalletReply } = require("./airdrop-handler");
 const { Keypair } = require("@solana/web3.js");
 let authority = null;
 try {
@@ -205,8 +206,22 @@ async function pollTwitter() {
       }
 
       if (!data.name && !data.symbol) {
-        console.log('   Skipping — no token details found');
-        processed.tweets[t.id] = { status: 'skipped', reason: 'no_details' };
+        // No token launch details — handle as airdrop mention
+        console.log('   No token details — processing as airdrop mention');
+        const user = await getUserById(t.author_id);
+        const username = user ? user.username : t.author_id;
+        const airdropResult = handleMention(t, username);
+        
+        if (airdropResult && airdropResult.reply) {
+          const reply = await tweet(airdropResult.reply, t.id);
+          console.log('   Airdrop:', airdropResult.action, reply ? '(tweeted)' : '(failed)');
+          processed.tweets[t.id] = { 
+            status: 'airdrop_' + airdropResult.action,
+            replyId: reply?.id 
+          };
+        } else {
+          processed.tweets[t.id] = { status: 'airdrop_no_reply' };
+        }
         saveProcessed(processed);
         continue;
       }

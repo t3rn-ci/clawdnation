@@ -495,142 +495,86 @@
 <main>
   <div class="stk-hero">
     <h2>$CLWDN <span>Airdrop</span></h2>
-    <p>100,000,000 CLWDN (10% of supply) distributed to token creators. Snapshot in 1 month.</p>
+    <p>100,000,000 CLWDN (10% of supply) distributed to all registered wallets. Tweet #clawdnation to get in.</p>
   </div>
 
-  <!-- Countdown + Key Info -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px">
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
     <div class="stk-box" style="border-color:rgba(230,57,70,0.3)">
-      <div class="stk-val red" id="adCountdown">~30 days</div>
-      <div class="stk-lbl">Until Snapshot</div>
-    </div>
-    <div class="stk-box">
       <div class="stk-val green">100,000,000</div>
       <div class="stk-lbl">CLWDN to Distribute</div>
     </div>
     <div class="stk-box">
-      <div class="stk-val blue" id="adEligible">—</div>
-      <div class="stk-lbl">Eligible Creators</div>
+      <div class="stk-val blue" id="adWalletCount">—</div>
+      <div class="stk-lbl">Registered Wallets</div>
     </div>
     <div class="stk-box">
-      <div class="stk-val orange" id="adTokensLaunched">—</div>
-      <div class="stk-lbl">Tokens Launched</div>
+      <div class="stk-val orange" id="adPerWallet">—</div>
+      <div class="stk-lbl">CLWDN Per Wallet (est.)</div>
     </div>
   </div>
 
-  <!-- Check Eligibility -->
+  <!-- Register Your Wallet -->
   <div class="card" style="border-color:rgba(230,57,70,0.3);background:linear-gradient(135deg,var(--acb),var(--bgc))">
-    <div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Check Your Eligibility</h2></div>
+    <div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Register for Airdrop</h2></div>
     <div class="cb">
-      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Connect your wallet for instant check, or search by X handle.</p>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Connect your wallet or enter your Solana address to register. You can also tweet #clawdnation with your wallet address.</p>
       <div style="display:flex;gap:10px;max-width:600px;margin:0 auto;flex-wrap:wrap;justify-content:center">
-        <button class="btn btn-pu" id="adConnectBtn" data-wallet-btn onclick="connectWallet()" style="white-space:nowrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Connect Wallet</button>
+        <button class="btn btn-pu" id="adConnectBtn" data-wallet-btn onclick="registerAirdropWallet()" style="white-space:nowrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Connect Wallet</button>
         <div style="display:flex;gap:8px;flex:1;min-width:200px">
-          <input type="text" class="part-input" id="adCheckInput" placeholder="or enter @handle / wallet" style="text-align:left;font-size:13px;font-family:var(--f)">
-          <button class="btn btn-ac btn-sm" onclick="checkEligibility()" style="white-space:nowrap">Check</button>
+          <input type="text" class="part-input" id="adWalletInput" placeholder="or paste Solana wallet address" style="text-align:left;font-size:13px;font-family:var(--f)">
+          <button class="btn btn-ac btn-sm" onclick="registerAirdropManual()">Register</button>
         </div>
       </div>
-      <div id="adWalletInfo" style="text-align:center;margin-top:8px;font-size:12px;color:var(--t2);display:none"></div>
-      <div id="adCheckResult" style="text-align:center;margin-top:16px;min-height:24px"></div>
+      <div id="adRegisterResult" style="text-align:center;margin-top:16px;min-height:24px;font-size:13px"></div>
     </div>
   </div>
 
-  <!-- How to Get the Airdrop -->
-  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> How to Get the Airdrop</h2></div>
+  <!-- How It Works -->
+  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How It Works</h2></div>
   <div class="cb">
     <div class="flow-steps" style="grid-template-columns:repeat(3,1fr)">
       <div class="flow-step">
         <div class="flow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></div>
-        <h4>1. Launch Tokens</h4>
-        <p>Tweet with #clawdnation to create tokens on Solana</p>
+        <h4>1. Mention Us</h4>
+        <p>Tweet with #clawdnation — our bot will reply and ask for your wallet</p>
       </div>
       <div class="flow-step">
-        <div class="flow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
-        <h4>2. Build Liquidity</h4>
-        <p>Each token gets a Raydium pool — more liquidity = bigger allocation</p>
+        <div class="flow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg></div>
+        <h4>2. Drop Your Wallet</h4>
+        <p>Reply with your Solana wallet address or register here on the website</p>
       </div>
       <div class="flow-step" style="position:relative">
         <div class="flow-num">🪂</div>
         <h4>3. Receive CLWDN</h4>
-        <p>Airdrop distributed proportionally after snapshot</p>
-      </div>
-    </div>
-    <div style="background:var(--bge);border-radius:var(--r);padding:16px;margin-top:20px;font-size:13px;color:var(--t2);line-height:1.8">
-      <strong style="color:var(--t1);font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Allocation Formula:</strong><br>
-      <code style="font-family:var(--m);color:var(--ac);font-size:13px">your_share = (your_tokens_launched × liquidity_weight) / total_weighted_score</code><br><br>
-      <strong style="color:var(--t1)">Factors:</strong><br>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> <strong style="color:var(--t1)">Number of tokens launched</strong> — each token you create earns points<br>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> <strong style="color:var(--t1)">Liquidity per token</strong> — tokens with more SOL in pool get a multiplier<br>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> <strong style="color:var(--t1)">Trading volume</strong> — actively traded tokens earn bonus weight
-    </div>
-  </div></div>
-
-  <!-- Timeline -->
-  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Airdrop Timeline</h2></div>
-  <div class="cb">
-    <div style="position:relative;padding-left:28px">
-      <div style="position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--brd)"></div>
-      
-      <div style="position:relative;padding:12px 0 20px">
-        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--gn);border:2px solid var(--bg)"></div>
-        <div style="font-weight:600;color:var(--gn)">NOW — Accumulation Phase</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">Launch tokens via X to build your allocation score. Every token counts. The more liquidity your tokens have, the bigger your share.</div>
-      </div>
-      
-      <div style="position:relative;padding:12px 0 20px">
-        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--or);border:2px solid var(--bg)"></div>
-        <div style="font-weight:600;color:var(--or)">~1 MONTH — Snapshot</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">All token launches and pool data frozen. Your final allocation is calculated based on total tokens launched, liquidity depth, and trading volume.</div>
-      </div>
-      
-      <div style="position:relative;padding:12px 0 20px">
-        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--ac);border:2px solid var(--bg)"></div>
-        <div style="font-weight:600;color:var(--ac)">AFTER SNAPSHOT — Claim</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">Connect your wallet on this page to claim your $CLWDN allocation. Tokens sent directly to your wallet.</div>
-      </div>
-      
-      <div style="position:relative;padding:12px 0">
-        <div style="position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--bl);border:2px solid var(--bg)"></div>
-        <div style="font-weight:600;color:var(--bl)">POST-AIRDROP — Stake & Earn</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">Stake your $CLWDN to earn LP fees from all ClawdNation token pools. Or trade on Raydium.</div>
+        <p>100M CLWDN distributed equally to all registered wallets</p>
       </div>
     </div>
   </div></div>
 
-  <!-- Example Scenarios -->
-  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> Example Allocations</h2></div>
+  <!-- Contribute SOL -->
+  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> Support the Ecosystem</h2></div>
   <div class="cb">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
-        <div style="font-size:24px;margin-bottom:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Casual Creator</div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">1-2 tokens launched</div>
-        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--ac)">~50K</div>
-        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
-      </div>
-      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
-        <div style="font-size:24px;margin-bottom:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2-2.96 0-7-1-8 0 3.04-4 7.04-4 10a5 5 0 0 0 10 0c0-1.88-1.3-3.73-2-5-1.74 2.28-3 1-3 3z"/></svg></div>
-        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Active Builder</div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">5-10 tokens, good liquidity</div>
-        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--gn)">~500K</div>
-        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
-      </div>
-      <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
-        <div style="font-size:24px;margin-bottom:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Power Launcher</div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">20+ tokens, deep liquidity</div>
-        <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--bl)">~5M+</div>
-        <div style="font-size:11px;color:var(--t3)">estimated CLWDN</div>
-      </div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Want to help build ClawdNation? Send SOL to our treasury. Contributors get bonus allocation in the airdrop.</p>
+    <div style="background:var(--bge);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-family:var(--m);font-size:14px;color:var(--ac);word-break:break-all;margin-bottom:8px">GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE</div>
+      <button class="btn btn-sm" onclick="navigator.clipboard.writeText('GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',2000)">Copy Address</button>
     </div>
-    <div style="font-size:12px;color:var(--t3);margin-top:12px;text-align:center">* Estimates based on hypothetical distribution. Actual amounts depend on total participation.</div>
+  </div></div>
+
+  <!-- Registered Wallets -->
+  <div class="card"><div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Registered Wallets</h2></div>
+  <div class="cb">
+    <div id="adWalletList" style="min-height:60px">
+      <div style="text-align:center;color:var(--t2);padding:20px">Loading...</div>
+    </div>
   </div></div>
 
   <!-- CTA -->
   <div style="text-align:center;padding:32px 0">
-    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Don't miss the snapshot</h3>
-    <p style="color:var(--t2);margin-bottom:20px">Start launching tokens now — every token you create before the snapshot counts toward your $CLWDN allocation.</p>
-    <a href="https://x.com/clawdnation" target="_blank" class="btn btn-ac" style="font-size:16px;padding:14px 28px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Launch Your First Token</a>
+    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Get on the list</h3>
+    <p style="color:var(--t2);margin-bottom:20px">Tweet #clawdnation with your Solana wallet to register for the airdrop.</p>
+    <a href="https://x.com/intent/tweet?text=%23clawdnation%20airdrop%20me!%20🔴" target="_blank" class="btn btn-ac" style="font-size:16px;padding:14px 28px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg> Tweet #clawdnation</a>
   </div>
 </main>
 </div>
@@ -1300,7 +1244,7 @@ function onWalletConnected(provider,resp){
   document.getElementById('adWalletInfo').style.display='block';
   document.getElementById('adWalletInfo').innerHTML='Connected: <span style="font-family:var(--m);color:var(--t1)">'+walletAddr+'</span>';
   document.getElementById('adCheckInput').value=walletAddr;
-  if(window.checkEligibility) window.checkEligibility();
+  if(window.loadAirdropData) loadAirdropData();
 }
 
 function fetchClwdnBalance(addr){
@@ -1433,41 +1377,90 @@ window.connectWallet=function(){
 
   window.copyMint=function(mint){navigator.clipboard.writeText(mint).then(function(){var el=document.querySelector('[data-mint="'+mint+'"] .copy-hint');if(el){el.textContent='Copied!';setTimeout(function(){el.textContent='Click to copy'},1500)}})};
 
-  // Airdrop: update eligible creators count
-  async function loadAirdropStats(){
+  // Airdrop: load wallet count and list
+  async function loadAirdropData(){
     try{
-      var r=await fetch('/api/tokens');var d=await r.json();var t=d.tokens||[];
-      var creators=new Set(t.map(function(x){return x.creator}));
-      document.getElementById('adEligible').textContent=creators.size;
-      document.getElementById('adTokensLaunched').textContent=t.length;
-    }catch(e){}
-  }
-  loadAirdropStats();
-
-  // Airdrop wallet connect — uses shared connectWallet()
-
-  // Eligibility checker
-  window.checkEligibility=function(){
-    var input=document.getElementById('adCheckInput').value.trim();
-    var result=document.getElementById('adCheckResult');
-    if(!input){result.innerHTML='<span style="color:var(--ac)">Enter your X handle or wallet address</span>';return}
-    result.innerHTML='<span style="color:var(--t2)">Checking...</span>';
-    fetch('/api/tokens').then(function(r){return r.json()}).then(function(d){
-      var tokens=d.tokens||[];
-      var q=input.toLowerCase().replace('@','');
-      var myTokens=tokens.filter(function(t){
-        return (t.creator||'').toLowerCase().replace('@','')==q || (t.recipientWallet||'').toLowerCase()==q.toLowerCase()
-      });
-      if(myTokens.length>0){
-        var est=myTokens.length*50000; // rough estimate
-        result.innerHTML='<div style="background:var(--gnb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--gnt);font-weight:700">✅ ELIGIBLE!</span><br><span style="font-size:13px;color:var(--t2)">'+myTokens.length+' token(s) found — estimated allocation: <strong style="color:var(--gnt);font-family:var(--m)">~'+est.toLocaleString()+' CLWDN</strong></span></div>';
-      } else {
-        result.innerHTML='<div style="background:var(--acb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--ac);font-weight:700">❌ Not eligible yet</span><br><span style="font-size:13px;color:var(--t2)">No tokens found for this account. <a href="https://x.com/clawdnation" target="_blank" style="color:var(--ac)">Launch a token now →</a></span></div>';
+      var r=await fetch('/api/airdrop/wallets');var d=await r.json();
+      var count=d.count||0;
+      var wallets=d.wallets||[];
+      var el=document.getElementById('adWalletCount');if(el)el.textContent=count;
+      var perEl=document.getElementById('adPerWallet');
+      if(perEl)perEl.textContent=count>0?Math.floor(100000000/count).toLocaleString():'\u2014';
+      
+      var list=document.getElementById('adWalletList');
+      if(!list)return;
+      if(!wallets.length){
+        list.innerHTML='<div style="text-align:center;color:var(--t2);padding:20px">No wallets registered yet. Be the first!</div>';
+        return;
       }
-    }).catch(function(){result.innerHTML='<span style="color:var(--ac)">Error checking — try again</span>'});
+      list.innerHTML='<div style="max-height:400px;overflow-y:auto">'+wallets.map(function(w,i){
+        var addr=w.wallet;
+        var short=addr.slice(0,6)+'...'+addr.slice(-4);
+        var handle=w.twitterHandle?'@'+w.twitterHandle:'website';
+        var when=timeAgo(w.registeredAt);
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px">'
+          +'<div style="display:flex;align-items:center;gap:10px">'
+          +'<span style="color:var(--t3);font-family:var(--m);width:28px">#'+(i+1)+'</span>'
+          +'<span style="font-family:var(--m);color:var(--ac)">'+short+'</span>'
+          +'<span style="color:var(--t2);font-size:11px">'+handle+'</span>'
+          +'</div>'
+          +'<span style="color:var(--t3);font-size:11px">'+when+'</span>'
+          +'</div>';
+      }).join('')+'</div>';
+    }catch(e){console.error('Airdrop load error:',e)}
+  }
+  
+  function timeAgo(d){
+    var s=Math.floor((Date.now()-new Date(d).getTime())/1000);
+    if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';
+    if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
+  }
+  
+  window.registerAirdropWallet=async function(){
+    if(!window._connectedWallet){
+      await connectWallet();
+      if(!window._connectedWallet)return;
+    }
+    var wallet=window._connectedWallet;
+    var result=document.getElementById('adRegisterResult');
+    result.innerHTML='<span style="color:var(--t2)">Registering...</span>';
+    try{
+      var r=await fetch('/api/airdrop/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:wallet})});
+      var d=await r.json();
+      if(d.success&&d.isNew){
+        result.innerHTML='<div style="background:var(--gnb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--gnt);font-weight:700">\u2705 Registered!</span><br><span style="font-size:12px;color:var(--t2)">'+wallet.slice(0,8)+'... is now on the airdrop list</span></div>';
+        loadAirdropData();
+      }else if(d.success){
+        result.innerHTML='<span style="color:var(--bl)">Already registered \u2705</span>';
+      }else{
+        result.innerHTML='<span style="color:var(--ac)">'+d.message+'</span>';
+      }
+    }catch(e){result.innerHTML='<span style="color:var(--ac)">Error \u2014 try again</span>'}
   };
+  
+  window.registerAirdropManual=async function(){
+    var input=document.getElementById('adWalletInput').value.trim();
+    var result=document.getElementById('adRegisterResult');
+    if(!input){result.innerHTML='<span style="color:var(--ac)">Enter a Solana wallet address</span>';return}
+    if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(input)){result.innerHTML='<span style="color:var(--ac)">Invalid Solana address</span>';return}
+    result.innerHTML='<span style="color:var(--t2)">Registering...</span>';
+    try{
+      var r=await fetch('/api/airdrop/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:input})});
+      var d=await r.json();
+      if(d.success&&d.isNew){
+        result.innerHTML='<div style="background:var(--gnb);padding:12px 16px;border-radius:var(--r);display:inline-block"><span style="color:var(--gnt);font-weight:700">\u2705 Registered!</span><br><span style="font-size:12px;color:var(--t2)">'+input.slice(0,8)+'... is now on the airdrop list</span></div>';
+        loadAirdropData();
+      }else if(d.success){
+        result.innerHTML='<span style="color:var(--bl)">Already registered \u2705</span>';
+      }else{
+        result.innerHTML='<span style="color:var(--ac)">'+d.message+'</span>';
+      }
+    }catch(e){result.innerHTML='<span style="color:var(--ac)">Error \u2014 try again</span>'}
+  };
+  
+  loadAirdropData();setInterval(loadAirdropData,30000);
 
-  loadT();setInterval(loadT,30000);
+    loadT();setInterval(loadT,30000);
 
   // Load deploys
   async function loadDeploys(){

@@ -1,5 +1,5 @@
 {
-  "lastId": "2018597469538394547",
+  "lastId": "2018625582645297390",
   "tweets": {
     "2018286013211091274": {
       "status": "replied",
@@ -275,6 +275,10 @@
       "reason": "own_marketing"
     },
     "2018597469538394547": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018625582645297390": {
       "status": "skipped",
       "reason": "own_marketing"
     }

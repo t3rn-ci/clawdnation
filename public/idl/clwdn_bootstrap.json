@@ -1,0 +1,959 @@
+{
+  "address": "91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No",
+  "metadata": {
+    "name": "clwdn_bootstrap",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "CLWDN Bootstrap — on-chain SOL contribution tracking"
+  },
+  "instructions": [
+    {
+      "name": "accept_authority",
+      "docs": [
+        "Accept authority transfer"
+      ],
+      "discriminator": [
+        107,
+        86,
+        198,
+        91,
+        33,
+        12,
+        107,
+        160
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "burn_lp_tokens",
+      "docs": [
+        "BURN LP tokens (ATOMIC, ON-CHAIN)",
+        "Can only be called after bootstrap is complete",
+        "SECURITY: LP tokens are burned in a verifiable on-chain transaction",
+        "NOTE: LP creation must be done separately (via external script or future upgrade)"
+      ],
+      "discriminator": [
+        199,
+        73,
+        152,
+        247,
+        20,
+        71,
+        167,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "lp_wallet",
+          "docs": [
+            "LP wallet (PDA that holds LP tokens)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  112,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "state"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_mint",
+          "docs": [
+            "LP mint (Raydium pool LP tokens)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "lp_token_account",
+          "docs": [
+            "LP token account to burn from"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "close_state",
+      "docs": [
+        "Close bootstrap state (authority only) — reclaims rent"
+      ],
+      "discriminator": [
+        25,
+        1,
+        184,
+        101,
+        200,
+        245,
+        210,
+        246
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "contribute_sol",
+      "docs": [
+        "Contribute SOL with bonding curve pricing"
+      ],
+      "discriminator": [
+        186,
+        36,
+        137,
+        50,
+        25,
+        152,
+        8,
+        5
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "contributor_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  116,
+                  114,
+                  105,
+                  98,
+                  117,
+                  116,
+                  111,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contributor"
+              }
+            ]
+          }
+        },
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lp_wallet",
+          "writable": true
+        },
+        {
+          "name": "master_wallet",
+          "writable": true
+        },
+        {
+          "name": "staking_wallet",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount_lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize with bonding curve parameters"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_wallet",
+          "writable": true
+        },
+        {
+          "name": "master_wallet",
+          "writable": true
+        },
+        {
+          "name": "staking_wallet",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "BootstrapParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mark_distributed",
+      "docs": [
+        "Mark a contributor as distributed"
+      ],
+      "discriminator": [
+        225,
+        106,
+        116,
+        3,
+        4,
+        174,
+        164,
+        224
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "contributor_record",
+          "writable": true
+        },
+        {
+          "name": "operator",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause",
+      "docs": [
+        "Emergency pause (anti-exploit)"
+      ],
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_authority",
+      "docs": [
+        "2-step authority transfer"
+      ],
+      "discriminator": [
+        48,
+        169,
+        76,
+        72,
+        229,
+        180,
+        55,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "docs": [
+        "Unpause"
+      ],
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_params",
+      "docs": [
+        "Update bootstrap parameters (authority only, only before first contribution)"
+      ],
+      "discriminator": [
+        108,
+        178,
+        190,
+        95,
+        94,
+        203,
+        116,
+        20
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  116,
+                  115,
+                  116,
+                  114,
+                  97,
+                  112
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "BootstrapParams"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BootstrapState",
+      "discriminator": [
+        100,
+        174,
+        115,
+        80,
+        120,
+        47,
+        111,
+        122
+      ]
+    },
+    {
+      "name": "ContributorRecord",
+      "discriminator": [
+        205,
+        80,
+        134,
+        228,
+        85,
+        135,
+        197,
+        176
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ContributionEvent",
+      "discriminator": [
+        66,
+        160,
+        5,
+        247,
+        2,
+        131,
+        249,
+        150
+      ]
+    },
+    {
+      "name": "DistributionEvent",
+      "discriminator": [
+        15,
+        143,
+        204,
+        204,
+        42,
+        49,
+        139,
+        252
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "name": "Paused",
+      "msg": "Bootstrap is paused"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6003,
+      "name": "AllocationCapExceeded",
+      "msg": "Allocation cap exceeded"
+    },
+    {
+      "code": 6004,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidWallet",
+      "msg": "Invalid wallet address"
+    },
+    {
+      "code": 6006,
+      "name": "NoPendingTransfer",
+      "msg": "No pending authority transfer"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidParams",
+      "msg": "Invalid parameters"
+    },
+    {
+      "code": 6008,
+      "name": "BelowMinimum",
+      "msg": "Below minimum contribution"
+    },
+    {
+      "code": 6009,
+      "name": "ExceedsMaxPerWallet",
+      "msg": "Exceeds maximum per wallet"
+    },
+    {
+      "code": 6010,
+      "name": "BootstrapComplete",
+      "msg": "Bootstrap already complete"
+    },
+    {
+      "code": 6011,
+      "name": "BootstrapNotComplete",
+      "msg": "Bootstrap not complete - cannot create LP yet"
+    }
+  ],
+  "types": [
+    {
+      "name": "BootstrapParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "start_rate",
+            "type": "u64"
+          },
+          {
+            "name": "end_rate",
+            "type": "u64"
+          },
+          {
+            "name": "allocation_cap",
+            "type": "u64"
+          },
+          {
+            "name": "min_contribution",
+            "type": "u64"
+          },
+          {
+            "name": "max_per_wallet",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BootstrapState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_authority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "lp_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "master_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "staking_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "start_rate",
+            "type": "u64"
+          },
+          {
+            "name": "end_rate",
+            "type": "u64"
+          },
+          {
+            "name": "allocation_cap",
+            "type": "u64"
+          },
+          {
+            "name": "min_contribution",
+            "type": "u64"
+          },
+          {
+            "name": "max_per_wallet",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "bootstrap_complete",
+            "type": "bool"
+          },
+          {
+            "name": "total_contributed_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "total_allocated_clwdn",
+            "type": "u64"
+          },
+          {
+            "name": "contributor_count",
+            "type": "u64"
+          },
+          {
+            "name": "lp_received_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "master_received_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "staking_received_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContributionEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "contributor",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "clwdn_allocated",
+            "type": "u64"
+          },
+          {
+            "name": "rate_used",
+            "type": "u64"
+          },
+          {
+            "name": "next_rate",
+            "type": "u64"
+          },
+          {
+            "name": "lp_amount",
+            "type": "u64"
+          },
+          {
+            "name": "master_amount",
+            "type": "u64"
+          },
+          {
+            "name": "staking_amount",
+            "type": "u64"
+          },
+          {
+            "name": "total_contributed",
+            "type": "u64"
+          },
+          {
+            "name": "total_allocated",
+            "type": "u64"
+          },
+          {
+            "name": "global_progress",
+            "type": "u64"
+          },
+          {
+            "name": "contribution_count",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContributorRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "contributor",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_contributed_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "total_allocated_clwdn",
+            "type": "u64"
+          },
+          {
+            "name": "contribution_count",
+            "type": "u64"
+          },
+          {
+            "name": "last_contribution_at",
+            "type": "i64"
+          },
+          {
+            "name": "distributed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DistributionEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "contributor",
+            "type": "pubkey"
+          },
+          {
+            "name": "clwdn_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -27,6 +27,8 @@ setInterval(checkContributions, BOOTSTRAP_POLL);
 setTimeout(() => checkContributions().catch(() => {}), 5000);
 // Chat handler
 const { handleChat } = require('./chat-handler');
+// Airdrop wallet database
+const airdropDb = require("./twitter/airdrop-db");
 
 const PAGE_404 = fs.existsSync(path.join(__dirname, "404.html")) ? fs.readFileSync(path.join(__dirname, "404.html"), "utf8") : "<h1>404</h1>";
 function serve404(res) { res.writeHead(404, {"Content-Type":"text/html"}); return res.end(PAGE_404); }
@@ -310,6 +312,51 @@ const server = http.createServer(async (req, res) => {
       'Access-Control-Max-Age': '86400'
     });
     return res.end();
+  }
+
+
+  // GET /api/airdrop/wallets — list registered airdrop wallets
+  if (req.url === "/api/airdrop/wallets" || req.url === "/api/airdrop/wallets/") {
+    const wallets = airdropDb.getWallets();
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ count: wallets.length, wallets }));
+  }
+
+  // GET /api/airdrop/count — just the count
+  if (req.url === "/api/airdrop/count" || req.url === "/api/airdrop/count/") {
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ count: airdropDb.getCount() }));
+  }
+
+  // GET /api/airdrop/check?q=<wallet_or_handle>
+  if (req.url.startsWith("/api/airdrop/check")) {
+    const url = new URL(req.url, "http://localhost");
+    const q = url.searchParams.get("q");
+    if (!q) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Missing ?q= parameter" }));
+    }
+    const entry = airdropDb.isRegistered(q);
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ registered: !!entry, entry }));
+  }
+
+  // POST /api/airdrop/register — manual wallet registration from website
+  if (req.url === "/api/airdrop/register" && req.method === "POST") {
+    let body = "";
+    req.on("data", c => body += c);
+    req.on("end", () => {
+      try {
+        const { wallet, twitterHandle } = JSON.parse(body);
+        const result = airdropDb.registerWallet({ wallet, twitterHandle, source: "website" });
+        res.writeHead(result.success ? 200 : 400, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+        res.end(JSON.stringify(result));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+    return;
   }
 
   // GET /api/health
