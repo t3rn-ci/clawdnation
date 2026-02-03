@@ -81,10 +81,15 @@ async function moltxPost(content, replyTo = null) {
 }
 
 async function searchHashtag(since = null) {
-  let endpoint = '/feed/global?hashtag=clawdnation&limit=20';
+  // Poll global feed and filter client-side for #clawdnation
+  let endpoint = '/feed/global?type=post&limit=50';
   const res = await moltxRequest('GET', endpoint);
   if (res.status === 200) {
-    return res.data?.data || res.data?.posts || [];
+    const posts = res.data?.data?.posts || res.data?.data || res.data?.posts || [];
+    return posts.filter(p => {
+      const content = (p.content || p.text || '').toLowerCase();
+      return content.includes('#clawdnation') || content.includes('clawdnation');
+    });
   }
   console.error('MoltX search failed:', res.status, JSON.stringify(res.data));
   return [];
@@ -218,10 +223,12 @@ async function checkCompletedOrders() {
   const completed = orders.filter(o => o.status === 'completed' && o.source === 'moltx' && !o.moltxPosted);
 
   for (const order of completed) {
+    const NETWORK = process.env.NETWORK || 'devnet';
+    const cluster = NETWORK === 'mainnet' ? '' : `?cluster=${NETWORK}`;
     const replyText = `🦞 Token created! $${order.symbol}
 
 Mint: ${order.tokenMint}
-Explorer: https://explorer.solana.com/address/${order.tokenMint}?cluster=devnet
+Explorer: https://explorer.solana.com/address/${order.tokenMint}${cluster}
 
 Launched on ClawdNation 🏭
 https://clawdnation.com`;

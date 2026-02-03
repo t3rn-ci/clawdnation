@@ -1,209 +1,279 @@
 /**
- * Bootstrap Monitor — tracks SOL contributions and records CLWDN allocations
+ * Bootstrap Monitor v2 — reads state directly from on-chain bootstrap program
  * 
- * Watches the payment address for incoming SOL transfers.
- * Records each contribution with sender address and CLWDN allocation.
- * When bootstrap is complete or CLWDN token is minted, distribute tokens.
- * 
- * Data stored in bootstrap.json
+ * Instead of watching individual transfers (rate-limited, fragile),
+ * reads BootstrapState and ContributorRecord accounts from the program.
+ * Single RPC call every poll interval.
  */
 
-const { Connection, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+const { Connection, PublicKey } = require('@solana/web3.js');
 const fs = require('fs');
 const path = require('path');
 
-const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
+const NETWORK = process.env.NETWORK || 'devnet';
+const RPC = process.env.SOLANA_RPC || (NETWORK === 'mainnet' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com');
 const BOOTSTRAP_PATH = path.join(__dirname, 'bootstrap.json');
-const PAYMENT_ADDRESS = process.env.PAYMENT_ADDRESS || 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
-const POLL_INTERVAL = parseInt(process.env.BOOTSTRAP_POLL_INTERVAL || '15000');
+const POLL_INTERVAL = parseInt(process.env.BOOTSTRAP_POLL_INTERVAL || (NETWORK === 'mainnet' ? '60000' : '15000'));
 
-// Bootstrap config
-const PRICE_PER_TOKEN = 0.0001; // SOL per CLWDN
-const BOOTSTRAP_ALLOCATION = 100_000_000; // 100M CLWDN for bootstrap
-const TARGET_SOL = 10_000; // 10K SOL target
+// Bootstrap program IDs
+const BOOTSTRAP_PROGRAM = new PublicKey(
+  NETWORK === 'mainnet'
+    ? '91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No'
+    : 'CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC'
+);
 
 const connection = new Connection(RPC, 'confirmed');
 
-function loadBootstrap() {
-  if (!fs.existsSync(BOOTSTRAP_PATH)) {
-    return {
-      status: 'active',
-      contributions: [],
-      totalSol: 0,
-      totalClwdn: 0,
-      seenTxs: {},
-    };
-  }
-  try { return JSON.parse(fs.readFileSync(BOOTSTRAP_PATH, 'utf8')); } catch { 
-    return { status: 'active', contributions: [], totalSol: 0, totalClwdn: 0, seenTxs: {} };
-  }
-}
+// Anchor discriminators (first 8 bytes of sha256("account:AccountName"))
+const BOOTSTRAP_STATE_DISC = '64ae7350782f6f7a';
+const CONTRIBUTOR_RECORD_DISC = 'cd5086e45587c5b0';
 
-function saveBootstrap(data) {
-  fs.writeFileSync(BOOTSTRAP_PATH, JSON.stringify(data, null, 2));
+/**
+ * Parse BootstrapState from raw account data (260 bytes)
+ * Layout: 8 disc + 32 authority + 1+32 pending_authority(Option) + 32 lp + 32 master + 32 staking
+ *         + u64 start_rate + u64 end_rate + u64 allocation_cap
+ *         + u64 min_contribution + u64 max_per_wallet
+ *         + bool paused + bool bootstrap_complete
+ *         + u64 total_contributed_lamports + u64 total_allocated_clwdn
+ *         + u64 contributor_count + u64 lp_received + u64 master_received + u64 staking_received
+ *         + u8 bump
+ */
+function parseBootstrapState(data) {
+  if (data.length < 200) return null;
+  const buf = Buffer.from(data);
+  
+  let off = 8; // skip discriminator
+  const authority = new PublicKey(buf.slice(off, off + 32)); off += 32;
+  
+  // Option<Pubkey> pending_authority: 1 byte tag + 32 bytes if Some
+  const hasPending = buf.readUInt8(off); off += 1;
+  let pendingAuthority = null;
+  if (hasPending) { pendingAuthority = new PublicKey(buf.slice(off, off + 32)); off += 32; }
+  // Borsh Option: only advance 32 if Some (already advanced above)
+  
+  const lpWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
+  const masterWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
+  const stakingWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
+  
+  const startRate = buf.readBigUInt64LE(off); off += 8;
+  const endRate = buf.readBigUInt64LE(off); off += 8;
+  const allocationCap = buf.readBigUInt64LE(off); off += 8;
+  const minContribution = buf.readBigUInt64LE(off); off += 8;
+  const maxPerWallet = buf.readBigUInt64LE(off); off += 8;
+  
+  const paused = buf.readUInt8(off) !== 0; off += 1;
+  const bootstrapComplete = buf.readUInt8(off) !== 0; off += 1;
+  
+  const totalContributedLamports = buf.readBigUInt64LE(off); off += 8;
+  const totalAllocatedClwdn = buf.readBigUInt64LE(off); off += 8;
+  const contributorCount = buf.readBigUInt64LE(off); off += 8;
+  const lpReceivedLamports = buf.readBigUInt64LE(off); off += 8;
+  const masterReceivedLamports = buf.readBigUInt64LE(off); off += 8;
+  const stakingReceivedLamports = buf.readBigUInt64LE(off); off += 8;
+  
+  return {
+    authority: authority.toBase58(),
+    pendingAuthority: pendingAuthority ? pendingAuthority.toBase58() : null,
+    lpWallet: lpWallet.toBase58(),
+    masterWallet: masterWallet.toBase58(),
+    stakingWallet: stakingWallet.toBase58(),
+    startRate: Number(startRate),
+    endRate: Number(endRate),
+    allocationCap: Number(allocationCap),
+    minContribution: Number(minContribution),
+    maxPerWallet: Number(maxPerWallet),
+    paused,
+    bootstrapComplete,
+    totalContributedLamports: Number(totalContributedLamports),
+    totalAllocatedClwdn: Number(totalAllocatedClwdn),
+    contributorCount: Number(contributorCount),
+    lpReceivedLamports: Number(lpReceivedLamports),
+    masterReceivedLamports: Number(masterReceivedLamports),
+    stakingReceivedLamports: Number(stakingReceivedLamports),
+  };
 }
 
 /**
- * Check for new contributions
+ * Parse ContributorRecord from raw account data (73 bytes)
+ * Layout: 8 disc + 32 contributor + u64 total_contributed_lamports + u64 total_allocated_clwdn
+ *         + u64 contribution_count + i64 last_contribution_at + bool distributed
  */
-async function checkContributions() {
-  const data = loadBootstrap();
-  if (data.status !== 'active') {
-    return; // bootstrap ended
-  }
+function parseContributorRecord(data) {
+  if (data.length < 65) return null;
+  const buf = Buffer.from(data);
+  
+  let off = 8;
+  const contributor = new PublicKey(buf.slice(off, off + 32)); off += 32;
+  const totalContributedLamports = buf.readBigUInt64LE(off); off += 8;
+  const totalAllocatedClwdn = buf.readBigUInt64LE(off); off += 8;
+  const contributionCount = buf.readBigUInt64LE(off); off += 8;
+  const lastContributionAt = Number(buf.readBigInt64LE(off)); off += 8;
+  const distributed = off < buf.length ? buf.readUInt8(off) !== 0 : false;
+  
+  return {
+    contributor: contributor.toBase58(),
+    totalContributedLamports: Number(totalContributedLamports),
+    totalAllocatedClwdn: Number(totalAllocatedClwdn),
+    contributionCount: Number(contributionCount),
+    lastContributionAt: lastContributionAt ? new Date(lastContributionAt * 1000).toISOString() : null,
+    distributed,
+  };
+}
 
-  const address = new PublicKey(PAYMENT_ADDRESS);
-
+/**
+ * Fetch all program accounts and parse state + contributors
+ */
+async function fetchBootstrapState() {
   try {
-    const sigs = await connection.getSignaturesForAddress(address, { limit: 30 });
-    let changed = false;
-
-    for (const sig of sigs) {
-      if (data.seenTxs[sig.signature]) continue;
-
-      const tx = await connection.getParsedTransaction(sig.signature, { maxSupportedTransactionVersion: 0 });
-      if (!tx || !tx.meta) {
-        data.seenTxs[sig.signature] = { skipped: 'no-meta', at: new Date().toISOString() };
-        changed = true;
-        continue;
-      }
-
-      const instructions = tx.transaction.message.instructions;
-      for (const ix of instructions) {
-        if (ix.program === 'system' && ix.parsed?.type === 'transfer') {
-          const dest = ix.parsed.info.destination;
-          const lamports = ix.parsed.info.lamports;
-          const sol = lamports / LAMPORTS_PER_SOL;
-          const sender = ix.parsed.info.source;
-
-          // Skip self-transfers
-          if (sender === PAYMENT_ADDRESS) {
-            data.seenTxs[sig.signature] = { skipped: 'self-transfer', at: new Date().toISOString() };
-            changed = true;
-            continue;
-          }
-
-          if (dest === PAYMENT_ADDRESS && sol > 0) {
-            const clwdnAmount = Math.floor(sol / PRICE_PER_TOKEN);
-            
-            // Check if bootstrap cap would be exceeded
-            if (data.totalClwdn + clwdnAmount > BOOTSTRAP_ALLOCATION) {
-              console.log(`⚠️  Contribution would exceed bootstrap cap. Remaining: ${(BOOTSTRAP_ALLOCATION - data.totalClwdn).toLocaleString()} CLWDN`);
-            }
-
-            const contribution = {
-              id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-              sender,
-              sol,
-              clwdn: clwdnAmount,
-              tx: sig.signature,
-              blockTime: tx.blockTime ? new Date(tx.blockTime * 1000).toISOString() : null,
-              recordedAt: new Date().toISOString(),
-              distributed: false, // will be true when CLWDN tokens are actually sent
-            };
-
-            data.contributions.push(contribution);
-            data.totalSol += sol;
-            data.totalClwdn += clwdnAmount;
-            data.seenTxs[sig.signature] = { contributionId: contribution.id, at: new Date().toISOString() };
-            changed = true;
-
-            console.log(`💰 Bootstrap contribution: ${sol} SOL from ${sender.slice(0,6)}…${sender.slice(-4)} → ${clwdnAmount.toLocaleString()} CLWDN (tx: ${sig.signature.slice(0,8)}…)`);
-
-            // Check if bootstrap target reached
-            if (data.totalSol >= TARGET_SOL) {
-              data.status = 'completed';
-              console.log(`🎉 BOOTSTRAP COMPLETE! Total: ${data.totalSol} SOL, ${data.totalClwdn.toLocaleString()} CLWDN allocated`);
-            }
-          }
+    const accounts = await connection.getProgramAccounts(BOOTSTRAP_PROGRAM);
+    
+    let state = null;
+    const contributors = [];
+    
+    for (const { pubkey, account } of accounts) {
+      const data = account.data;
+      const disc = data.slice(0, 8).toString('hex');
+      
+      if (disc === BOOTSTRAP_STATE_DISC) {
+        state = parseBootstrapState(data);
+        if (state) state.pubkey = pubkey.toBase58();
+      } else if (disc === CONTRIBUTOR_RECORD_DISC) {
+        const record = parseContributorRecord(data);
+        if (record) {
+          record.pubkey = pubkey.toBase58();
+          contributors.push(record);
         }
       }
-
-      if (!data.seenTxs[sig.signature]) {
-        data.seenTxs[sig.signature] = { skipped: 'no-transfer', at: new Date().toISOString() };
-        changed = true;
-      }
     }
-
-    if (changed) {
-      saveBootstrap(data);
-    }
+    
+    return { state, contributors };
   } catch (e) {
-    console.error('Bootstrap check error:', e.message);
+    console.error('Bootstrap fetch error:', e.message);
+    return { state: null, contributors: [] };
   }
 }
 
-/**
- * Get bootstrap stats
- */
-function getStats() {
-  const data = loadBootstrap();
-  const contributorMap = {};
-  for (const c of data.contributions) {
-    if (!contributorMap[c.sender]) contributorMap[c.sender] = { sol: 0, clwdn: 0, count: 0 };
-    contributorMap[c.sender].sol += c.sol;
-    contributorMap[c.sender].clwdn += c.clwdn;
-    contributorMap[c.sender].count += 1;
-  }
+// Cache for the API
+let cachedData = null;
 
-  return {
-    status: data.status,
-    totalSol: data.totalSol,
-    totalClwdn: data.totalClwdn,
-    targetSol: TARGET_SOL,
-    allocationTotal: BOOTSTRAP_ALLOCATION,
-    remaining: BOOTSTRAP_ALLOCATION - data.totalClwdn,
-    contributors: Object.keys(contributorMap).length,
-    contributions: data.contributions.length,
-    topContributors: Object.entries(contributorMap)
-      .sort((a, b) => b[1].sol - a[1].sol)
-      .slice(0, 10)
-      .map(([addr, d]) => ({ address: addr, sol: d.sol, clwdn: d.clwdn, contributions: d.count })),
-    progressPct: (data.totalSol / TARGET_SOL * 100).toFixed(2),
+async function checkContributions() {
+  const { state, contributors } = await fetchBootstrapState();
+  
+  if (!state) {
+    console.error('Bootstrap: No state account found');
+    return;
+  }
+  
+  const totalSol = state.totalContributedLamports / 1e9;
+  const targetSol = state.allocationCap * 0.0001; // rough estimate based on start rate
+  
+  cachedData = {
+    status: state.bootstrapComplete ? 'completed' : (state.paused ? 'paused' : 'active'),
+    onChain: state,
+    contributions: contributors.map(c => ({
+      sender: c.contributor,
+      sol: c.totalContributedLamports / 1e9,
+      clwdn: c.totalAllocatedClwdn,
+      count: c.contributionCount,
+      lastAt: c.lastContributionAt,
+      distributed: c.distributed,
+    })),
+    totalSol,
+    totalClwdn: state.totalAllocatedClwdn,
+    contributorCount: state.contributorCount,
+    lastChecked: new Date().toISOString(),
   };
+  
+  // Save to disk
+  fs.writeFileSync(BOOTSTRAP_PATH, JSON.stringify(cachedData, null, 2));
+  
+  if (contributors.length > 0) {
+    console.log(`💰 Bootstrap: ${totalSol.toFixed(4)} SOL contributed, ${state.totalAllocatedClwdn.toLocaleString()} CLWDN allocated, ${state.contributorCount} contributors`);
+  }
 }
 
-/**
- * Get allocation for a specific wallet
- */
-function getAllocation(walletAddress) {
-  const data = loadBootstrap();
-  const contributions = data.contributions.filter(c => c.sender === walletAddress);
-  if (!contributions.length) return null;
+function getStats() {
+  if (cachedData) {
+    const d = cachedData;
+    const onChain = d.onChain || {};
+    return {
+      status: d.status,
+      totalSol: d.totalSol || 0,
+      totalClwdn: d.totalClwdn || 0,
+      targetSol: 10000,
+      allocationTotal: onChain.allocationCap || 100000000,
+      remaining: (onChain.allocationCap || 100000000) - (d.totalClwdn || 0),
+      contributors: d.contributorCount || 0,
+      contributions: (d.contributions || []).reduce((s, c) => s + (c.count || 0), 0),
+      topContributors: (d.contributions || [])
+        .sort((a, b) => b.sol - a.sol)
+        .slice(0, 10)
+        .map(c => ({ address: c.sender, sol: c.sol, clwdn: c.clwdn, contributions: c.count })),
+      progressPct: ((d.totalSol || 0) / 10000 * 100).toFixed(2),
+      onChain: {
+        startRate: onChain.startRate,
+        endRate: onChain.endRate,
+        minContribution: onChain.minContribution,
+        maxPerWallet: onChain.maxPerWallet,
+        paused: onChain.paused,
+        bootstrapComplete: onChain.bootstrapComplete,
+        lpReceived: onChain.lpReceivedLamports ? onChain.lpReceivedLamports / 1e9 : 0,
+        masterReceived: onChain.masterReceivedLamports ? onChain.masterReceivedLamports / 1e9 : 0,
+        stakingReceived: onChain.stakingReceivedLamports ? onChain.stakingReceivedLamports / 1e9 : 0,
+      },
+    };
+  }
+  
+  // Try loading from file
+  try {
+    const data = JSON.parse(fs.readFileSync(BOOTSTRAP_PATH, 'utf8'));
+    cachedData = data;
+    return getStats();
+  } catch {
+    return {
+      status: 'active',
+      totalSol: 0,
+      totalClwdn: 0,
+      targetSol: 10000,
+      allocationTotal: 100000000,
+      remaining: 100000000,
+      contributors: 0,
+      contributions: 0,
+      topContributors: [],
+      progressPct: '0.00',
+    };
+  }
+}
 
+function getAllocation(walletAddress) {
+  if (!cachedData) return null;
+  const c = (cachedData.contributions || []).find(x => x.sender === walletAddress);
+  if (!c) return null;
   return {
     wallet: walletAddress,
-    totalSol: contributions.reduce((s, c) => s + c.sol, 0),
-    totalClwdn: contributions.reduce((s, c) => s + c.clwdn, 0),
-    contributions: contributions.length,
-    distributed: contributions.every(c => c.distributed),
-    history: contributions.map(c => ({
-      sol: c.sol,
-      clwdn: c.clwdn,
-      tx: c.tx,
-      at: c.blockTime || c.recordedAt,
-    })),
+    totalSol: c.sol,
+    totalClwdn: c.clwdn,
+    contributions: c.count,
+    distributed: c.distributed,
+    lastAt: c.lastAt,
   };
 }
 
-/**
- * Start monitoring
- */
-function startMonitor() {
-  console.log('🔴 Bootstrap monitor started');
-  console.log(`   Payment address: ${PAYMENT_ADDRESS}`);
-  console.log(`   Rate: ${PRICE_PER_TOKEN} SOL per CLWDN`);
-  console.log(`   Target: ${TARGET_SOL.toLocaleString()} SOL`);
-  console.log(`   Allocation: ${BOOTSTRAP_ALLOCATION.toLocaleString()} CLWDN`);
-  console.log(`   Poll interval: ${POLL_INTERVAL}ms`);
-
-  // Initial check
-  checkContributions();
-  setInterval(checkContributions, POLL_INTERVAL);
+function loadBootstrap() {
+  try {
+    return JSON.parse(fs.readFileSync(BOOTSTRAP_PATH, 'utf8'));
+  } catch {
+    return { status: 'active', contributions: [], totalSol: 0, totalClwdn: 0 };
+  }
 }
 
 if (require.main === module) {
-  startMonitor();
+  console.log('🔴 Bootstrap monitor v2 started (on-chain state reader)');
+  console.log(`   Program: ${BOOTSTRAP_PROGRAM.toBase58()}`);
+  console.log(`   RPC: ${RPC}`);
+  console.log(`   Poll interval: ${POLL_INTERVAL}ms`);
+  checkContributions();
+  setInterval(checkContributions, POLL_INTERVAL);
 }
 
 module.exports = { checkContributions, getStats, getAllocation, loadBootstrap };

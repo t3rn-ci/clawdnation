@@ -1,0 +1,14 @@
+{
+  "posts": {
+    "73f0a349-cc7e-48d7-8f60-52937ce4974d": {
+      "status": "skipped",
+      "reason": "no_details",
+      "at": "2026-02-03T08:32:45.470Z"
+    },
+    "8870af68-b9fe-49fb-adec-c570789c8bbd": {
+      "status": "skipped",
+      "reason": "no_details",
+      "at": "2026-02-03T08:38:45.223Z"
+    }
+  }
+}

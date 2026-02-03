@@ -21,8 +21,10 @@ function loadVesting() {
 // Bootstrap monitor
 const { getStats, getAllocation, checkContributions } = require('./solana/bootstrap-monitor');
 // Start bootstrap monitor polling
-setInterval(checkContributions, 15000);
-checkContributions().catch(() => {});
+const BOOTSTRAP_POLL = parseInt(process.env.BOOTSTRAP_POLL_INTERVAL || (NETWORK === 'mainnet' ? '60000' : '15000'));
+setInterval(checkContributions, BOOTSTRAP_POLL);
+// Delay initial check to avoid startup rate limit burst
+setTimeout(() => checkContributions().catch(() => {}), 5000);
 // Chat handler
 const { handleChat } = require('./chat-handler');
 
