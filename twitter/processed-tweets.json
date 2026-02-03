@@ -1,5 +1,5 @@
 {
-  "lastId": "2018482043185737880",
+  "lastId": "2018497542024012177",
   "tweets": {
     "2018286013211091274": {
       "status": "replied",
@@ -31,6 +31,29 @@
             "timeMs": 11125
           }
         ]
+      }
+    },
+    "2018497045682635203": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018497389166825858": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018497542024012177": {
+      "status": "self-birth-failed",
+      "started": 1770082308853,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
       }
     }
   }

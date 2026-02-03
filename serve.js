@@ -9,9 +9,10 @@ const EXPLORER_CLUSTER = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const ORDERS_PATH = path.join(__dirname, 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const VESTING_PATH = path.join(__dirname, 'solana', 'vesting.json');
-const CLWDN_MINT = 'Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj';
+const CLWDN_MINT = NETWORK === 'mainnet' ? '3zvSRWfjPvcnt8wfTrKhgCtQVwVSrYfBY6g1jPwzfHJG' : 'Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj';
 const PAYMENT_WALLET = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
-const DISPENSER_PROGRAM = 'DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK';
+const DISPENSER_PROGRAM = NETWORK === 'mainnet' ? 'C7V7KmwzifnEyjE7HKTyfL67xerkyGXeNh8eHi3bUuxL' : 'DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK';
+const BOOTSTRAP_PROGRAM = NETWORK === 'mainnet' ? '91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No' : 'CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC';
 
 function loadVesting() {
   try { return JSON.parse(fs.readFileSync(VESTING_PATH, 'utf8')); } catch { return {}; }
