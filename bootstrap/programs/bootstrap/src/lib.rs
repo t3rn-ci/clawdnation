@@ -5,7 +5,7 @@ use anchor_spl::{
     token::{self, Burn, Token},
 };
 
-declare_id!("CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC");
+declare_id!("91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No");
 
 /// Linear Bonding Curve Bootstrap with 80/10/10 Auto-Split
 ///
