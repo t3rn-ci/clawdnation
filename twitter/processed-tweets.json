@@ -1,5 +1,5 @@
 {
-  "lastId": "2018500122229842005",
+  "lastId": "2018501892649677184",
   "tweets": {
     "2018286013211091274": {
       "status": "replied",
@@ -70,6 +70,75 @@
         ],
         "error": "Insufficient SOL: have 0.5155752, need 1.01"
       }
+    },
+    "2018501475475853565": {
+      "status": "self-birth-failed",
+      "started": 1770083239235,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501433625030944": {
+      "status": "replied",
+      "orderId": "ml5xux6ljjhp",
+      "replyId": "2018501524876386669",
+      "symbol": "CLWDN"
+    },
+    "2018501559521296888": {
+      "status": "self-birth-failed",
+      "started": 1770083269504,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501517536264394": {
+      "status": "replied",
+      "orderId": "ml5xvk4wah77",
+      "replyId": "2018501649598152946",
+      "symbol": "CLWDN"
+    },
+    "2018501847418360045": {
+      "status": "replied",
+      "orderId": "ml5xwu2qu0y6",
+      "replyId": "2018501899373134324",
+      "symbol": "CLWDN"
+    },
+    "2018501765176430640": {
+      "status": "self-birth-failed",
+      "started": 1770083329573,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501892649677184": {
+      "status": "replied",
+      "orderId": "ml5xxh9vn2ok",
+      "replyId": "2018502025474912454",
+      "symbol": "PLATF"
     }
   }
 }
