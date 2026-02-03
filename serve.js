@@ -23,6 +23,9 @@ const { getStats, getAllocation, checkContributions } = require('./solana/bootst
 // Start bootstrap monitor polling
 setInterval(checkContributions, 15000);
 checkContributions().catch(() => {});
+// Chat handler
+const { handleChat } = require('./chat-handler');
+
 const PAGE_404 = fs.existsSync(path.join(__dirname, "404.html")) ? fs.readFileSync(path.join(__dirname, "404.html"), "utf8") : "<h1>404</h1>";
 function serve404(res) { res.writeHead(404, {"Content-Type":"text/html"}); return res.end(PAGE_404); }
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.md': 'text/markdown; charset=utf-8' };
@@ -547,6 +550,29 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify(econ));
   }
 
+
+  // POST /api/chat — chatbot endpoint
+  if (req.url === '/api/chat' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { message, sessionId, state } = JSON.parse(body);
+        if (!message || !sessionId) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'message and sessionId required' }));
+        }
+        const result = handleChat(message, sessionId, state);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   // /economics page
   if (req.url === '/economics' || req.url === '/economics/') {
     const fp = path.join(__dirname, 'economics.html');
@@ -581,10 +607,6 @@ const server = http.createServer(async (req, res) => {
       const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK==="mainnet"?"":"?cluster=devnet"}",isDevnet:${NETWORK!=="mainnet"},clwdnMint:"${CLWDN_MINT}",dispenserProgram:"${DISPENSER_PROGRAM}",bootstrapProgram:"${BOOTSTRAP_PROGRAM}",paymentWallet:"${PAYMENT_WALLET}"};</script>`;
       let html = data.toString();
       html = html.replace('</head>', configScript + '</head>');
-      // Show/hide devnet badge based on network
-      if (NETWORK === 'mainnet') {
-        html = html.replace(/<span class="ltag">devnet<\/span>/g, '');
-      }
       res.writeHead(200, { 'Content-Type': 'text/html' });
       return res.end(html);
     }

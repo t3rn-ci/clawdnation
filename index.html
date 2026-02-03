@@ -316,12 +316,17 @@
     .badge-blue{color:var(--blt);background:var(--blb)}
     .badge-orange{color:var(--or);background:var(--orb)}
   </style>
+  <link rel="stylesheet" href="/chat-widget.css">
 </head>
 <body>
 <header><div class="hi">
-  <a class="logo" href="/"><img src="/logo.jpg" alt="ClawdNation" style="width:32px;height:32px;border-radius:6px"><span class="lt2">ClawdNation</span><span class="ltag">devnet</span></a>
+  <a class="logo" href="/"><img src="/logo.jpg" alt="ClawdNation" style="width:32px;height:32px;border-radius:6px"><span class="lt2">ClawdNation</span><span class="ltag" id="netBadge"></span></a>
   <div class="nav-links">
-    <a href="https://x.com/clawdnation" target="_blank">𝕏</a>
+    <div class="social-badges">
+      <a href="https://x.com/clawdnation" target="_blank" class="social-badge" title="X/Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="https://moltx.io/ClawdNation_bot" target="_blank" class="social-badge" title="MoltX">🦠</a>
+      <a href="https://moltbook.com/u/ClawdNation" target="_blank" class="social-badge" title="Moltbook">📰</a>
+    </div>
     <div id="walletNav" style="display:flex;align-items:center;gap:8px">
       <button class="btn btn-pu btn-sm" data-wallet-btn onclick="connectWallet()" id="navConnectBtn" style="height:32px;line-height:1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Connect Wallet</button>
     </div>
@@ -345,7 +350,7 @@
   <div class="st"><div class="sv pu" id="xTok">—</div><div class="sl">Tokens Launched</div></div>
   <div class="st"><div class="sv gn" id="xCreators">—</div><div class="sl">Creators</div></div>
   <div class="st"><div class="sv or" id="xVol">—</div><div class="sl">SOL Volume</div></div>
-  <div class="st"><div class="sv bl" id="xNet">Devnet</div><div class="sl">Network</div></div>
+  <div class="st"><div class="sv bl" id="xNet">—</div><div class="sl">Network</div></div>
 </div></div>
 <div class="skill-wrap">
   <div class="skill-outer">
@@ -843,7 +848,7 @@
 
   <!-- Core Infrastructure -->
   <div class="card">
-    <div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg> Core Infrastructure</h2><span style="font-size:11px;font-weight:600;color:var(--gnt);background:var(--gnb);padding:3px 10px;border-radius:20px">Devnet</span></div>
+    <div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg> Core Infrastructure</h2><span style="font-size:11px;font-weight:600;color:var(--gnt);background:var(--gnb);padding:3px 10px;border-radius:20px" id="infraNetBadge"></span></div>
     <div class="cb">
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="background:var(--bge);border-radius:var(--r);padding:14px">
@@ -853,7 +858,7 @@
           </div>
           <div style="font-family:var(--m);font-size:11px;color:var(--t2);word-break:break-all;cursor:pointer" onclick="navigator.clipboard.writeText('GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE')">
             GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE
-            <a href="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE?cluster=devnet" target="_blank" style="margin-left:8px;font-size:10px">Explorer ↗</a>
+            <a data-explorer="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE" href="#" target="_blank" style="margin-left:8px;font-size:10px">Explorer ↗</a>
           </div>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:14px">
@@ -868,7 +873,7 @@
             <span style="font-size:13px;font-weight:600;color:var(--t1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> DEX</span>
             <span style="font-size:11px;color:var(--t3)">Raydium CPMM</span>
           </div>
-          <div style="font-family:var(--m);font-size:11px;color:var(--t2)">Raydium Concentrated Pool Market Maker (Devnet)</div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2)"><span id="dexLabel">Raydium Concentrated Pool Market Maker</span></div>
         </div>
       </div>
     </div>
@@ -889,35 +894,35 @@
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">RedClaw</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$RCLAW</span></div>
-          <a href="https://explorer.solana.com/address/5euUdaCZ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/5euUdaCZ" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">MyCoin</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$MYCN</span></div>
-          <a href="https://explorer.solana.com/address/5yTAVDTQ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/5yTAVDTQ" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">TestTokenomics</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TTOK</span></div>
-          <a href="https://explorer.solana.com/address/89tSZ4s3?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/89tSZ4s3" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">PhoenixFire</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$PHNX</span></div>
-          <a href="https://explorer.solana.com/address/9krF3cJuL4qXJdmNWcfDyMNBp6vrogtCNhnwTW6SMib8?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/9krF3cJuL4qXJdmNWcfDyMNBp6vrogtCNhnwTW6SMib8" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">SolFire</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$SFIRE</span></div>
-          <a href="https://explorer.solana.com/address/G8jA9oewoQd9KNrJAKSq3cZ1gYvyr5Gs2z7vhGtntDpR?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/G8jA9oewoQd9KNrJAKSq3cZ1gYvyr5Gs2z7vhGtntDpR" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">TestDrop</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TDRP</span></div>
-          <a href="https://explorer.solana.com/address/C2qUAg3K?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/C2qUAg3K" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">FactoryTest</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$FTEST</span></div>
-          <a href="https://explorer.solana.com/address/Eu8jLXjZ?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/Eu8jLXjZ" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
         <div style="background:var(--bge);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between">
           <div><span style="font-weight:600;color:var(--t1)">TestCoin</span> <span style="font-family:var(--m);color:var(--ac);font-size:12px">$TEST</span></div>
-          <a href="https://explorer.solana.com/address/GjLmbJSA?cluster=devnet" target="_blank" style="font-size:11px">Explorer ↗</a>
+          <a data-explorer="https://explorer.solana.com/address/GjLmbJSA" href="#" target="_blank" style="font-size:11px">Explorer ↗</a>
         </div>
       </div>
       <div style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center">Includes test mints from development. Production deploys shown in "Deployed Tokens" above.</div>
@@ -979,7 +984,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
         <div style="background:var(--bge);padding:12px;border-radius:var(--r);text-align:center">
           <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--or)">0.05 SOL</div>
-          <div style="font-size:11px;color:var(--t3);text-transform:uppercase;margin-top:2px">Creation Fee (Devnet)</div>
+          <div style="font-size:11px;color:var(--t3);text-transform:uppercase;margin-top:2px"><span id="feeLabel">Creation Fee</span></div>
         </div>
         <div style="background:var(--bge);padding:12px;border-radius:var(--r);text-align:center">
           <div style="font-family:var(--m);font-size:18px;font-weight:700;color:var(--gnt)">~30 seconds</div>
@@ -1103,8 +1108,8 @@
     <div class="ch"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Important Notes</h2></div>
     <div class="cb" style="font-size:13px;color:var(--t2);line-height:1.8">
       <ul style="margin:0 0 0 16px;list-style:disc;line-height:2.2">
-        <li><strong style="color:var(--t1)">Network:</strong> Currently on <strong style="color:var(--or)">Solana Devnet</strong> — tokens are for testing only</li>
-        <li><strong style="color:var(--t1)">Fee:</strong> 0.05 SOL per token creation (devnet SOL, free from faucet)</li>
+        <li><strong style="color:var(--t1)">Network:</strong> <span id="networkNote">Loading...</span></li>
+        <li><strong style="color:var(--t1)">Fee:</strong> <span id="feeNote">0.05 SOL per token creation</span></li>
         <li><strong style="color:var(--t1)">Immutable:</strong> Once created, token parameters cannot be changed</li>
         <li><strong style="color:var(--t1)">LP Locked:</strong> Liquidity pool tokens are owned by ClawdNation, not the creator</li>
         <li><strong style="color:var(--t1)">Vesting:</strong> Creator allocation (10%) vests linearly over 12 months</li>
@@ -1195,8 +1200,9 @@ function renderWalletList(){
   if(!available.length){
     list.innerHTML='<div class="wm-nowallets"><div style="font-weight:600;margin-bottom:8px">No Solana wallets detected</div><div style="font-size:12px;color:var(--t2);line-height:1.6">ClawdNation runs on Solana. You need a Solana wallet like:<br><br><a href="https://phantom.app" target="_blank" style="color:var(--ac)">Phantom</a> · <a href="https://solflare.com" target="_blank" style="color:var(--ac)">Solflare</a> · <a href="https://backpack.app" target="_blank" style="color:var(--ac)">Backpack</a><br><br><span style="color:var(--t3)">MetaMask and other EVM wallets are not supported.</span></div></div>';
   } else {
-    var networkNote=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.network==='devnet')
-      ?'<div style="padding:8px 16px;margin-bottom:8px;font-size:11px;color:var(--gnt);background:rgba(0,200,83,0.08);border-radius:8px;text-align:center">🔗 This site uses <strong>Solana Devnet</strong> — no real funds needed. Transactions are sent to devnet RPC automatically.</div>'
+    var _cfg=window.CLWDN_CONFIG||{};var _isDev=_cfg.isDevnet!==false;
+    var networkNote=_isDev
+      ?'<div style="padding:8px 16px;margin-bottom:8px;font-size:11px;color:var(--gnt);background:rgba(0,200,83,0.08);border-radius:8px;text-align:center">This site uses <strong>Solana '+(_cfg.network||'devnet').charAt(0).toUpperCase()+(_cfg.network||'devnet').slice(1)+'</strong> — no real funds needed. Transactions are sent to '+(_cfg.network||'devnet')+' RPC automatically.</div>'
       :'';
     list.innerHTML=networkNote+available.map(function(w,i){
       return '<div class="wallet-opt" onclick="selectWallet('+i+')" data-idx="'+i+'"><img src="'+w.icon+'" alt="'+w.name+'" onerror="this.style.display=\'none\'"><span class="wo-name">'+w.name+'</span><span class="wo-tag">Detected</span></div>';
@@ -1232,27 +1238,28 @@ var walletProvider=null,walletConn=null,walletAddr=null;
 
 function onWalletConnected(provider,resp){
   walletProvider=provider;
-  walletConn=new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.devnet.solana.com','confirmed');
+  walletConn=new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com','confirmed');
   walletAddr=resp.publicKey.toBase58();
   var short=walletAddr.slice(0,4)+'…'+walletAddr.slice(-4);
 
-  // Check if site is devnet and show network info
+  // Check if site is not mainnet and show network info
   var cfg=window.CLWDN_CONFIG||{};
-  if(cfg.network==='devnet'){
-    // Verify we're actually talking to devnet by checking genesis hash
+  if(cfg.isDevnet!==false){
+    var _netName=(cfg.network||'unknown').charAt(0).toUpperCase()+(cfg.network||'unknown').slice(1);
+    // Verify we're talking to the expected network by checking genesis hash
     walletConn.getGenesisHash().then(function(hash){
-      var isDevnet=hash==='EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+      var isExpected=hash==='EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
       var banner=document.getElementById('networkBanner');
       if(banner){
         banner.style.display='flex';
-        banner.className=isDevnet?'net-banner devnet':'net-banner mainnet';
-        banner.innerHTML=isDevnet
-          ?'<span>🔗 Connected to <strong>Solana Devnet</strong> — transactions use free devnet SOL</span>'
-          :'<span>⚠️ Connected but RPC mismatch detected — ensure your wallet is set to Devnet</span>';
+        banner.className=isExpected?'net-banner devnet':'net-banner mainnet';
+        banner.innerHTML=isExpected
+          ?'<span>Connected to <strong>Solana '+_netName+'</strong> — transactions use free '+cfg.network+' SOL</span>'
+          :'<span>Connected but RPC mismatch detected — ensure your wallet matches the site network</span>';
       }
     }).catch(function(){});
 
-    // For Phantom: try to switch to devnet if supported
+    // For Phantom: try to switch network if supported
     if(provider.isPhantom&&provider.request){
       try{
         provider.request({method:'disconnect'}).then(function(){
@@ -1376,7 +1383,7 @@ window.connectWallet=function(){
 
       grid.innerHTML=t.map(function(x){
         var initial=(x.symbol||'?').charAt(0);
-        var cfg=window.CLWDN_CONFIG||{cluster:'?cluster=devnet'};
+        var cfg=window.CLWDN_CONFIG||{cluster:''};
         var eBase='https://explorer.solana.com';
         var payTxLink=x.paymentTx?eBase+'/tx/'+x.paymentTx+cfg.cluster:'';
         var tweetLink=x.tweetId?'https://x.com/clawdnation/status/'+x.tweetId:'';
@@ -1460,7 +1467,7 @@ window.connectWallet=function(){
       if(!t.length){grid.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px">No completed deploys yet.</div>';return}
       grid.innerHTML=t.map(function(x){
         var eBase='https://explorer.solana.com';
-        var cluster=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'?cluster=devnet';
+        var cluster=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'';
         return '<div style="background:var(--bge);border-radius:var(--r);padding:14px">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
           +'<div><span style="font-weight:700;font-size:15px;color:var(--t1)">'+esc(x.name)+'</span> <span style="font-family:var(--m);color:var(--ac);font-size:13px;font-weight:600">$'+esc(x.symbol)+'</span></div>'
@@ -1488,7 +1495,7 @@ window.connectWallet=function(){
   var ECO_PRICE = 0.0001;
   var ECO_PAYMENT_ADDR = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
   var ECO_EXPLORER = 'https://explorer.solana.com';
-  var ECO_CLUSTER = (window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'?cluster=devnet';
+  var ECO_CLUSTER = (window.CLWDN_CONFIG&&window.CLWDN_CONFIG.cluster)||'';
   var ecoBalance = null;
 
   function sh(a){var s=a.toString();return s.slice(0,4)+'…'+s.slice(-4)}
@@ -1554,7 +1561,7 @@ window.connectWallet=function(){
 
     try{
       btn.disabled=true;lbl.textContent='Creating transaction...';ecoShowSt('pending','Preparing transaction…');
-      var conn=walletConn||new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.devnet.solana.com','confirmed');
+      var conn=walletConn||new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com','confirmed');
       var fromPubkey=new solanaWeb3.PublicKey(walletAddr);
       var lam=Math.round(sol*solanaWeb3.LAMPORTS_PER_SOL);
       var to=new solanaWeb3.PublicKey(ECO_PAYMENT_ADDR);
@@ -1909,7 +1916,7 @@ window._onWsWalletConnected = function(wallet, account, addr) {
       var feat = wallet.features['solana:signAndSendTransaction'];
       if (!feat) throw new Error('Wallet does not support signAndSendTransaction');
       var serialized = tx.serialize({ requireAllSignatures: false, verifySignatures: false });
-      var chain = (window.CLWDN_CONFIG && window.CLWDN_CONFIG.network === 'mainnet') ? 'solana:mainnet' : 'solana:devnet';
+      var chain = 'solana:' + ((window.CLWDN_CONFIG && window.CLWDN_CONFIG.network) || 'mainnet');
       var result = await feat.signAndSendTransaction({ transaction: serialized, account: account, chain: chain });
       return { signature: result.signature };
     },
@@ -1926,7 +1933,7 @@ window._onWsWalletConnected = function(wallet, account, addr) {
     }
   };
   walletConn = new solanaWeb3.Connection(
-    (window.CLWDN_CONFIG && window.CLWDN_CONFIG.rpc) || 'https://api.devnet.solana.com',
+    (window.CLWDN_CONFIG && window.CLWDN_CONFIG.rpc) || 'https://api.mainnet-beta.solana.com',
     'confirmed'
   );
 
@@ -1956,17 +1963,18 @@ window._onWsWalletConnected = function(wallet, account, addr) {
   // Load CLWDN balance
   loadWalletBalance();
 
-  // Show network banner if devnet
+  // Show network banner if not mainnet
   var cfg = window.CLWDN_CONFIG || {};
-  if (cfg.network === 'devnet') {
+  if (cfg.isDevnet !== false) {
+    var _netLabel = (cfg.network||'unknown').charAt(0).toUpperCase() + (cfg.network||'unknown').slice(1);
     walletConn.getGenesisHash().then(function(hash) {
-      var isDevnet = hash === 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+      var isExpected = hash === 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
       var banner = document.getElementById('networkBanner');
       if (banner) {
         banner.style.display = 'flex';
-        banner.className = isDevnet ? 'net-banner devnet' : 'net-banner mainnet';
-        banner.innerHTML = isDevnet
-          ? '<span>Connected to <strong>Solana Devnet</strong> \u2014 transactions use free devnet SOL</span>'
+        banner.className = isExpected ? 'net-banner devnet' : 'net-banner mainnet';
+        banner.innerHTML = isExpected
+          ? '<span>Connected to <strong>Solana ' + _netLabel + '</strong> \u2014 transactions use free ' + cfg.network + ' SOL</span>'
           : '<span>Connected but RPC mismatch detected</span>';
       }
     }).catch(function(){});
@@ -2018,7 +2026,7 @@ window.connectWallet = function() {
     document.getElementById('wiOverlay').classList.add('wi-open');
 
     var conn = walletConn || new solanaWeb3.Connection(
-      (window.CLWDN_CONFIG && window.CLWDN_CONFIG.rpc) || 'https://api.devnet.solana.com', 'confirmed'
+      (window.CLWDN_CONFIG && window.CLWDN_CONFIG.rpc) || 'https://api.mainnet-beta.solana.com', 'confirmed'
     );
     var pubkey = new solanaWeb3.PublicKey(walletAddr);
 
@@ -2087,5 +2095,53 @@ window.connectWallet = function() {
 })();
 
 </script>
+<script>
+/* Network-aware UI init — reads window.CLWDN_CONFIG injected by serve.js */
+(function(){
+  var cfg = window.CLWDN_CONFIG || {};
+  var net = cfg.network || 'devnet';
+  var isDev = cfg.isDevnet !== false;
+  var cluster = cfg.cluster || (isDev ? '?cluster=devnet' : '');
+
+  // Network badge in nav
+  var nb = document.getElementById('netBadge');
+  if(nb){ if(isDev){ nb.textContent=net; } else { nb.style.display='none'; } }
+
+  // Stats bar
+  var xn = document.getElementById('xNet');
+  if(xn) xn.textContent = netLabel;
+
+  // Infra badge
+  var ib = document.getElementById('infraNetBadge');
+  if(ib) ib.textContent = netLabel;
+
+  // DEX label
+  var dl = document.getElementById('dexLabel');
+  if(dl && isDev) dl.textContent += ' (' + netLabel + ')';
+
+  // Fee label
+  var netLabel = net.charAt(0).toUpperCase() + net.slice(1);
+  var fl = document.getElementById('feeLabel');
+  if(fl && isDev) fl.textContent += ' (' + netLabel + ')';
+
+  // Network note
+  var nn = document.getElementById('networkNote');
+  if(nn) nn.innerHTML = isDev
+    ? 'Currently on <strong style="color:var(--or)">Solana ' + netLabel + '</strong> — tokens are for testing only'
+    : 'Currently on <strong style="color:var(--gnt)">Solana ' + netLabel + '</strong> — tokens are live';
+
+  // Fee note
+  var fn = document.getElementById('feeNote');
+  if(fn) fn.innerHTML = isDev
+    ? '0.05 SOL per token creation (' + net + ' SOL, free from faucet)'
+    : '0.05 SOL per token creation';
+
+  // Explorer links — append cluster param
+  document.querySelectorAll('a[data-explorer]').forEach(function(a){
+    a.href = a.getAttribute('data-explorer') + cluster;
+  });
+})();
+</script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>
