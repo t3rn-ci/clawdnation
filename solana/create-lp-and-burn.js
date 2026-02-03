@@ -54,7 +54,7 @@ async function main() {
     console.log('');
     console.log('Example:');
     console.log('  node create-lp-and-burn.js \\');
-    console.log('    --mint=2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3 \\');
+    console.log('    --mint=2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx \\');
     console.log('    --sol=0.8 \\');
     console.log('    --tokens=32000');
     console.log('');

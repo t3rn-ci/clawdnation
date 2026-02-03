@@ -22,7 +22,7 @@ const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 // Addresses
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const CLWDN_MINT = new PublicKey('2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx');
 const LP_WALLET = new PublicKey('2CQZW7NfvJF7V6kLW36CvWYX4SpRNVQEqS91wRXQRR4V');
 
 // Raydium CPMM (Constant Product Market Maker)

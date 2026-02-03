@@ -84,10 +84,10 @@ async function main() {
     console.log('  --staking-percent=<PCT>      Default: 15\n');
     console.log('Examples:\n');
     console.log('  # CLWDN Standard (default):');
-    console.log('  node setup-vesting.js --mint=2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3\n');
+    console.log('  node setup-vesting.js --mint=2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx\n');
     console.log('  # Custom: 3m cliff, 12m total, 10% team:');
     console.log('  node setup-vesting.js \\');
-    console.log('    --mint=2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3 \\');
+    console.log('    --mint=2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx \\');
     console.log('    --team-cliff=3 \\');
     console.log('    --team-duration=12 \\');
     console.log('    --team-percent=10\n');

@@ -30,7 +30,7 @@ const idlPath = path.join(__dirname, '../bootstrap/target/idl/clwdn_bootstrap.js
 const idl = JSON.parse(fs.readFileSync(idlPath, 'utf8'));
 
 // Addresses
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const CLWDN_MINT = new PublicKey('2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx');
 const DISPENSER_STATE = new PublicKey('BxfPAP6D8hYZQ9mnLpbVkLdByrYmkSHY4wJPpQE7278w');
 
 // Wallet addresses (from ClawdNation tokenomics)

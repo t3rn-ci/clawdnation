@@ -20,7 +20,7 @@ const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 // Addresses
 const programId = new PublicKey('GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe');
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
+const CLWDN_MINT = new PublicKey('2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx');
 
 // Wallet addresses
 const LP_WALLET = new PublicKey('2CQZW7NfvJF7V6kLW36CvWYX4SpRNVQEqS91wRXQRR4V');

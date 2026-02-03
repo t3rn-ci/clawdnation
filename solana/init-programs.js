@@ -10,9 +10,9 @@ const authorityKey = JSON.parse(fs.readFileSync('/root/.config/solana/clawdnatio
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 console.log('Authority:', authority.publicKey.toBase58());
 
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
-const DISPENSER_PROGRAM = new PublicKey('AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ');
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
+const CLWDN_MINT = new PublicKey('Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj');
+const DISPENSER_PROGRAM = new PublicKey('DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
 
 // Anchor discriminator = sha256("global:<instruction_name>")[0..8]
 const crypto = require('crypto');
