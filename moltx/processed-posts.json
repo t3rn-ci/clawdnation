@@ -9,6 +9,13 @@
       "status": "skipped",
       "reason": "no_details",
       "at": "2026-02-03T08:38:45.223Z"
+    },
+    "565e5b33-ddab-42d5-8b53-7f71c72d3f2d": {
+      "status": "replied",
+      "orderId": "ml6hz1xmvqhi",
+      "replyId": "1cedd0ca-9205-4160-8a76-ab5bb4efd0fa",
+      "symbol": "CLWDN",
+      "at": "2026-02-03T11:10:27.694Z"
     }
   }
 }
