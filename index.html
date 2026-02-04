@@ -1230,38 +1230,76 @@ window.selectWallet=async function(idx){
 // Shared wallet state
 var walletProvider=null,walletConn=null,walletAddr=null;
 
+// Global variable to track network mismatch
+var networkMismatch = false;
+
 function onWalletConnected(provider,resp){
   walletProvider=provider;
   walletConn=new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.devnet.solana.com','confirmed');
   walletAddr=resp.publicKey.toBase58();
   var short=walletAddr.slice(0,4)+'…'+walletAddr.slice(-4);
 
-  // Check if site is devnet and show network info
+  // Check network and show prominent warning if mismatch
   var cfg=window.CLWDN_CONFIG||{};
-  if(cfg.network==='devnet'){
-    // Verify we're actually talking to devnet by checking genesis hash
-    walletConn.getGenesisHash().then(function(hash){
-      var isDevnet=hash==='EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
-      var banner=document.getElementById('networkBanner');
-      if(banner){
-        banner.style.display='flex';
-        banner.className=isDevnet?'net-banner devnet':'net-banner mainnet';
-        banner.innerHTML=isDevnet
-          ?'<span>🔗 Connected to <strong>Solana Devnet</strong> — transactions use free devnet SOL</span>'
-          :'<span>⚠️ Connected but RPC mismatch detected — ensure your wallet is set to Devnet</span>';
-      }
-    }).catch(function(){});
+  var expectedNetwork = cfg.network || 'devnet';
+  var expectedGenesisHash = expectedNetwork === 'mainnet'
+    ? '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'  // mainnet
+    : 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG'; // devnet
 
-    // For Phantom: try to switch to devnet if supported
-    if(provider.isPhantom&&provider.request){
-      try{
-        provider.request({method:'disconnect'}).then(function(){
-          // Phantom doesn't support network switching via API
-          // The dApp RPC handles it — just show the user what network they're on
-        }).catch(function(){});
-      }catch(e){}
+  // Verify network by checking genesis hash
+  walletConn.getGenesisHash().then(function(hash){
+    var correctNetwork = hash === expectedGenesisHash;
+    networkMismatch = !correctNetwork;
+
+    var actualNetwork = hash === '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d' ? 'Mainnet' :
+                       hash === 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG' ? 'Devnet' : 'Unknown';
+
+    var banner=document.getElementById('networkBanner');
+    if(banner){
+      banner.style.display='flex';
+
+      if(correctNetwork){
+        // Correct network - show success
+        banner.className = expectedNetwork === 'devnet' ? 'net-banner devnet' : 'net-banner mainnet';
+        banner.innerHTML = expectedNetwork === 'devnet'
+          ? '<span>✅ Connected to <strong>Solana Devnet</strong> — transactions use free devnet SOL</span>'
+          : '<span>✅ Connected to <strong>Solana Mainnet</strong> — using real SOL</span>';
+      } else {
+        // Wrong network - show error
+        banner.className = 'net-banner';
+        banner.style.background = 'rgba(239, 68, 68, 0.1)';
+        banner.style.color = '#ef4444';
+        banner.style.borderBottomColor = 'rgba(239, 68, 68, 0.3)';
+        banner.innerHTML = '<span style="display:flex;align-items:center;gap:8px">'
+          + '❌ <strong>WRONG NETWORK!</strong> '
+          + 'Website expects <strong>' + expectedNetwork.toUpperCase() + '</strong> '
+          + 'but your wallet is on <strong>' + actualNetwork.toUpperCase() + '</strong>. '
+          + 'Please switch your wallet to ' + expectedNetwork + ' and reconnect.'
+          + '</span>';
+
+        // Show alert
+        setTimeout(function(){
+          alert('⚠️ NETWORK MISMATCH!\n\n'
+            + 'This website is configured for: ' + expectedNetwork.toUpperCase() + '\n'
+            + 'Your wallet is connected to: ' + actualNetwork.toUpperCase() + '\n\n'
+            + 'Please switch your wallet to ' + expectedNetwork + ' network:\n'
+            + '1. Open your wallet (Phantom/Solflare)\n'
+            + '2. Go to Settings > Network\n'
+            + '3. Select "' + (expectedNetwork === 'devnet' ? 'Devnet' : 'Mainnet-Beta') + '"\n'
+            + '4. Disconnect and reconnect\n\n'
+            + 'Transactions will NOT work until you switch networks!');
+        }, 500);
+      }
     }
-  }
+
+    // Disable/enable contribute buttons based on network
+    updateContributeButtonState();
+
+  }).catch(function(err){
+    console.error('Failed to check network:', err);
+    // Assume correct network on error to not block functionality
+    networkMismatch = false;
+  });
 
   // Update ALL connect buttons across the page
   document.querySelectorAll('[data-wallet-btn]').forEach(function(btn){
@@ -1511,12 +1549,15 @@ window.connectWallet=function(){
       info.style.display='flex';addr.textContent=sh(walletAddr);bal.textContent=bs;
       mx.style.display='inline-block';
       var s=parseFloat(document.getElementById('inSol').value)||0;
-      if(s>0){bbtn.disabled=false;blbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN'}
-      else{bbtn.disabled=true;blbl.textContent='Enter SOL Amount'}
+      if(s>0 && !networkMismatch){bbtn.disabled=false;blbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN'}
+      else if(networkMismatch){bbtn.disabled=true;blbl.textContent='❌ Wrong Network';blbl.style.color='#ef4444'}
+      else{bbtn.disabled=true;blbl.textContent='Enter SOL Amount';blbl.style.color=''}
     } else {
       info.style.display='none';mx.style.display='none';
       bbtn.disabled=true;blbl.textContent='Connect Wallet to Participate';
     }
+    // Update button state based on network
+    if(window.updateContributeButtonState) window.updateContributeButtonState();
   }
 
   // Watch for wallet connection changes
@@ -1534,8 +1575,24 @@ window.connectWallet=function(){
       sum.style.display='block';
       ss.textContent=sol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:6})+' SOL';
       sc.textContent=clwdn.toLocaleString()+' CLWDN';
-      if(walletAddr){document.getElementById('ecoBuyBtn').disabled=false;document.getElementById('ecoBuyLabel').textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+clwdn.toLocaleString()+' CLWDN'}
-    } else {sum.style.display='none';if(walletAddr){document.getElementById('ecoBuyBtn').disabled=true;document.getElementById('ecoBuyLabel').textContent='Enter SOL Amount'}}
+      if(walletAddr && !networkMismatch){
+        document.getElementById('ecoBuyBtn').disabled=false;
+        document.getElementById('ecoBuyLabel').textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+clwdn.toLocaleString()+' CLWDN';
+      } else if(networkMismatch) {
+        document.getElementById('ecoBuyBtn').disabled=true;
+        var lbl = document.getElementById('ecoBuyLabel');
+        lbl.textContent='❌ Wrong Network';
+        lbl.style.color='#ef4444';
+      }
+    } else {
+      sum.style.display='none';
+      if(walletAddr){
+        document.getElementById('ecoBuyBtn').disabled=true;
+        document.getElementById('ecoBuyLabel').textContent='Enter SOL Amount';
+      }
+    }
+    // Update button state
+    if(window.updateContributeButtonState) window.updateContributeButtonState();
   };
 
   window.ecoSetMax = function(){
@@ -1544,8 +1601,45 @@ window.connectWallet=function(){
     document.getElementById('inSol').value=mx.toFixed(4);ecoCalc('sol');
   };
 
+  // Helper function to enable/disable contribute button based on network
+  window.updateContributeButtonState = function(){
+    var btn = document.getElementById('ecoBuyBtn');
+    var lbl = document.getElementById('ecoBuyLabel');
+    if(!btn) return;
+
+    if(networkMismatch){
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      lbl.textContent = '❌ Wrong Network - Cannot Contribute';
+      lbl.style.color = '#ef4444';
+    } else if(walletAddr) {
+      var sol = parseFloat(document.getElementById('inSol').value) || 0;
+      if(sol > 0){
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        lbl.style.color = '';
+      }
+    }
+  };
+
   window.ecoDoBuy = async function(){
     var st=document.getElementById('ecoBuyStatus'),btn=document.getElementById('ecoBuyBtn'),lbl=document.getElementById('ecoBuyLabel');
+
+    // Check for network mismatch first
+    if(networkMismatch){
+      var cfg = window.CLWDN_CONFIG || {};
+      var expectedNetwork = cfg.network || 'devnet';
+      ecoShowSt('error', '❌ <strong>Wrong Network!</strong> Please switch your wallet to <strong>'
+        + expectedNetwork.toUpperCase() + '</strong> and reconnect. '
+        + '<br><br><strong>How to switch:</strong><br>'
+        + '1. Open your wallet settings<br>'
+        + '2. Select Network → ' + (expectedNetwork === 'devnet' ? 'Devnet' : 'Mainnet-Beta') + '<br>'
+        + '3. Disconnect and reconnect to this site');
+      return;
+    }
+
     if(!walletAddr||!walletProvider){connectWallet();return}
     var sol=parseFloat(document.getElementById('inSol').value)||0;
     if(sol<=0)return;
