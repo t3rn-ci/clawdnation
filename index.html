@@ -1557,12 +1557,12 @@ window.connectWallet=function(){
 
   function sh(a){var s=a.toString();return s.slice(0,4)+'…'+s.slice(-4)}
 
-  async function ecoRefreshBal(){
+  window.ecoRefreshBal = async function(){
     if(!walletAddr||!walletConn)return;
     try{var pk=new solanaWeb3.PublicKey(walletAddr);var b=await walletConn.getBalance(pk);ecoBalance=b/solanaWeb3.LAMPORTS_PER_SOL;ecoUpdateUI()}catch(e){}
   }
 
-  function ecoUpdateUI(){
+  window.ecoUpdateUI = function(){
     var info=document.getElementById('ecoWalletInfoBar');
     var addr=document.getElementById('ecoWAddr');
     var bal=document.getElementById('ecoWBal');
@@ -2113,10 +2113,12 @@ window._onWsWalletConnected = function(wallet, account, addr) {
   var adStatus = document.getElementById('adConnectStatus');
   if (adStatus) adStatus.textContent = 'Connected';
 
-  // Update economics section UI
-  if (window.ecoUpdateUI) {
+  // Update economics section UI (functions are now global, always call them)
+  if (typeof ecoUpdateUI === 'function') {
     ecoUpdateUI();
-    if (window.ecoRefreshBal) ecoRefreshBal();
+  }
+  if (typeof ecoRefreshBal === 'function') {
+    ecoRefreshBal();
   }
 };
 
@@ -2224,6 +2226,11 @@ window.connectWallet = function() {
     // Hide network banner
     var banner = document.getElementById('networkBanner');
     if (banner) banner.style.display = 'none';
+
+    // Update economics section UI
+    if (typeof ecoUpdateUI === 'function') {
+      ecoUpdateUI();
+    }
   };
 })();
 
