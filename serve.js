@@ -566,13 +566,6 @@ const server = http.createServer(async (req, res) => {
   }
 
   const filePath = path.join(__dirname, file);
-
-  // SECURITY: Ensure resolved path stays within project dir (prevent path traversal)
-  const resolvedPath = path.resolve(filePath);
-  if (!resolvedPath.startsWith(path.resolve(__dirname))) {
-    return serve404(res);
-  }
-
   const ext = path.extname(filePath);
 
   // Security: Block path traversal and sensitive files
