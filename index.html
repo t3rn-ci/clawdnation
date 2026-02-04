@@ -686,7 +686,7 @@
           <div class="buy-input-group">
             <div class="buy-input-label">You Receive</div>
             <div class="buy-input-wrap">
-              <input type="number" id="inClwdn" placeholder="0" min="1" step="1" oninput="ecoCalc('clwdn')">
+              <input type="text" id="inClwdn" placeholder="0" readonly style="cursor:default;background:var(--bge)">
               <span class="suffix">CLWDN</span>
             </div>
           </div>
@@ -1595,8 +1595,8 @@ window.connectWallet=function(){
     var si=document.getElementById('inSol'),ci=document.getElementById('inClwdn');
     var sum=document.getElementById('buySummary'),ss=document.getElementById('sumSol'),sc=document.getElementById('sumClwdn');
     var sol,clwdn;
-    if(src==='sol'){sol=parseFloat(si.value)||0;clwdn=Math.floor(sol/ECO_PRICE);ci.value=clwdn>0?clwdn:''}
-    else{clwdn=parseInt(ci.value)||0;sol=clwdn*ECO_PRICE;si.value=sol>0?sol:''}
+    // Only calculate SOL → CLWDN (CLWDN input is now read-only)
+    sol=parseFloat(si.value)||0;clwdn=Math.floor(sol/ECO_PRICE);ci.value=clwdn>0?clwdn:'';
     if(sol>0&&clwdn>0){
       sum.style.display='block';
       ss.textContent=sol.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:6})+' SOL';
@@ -2112,6 +2112,12 @@ window._onWsWalletConnected = function(wallet, account, addr) {
   if (addrEl) addrEl.textContent = addr;
   var adStatus = document.getElementById('adConnectStatus');
   if (adStatus) adStatus.textContent = 'Connected';
+
+  // Update economics section UI
+  if (window.ecoUpdateUI) {
+    ecoUpdateUI();
+    if (window.ecoRefreshBal) ecoRefreshBal();
+  }
 };
 
 // Override the old connectWallet to use wallet standard
