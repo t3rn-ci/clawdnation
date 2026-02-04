@@ -2132,8 +2132,9 @@ window._onWsWalletConnected = function(wallet, account, addr) {
   if (adStatus) adStatus.textContent = 'Connected';
 
   // Update economics section UI (functions are now global, always call them)
-  // If the economics section hasn't loaded yet, retry after a short delay
+  // If the economics section hasn't loaded yet, retry after a short delay (max 10 times)
   console.log('[WALLET] Checking ecoUpdateUI:', typeof ecoUpdateUI);
+  var retryCount = 0;
   var tryUpdateEconomics = function() {
     if (typeof ecoUpdateUI === 'function') {
       console.log('[WALLET] Calling ecoUpdateUI()');
@@ -2142,9 +2143,12 @@ window._onWsWalletConnected = function(wallet, account, addr) {
         console.log('[WALLET] Calling ecoRefreshBal()');
         ecoRefreshBal();
       }
-    } else {
-      console.warn('[WALLET] ecoUpdateUI not ready yet, retrying in 100ms...');
+    } else if (retryCount < 10) {
+      retryCount++;
+      console.warn('[WALLET] ecoUpdateUI not ready yet, retry ' + retryCount + '/10 in 100ms...');
       setTimeout(tryUpdateEconomics, 100);
+    } else {
+      console.warn('[WALLET] ecoUpdateUI still not available after 10 retries - page may not have economics section');
     }
   };
   tryUpdateEconomics();
