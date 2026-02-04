@@ -1563,22 +1563,41 @@ window.connectWallet=function(){
   }
 
   window.ecoUpdateUI = function(){
+    console.log('[ECO] ecoUpdateUI called, walletAddr=', walletAddr);
     var info=document.getElementById('ecoWalletInfoBar');
     var addr=document.getElementById('ecoWAddr');
     var bal=document.getElementById('ecoWBal');
     var bbtn=document.getElementById('ecoBuyBtn');
     var blbl=document.getElementById('ecoBuyLabel');
     var mx=document.getElementById('ecoMaxBtn');
+    console.log('[ECO] Elements found - bbtn:', bbtn, 'blbl:', blbl);
 
     if(walletAddr){
+      console.log('[ECO] walletAddr is set, updating UI for connected state');
       var bs=ecoBalance!==null?ecoBalance.toFixed(4)+' SOL':'…';
       info.style.display='flex';addr.textContent=sh(walletAddr);bal.textContent=bs;
       mx.style.display='inline-block';
       var s=parseFloat(document.getElementById('inSol').value)||0;
-      if(s>0 && !networkMismatch){bbtn.disabled=false;blbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN'}
-      else if(networkMismatch){bbtn.disabled=true;blbl.textContent='❌ Wrong Network';blbl.style.color='#ef4444'}
-      else{bbtn.disabled=true;blbl.textContent='Enter SOL Amount';blbl.style.color=''}
+      console.log('[ECO] SOL input value:', s, 'networkMismatch:', networkMismatch);
+      if(s>0 && !networkMismatch){
+        bbtn.disabled=false;
+        blbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12 V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN';
+        console.log('[ECO] Set button to Contribute mode');
+      }
+      else if(networkMismatch){
+        bbtn.disabled=true;
+        blbl.textContent='❌ Wrong Network';
+        blbl.style.color='#ef4444';
+        console.log('[ECO] Set button to Wrong Network mode');
+      }
+      else{
+        bbtn.disabled=true;
+        blbl.textContent='Enter SOL Amount';
+        blbl.style.color='';
+        console.log('[ECO] Set button to Enter SOL Amount mode');
+      }
     } else {
+      console.log('[ECO] walletAddr not set, showing Connect Wallet state');
       info.style.display='none';mx.style.display='none';
       bbtn.disabled=true;blbl.textContent='Connect Wallet to Participate';
     }
@@ -2027,8 +2046,10 @@ function copySkill(){
 
 // === Bridge: connect old app code to wallet standard ===
 window._onWsWalletConnected = function(wallet, account, addr) {
+  console.log('[WALLET] _onWsWalletConnected called with addr:', addr);
   // Set shared state used by the rest of the app
   walletAddr = addr;
+  console.log('[WALLET] walletAddr set to:', walletAddr);
   
   // Create a walletProvider shim compatible with old code
   walletProvider = {
@@ -2114,10 +2135,15 @@ window._onWsWalletConnected = function(wallet, account, addr) {
   if (adStatus) adStatus.textContent = 'Connected';
 
   // Update economics section UI (functions are now global, always call them)
+  console.log('[WALLET] Checking ecoUpdateUI:', typeof ecoUpdateUI);
   if (typeof ecoUpdateUI === 'function') {
+    console.log('[WALLET] Calling ecoUpdateUI()');
     ecoUpdateUI();
+  } else {
+    console.warn('[WALLET] ecoUpdateUI is not a function!');
   }
   if (typeof ecoRefreshBal === 'function') {
+    console.log('[WALLET] Calling ecoRefreshBal()');
     ecoRefreshBal();
   }
 };
