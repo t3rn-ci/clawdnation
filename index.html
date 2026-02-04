@@ -2109,9 +2109,6 @@ window._onWsWalletConnected = function(wallet, account, addr) {
     navBtn.onclick = function(e) { e.preventDefault(); wiOpen(); };
   }
 
-  // Load CLWDN balance
-  loadWalletBalance();
-
   // Show network banner if devnet
   var cfg = window.CLWDN_CONFIG || {};
   if (cfg.network === 'devnet') {
