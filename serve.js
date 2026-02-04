@@ -555,6 +555,17 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  // /skills page - Agent participation guide
+  if (req.url === '/skills' || req.url === '/skills/') {
+    const fp = path.join(__dirname, 'skills.md');
+    return fs.readFile(fp, 'utf8', (err, data) => {
+      if (err) return serve404(res);
+      // Serve as plain text with markdown content-type
+      res.writeHead(200, { 'Content-Type': 'text/markdown; charset=utf-8' });
+      res.end(data);
+    });
+  }
+
   // Static files
   let file = req.url === '/' ? '/index.html' : req.url.split('?')[0];
 
