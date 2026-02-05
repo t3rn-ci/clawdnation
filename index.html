@@ -615,7 +615,7 @@
       </button>
     </div>
     <div style="display:flex;gap:12px;margin-top:12px;font-size:12px">
-      <a href="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE?cluster=devnet" target="_blank" style="color:var(--bl);text-decoration:none;display:flex;align-items:center;gap:4px">
+      <a href="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE" target="_blank" style="color:var(--bl);text-decoration:none;display:flex;align-items:center;gap:4px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
         View on Explorer
       </a>
@@ -2208,7 +2208,7 @@ window.connectWallet = function() {
     // Fetch CLWDN balance via proxy — get token accounts by owner
     fetch('/api/rpc', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({method:'getTokenAccountsByOwner',params:[walletAddr,{mint:'2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3'},{encoding:'jsonParsed',commitment:'confirmed'}],jsonrpc:'2.0',id:'clwdn'})
+      body: JSON.stringify({method:'getTokenAccountsByOwner',params:[walletAddr,{mint:(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.clwdnMint)||'2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3'},{encoding:'jsonParsed',commitment:'confirmed'}],jsonrpc:'2.0',id:'clwdn'})
     }).then(function(r){return r.json()}).then(function(d) {
       var accounts = d.result && d.result.value ? d.result.value : [];
       var total = 0;

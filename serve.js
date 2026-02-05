@@ -188,7 +188,7 @@ const server = http.createServer(async (req, res) => {
       'getSignatureStatuses', 'getSlot', 'getStakeActivation',
       'getSupply', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
       'getTokenLargestAccounts', 'getTokenSupply', 'getTransaction',
-      'getTransactionCount', 'getVersion', 'getVoteAccounts', 'getSignaturesForAddress', 'getConfirmedSignaturesForAddress2', 'getParsedTransaction', 'getTransaction', 'sendTransaction', 'simulateTransaction', 'getFeeForMessage'
+      'getTransactionCount', 'getVersion', 'getVoteAccounts', 'getSignaturesForAddress', 'getConfirmedSignaturesForAddress2', 'getParsedTransaction', 'getTransaction', 'sendTransaction', 'simulateTransaction', 'getFeeForMessage', 'getGenesisHash'
     ];
 
     let body = '';
@@ -662,7 +662,7 @@ const server = http.createServer(async (req, res) => {
     }
     // Inject network config into HTML files
     if (ext === '.html') {
-      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK==="mainnet"?"":"?cluster=devnet"}",isDevnet:${NETWORK!=="mainnet"},clwdnMint:"${CLWDN_MINT}",dispenserProgram:"${DISPENSER_PROGRAM}",bootstrapProgram:"${BOOTSTRAP_PROGRAM}",paymentWallet:"${PAYMENT_WALLET}"};</script>`;
+      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"/api/rpc",rpcBackend:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK==="mainnet"?"":"?cluster=devnet"}",isDevnet:${NETWORK!=="mainnet"},clwdnMint:"${CLWDN_MINT}",dispenserProgram:"${DISPENSER_PROGRAM}",bootstrapProgram:"${BOOTSTRAP_PROGRAM}",paymentWallet:"${PAYMENT_WALLET}"};</script>`;
       let html = data.toString();
       html = html.replace('</head>', configScript + '</head>');
       res.writeHead(200, { 'Content-Type': 'text/html' });
