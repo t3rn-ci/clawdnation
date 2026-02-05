@@ -2073,8 +2073,13 @@ window._onWsWalletConnected = function(wallet, account, addr) {
       if (!feat) throw new Error('Wallet does not support signTransaction');
       var serialized = tx.serialize({ requireAllSignatures: false, verifySignatures: false });
       var result = await feat.signTransaction({ transaction: serialized, account: account });
-      // result.signedTransaction is a Uint8Array, convert to array for Transaction.from()
-      return solanaWeb3.Transaction.from(Array.from(result.signedTransaction));
+      console.log('[WALLET] signTransaction result:', result);
+      console.log('[WALLET] result keys:', Object.keys(result));
+      // Handle different response formats from different wallets
+      var signedTxBytes = result.signedTransaction || result[0]?.signedTransaction || result;
+      console.log('[WALLET] signedTxBytes type:', typeof signedTxBytes, 'isArray:', Array.isArray(signedTxBytes));
+      if (!signedTxBytes) throw new Error('No signed transaction returned from wallet');
+      return solanaWeb3.Transaction.from(Array.from(signedTxBytes));
     },
     signAndSendTransaction: async function(tx) {
       var feat = wallet.features['solana:signAndSendTransaction'];
