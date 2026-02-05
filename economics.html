@@ -536,6 +536,16 @@
     }catch(e){}
   }
   loadMetrics();setInterval(loadMetrics,30000);
+
+  // ═══ WALLET STANDARD BRIDGE ═══
+  // This bridges the new Wallet Standard (used by navbar) with economics page code
+  window._onWsWalletConnected = function(w, account, addr) {
+    console.log('[ECON] Wallet Standard connected:', addr);
+    pubkey = new solanaWeb3.PublicKey(addr);
+    wallet = null; // Wallet Standard doesn't expose the old wallet object
+    updateUI();
+    refreshBal();
+  };
 })();
 </script>
 </body>
