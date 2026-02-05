@@ -2154,8 +2154,18 @@ window._onWsWalletConnected = function(wallet, account, addr) {
 
 // Override the old connectWallet to use wallet standard
 window.connectWallet = function() {
-  if (walletAddr) return; // already connected
-  window.wsConnectWallet();
+  console.log('[CONNECT] connectWallet called, walletAddr=', walletAddr);
+  console.log('[CONNECT] wsConnectWallet exists?', typeof window.wsConnectWallet);
+  if (walletAddr) {
+    console.log('[CONNECT] Already connected, ignoring');
+    return; // already connected
+  }
+  if (typeof window.wsConnectWallet === 'function') {
+    console.log('[CONNECT] Calling wsConnectWallet()');
+    window.wsConnectWallet();
+  } else {
+    console.error('[CONNECT] wsConnectWallet not defined!');
+  }
 };
 
 // === Wallet Info Modal ===
