@@ -52,7 +52,7 @@ function solanaRpc(method, params) {
     const req = mod.request({
       hostname: url.hostname,
       port: url.port || (url.protocol === 'https:' ? 443 : 80),
-      path: url.pathname,
+      path: url.pathname + url.search,  // Include query string for API keys
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
       timeout: 10000,
