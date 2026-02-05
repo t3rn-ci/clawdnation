@@ -9,9 +9,10 @@ const EXPLORER_CLUSTER = NETWORK === 'mainnet' ? '' : '?cluster=devnet';
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const ORDERS_PATH = path.join(__dirname, 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json');
 const VESTING_PATH = path.join(__dirname, 'solana', 'vesting.json');
-const CLWDN_MINT = '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
+const CLWDN_MINT = NETWORK === 'mainnet' ? '3zvSRWfjPvcnt8wfTrKhgCtQVwVSrYfBY6g1jPwzfHJG' : 'Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj';
 const PAYMENT_WALLET = 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
-const DISPENSER_PROGRAM = 'AaTxVzmKS4KQyupRAbPWfL3Z8JqPQuLT5B9uS1NfjdyZ';
+const DISPENSER_PROGRAM = NETWORK === 'mainnet' ? 'C7V7KmwzifnEyjE7HKTyfL67xerkyGXeNh8eHi3bUuxL' : 'DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK';
+const BOOTSTRAP_PROGRAM = NETWORK === 'mainnet' ? '91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No' : 'CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC';
 
 function loadVesting() {
   try { return JSON.parse(fs.readFileSync(VESTING_PATH, 'utf8')); } catch { return {}; }
@@ -20,8 +21,15 @@ function loadVesting() {
 // Bootstrap monitor
 const { getStats, getAllocation, checkContributions } = require('./solana/bootstrap-monitor');
 // Start bootstrap monitor polling
-setInterval(checkContributions, 15000);
-checkContributions().catch(() => {});
+const BOOTSTRAP_POLL = parseInt(process.env.BOOTSTRAP_POLL_INTERVAL || (NETWORK === 'mainnet' ? '60000' : '15000'));
+setInterval(checkContributions, BOOTSTRAP_POLL);
+// Delay initial check to avoid startup rate limit burst
+setTimeout(() => checkContributions().catch(() => {}), 5000);
+// Chat handler
+const { handleChat } = require('./chat-handler');
+// Airdrop wallet database
+const airdropDb = require("./twitter/airdrop-db");
+
 const PAGE_404 = fs.existsSync(path.join(__dirname, "404.html")) ? fs.readFileSync(path.join(__dirname, "404.html"), "utf8") : "<h1>404</h1>";
 function serve404(res) { res.writeHead(404, {"Content-Type":"text/html"}); return res.end(PAGE_404); }
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.md': 'text/markdown; charset=utf-8' };
@@ -180,7 +188,7 @@ const server = http.createServer(async (req, res) => {
       'getSignatureStatuses', 'getSlot', 'getStakeActivation',
       'getSupply', 'getTokenAccountBalance', 'getTokenAccountsByOwner',
       'getTokenLargestAccounts', 'getTokenSupply', 'getTransaction',
-      'getTransactionCount', 'getVersion', 'getVoteAccounts'
+      'getTransactionCount', 'getVersion', 'getVoteAccounts', 'getSignaturesForAddress', 'getConfirmedSignaturesForAddress2', 'getParsedTransaction', 'getTransaction', 'sendTransaction', 'simulateTransaction', 'getFeeForMessage'
     ];
 
     let body = '';
@@ -304,6 +312,51 @@ const server = http.createServer(async (req, res) => {
       'Access-Control-Max-Age': '86400'
     });
     return res.end();
+  }
+
+
+  // GET /api/airdrop/wallets — list registered airdrop wallets
+  if (req.url === "/api/airdrop/wallets" || req.url === "/api/airdrop/wallets/") {
+    const wallets = airdropDb.getWallets();
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ count: wallets.length, wallets }));
+  }
+
+  // GET /api/airdrop/count — just the count
+  if (req.url === "/api/airdrop/count" || req.url === "/api/airdrop/count/") {
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ count: airdropDb.getCount() }));
+  }
+
+  // GET /api/airdrop/check?q=<wallet_or_handle>
+  if (req.url.startsWith("/api/airdrop/check")) {
+    const url = new URL(req.url, "http://localhost");
+    const q = url.searchParams.get("q");
+    if (!q) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Missing ?q= parameter" }));
+    }
+    const entry = airdropDb.isRegistered(q);
+    res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+    return res.end(JSON.stringify({ registered: !!entry, entry }));
+  }
+
+  // POST /api/airdrop/register — manual wallet registration from website
+  if (req.url === "/api/airdrop/register" && req.method === "POST") {
+    let body = "";
+    req.on("data", c => body += c);
+    req.on("end", () => {
+      try {
+        const { wallet, twitterHandle } = JSON.parse(body);
+        const result = airdropDb.registerWallet({ wallet, twitterHandle, source: "website" });
+        res.writeHead(result.success ? 200 : 400, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+        res.end(JSON.stringify(result));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+    return;
   }
 
   // GET /api/health
@@ -546,6 +599,29 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify(econ));
   }
 
+
+  // POST /api/chat — chatbot endpoint
+  if (req.url === '/api/chat' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { message, sessionId, state } = JSON.parse(body);
+        if (!message || !sessionId) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'message and sessionId required' }));
+        }
+        const result = handleChat(message, sessionId, state);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   // /economics page
   if (req.url === '/economics' || req.url === '/economics/') {
     const fp = path.join(__dirname, 'economics.html');
@@ -569,13 +645,6 @@ const server = http.createServer(async (req, res) => {
   // Static files
   let file = req.url === '/' ? '/index.html' : req.url.split('?')[0];
 
-  // SECURITY: Block sensitive paths
-  const blocked = ['.env', '.git', 'node_modules', 'serve.js', 'bootstrap/', 'dispenser/', 'solana/orders', 'solana/bootstrap', 'solana/vesting', 'solana/seen-txs', 'solana/create-', 'solana/init-', 'solana/setup-', 'solana/payment-', 'solana/dispenser-', 'solana/e2e-', 'twitter/processed', 'twitter/bot', 'twitter/tweet', 'twitter/post', 'twitter/delete', 'package.json', 'package-lock'];
-  const normalizedFile = decodeURIComponent(file).toLowerCase();
-  if (normalizedFile.includes('..') || blocked.some(function(b) { return normalizedFile.includes(b); })) {
-    return serve404(res);
-  }
-
   const filePath = path.join(__dirname, file);
   const ext = path.extname(filePath);
 
@@ -593,13 +662,9 @@ const server = http.createServer(async (req, res) => {
     }
     // Inject network config into HTML files
     if (ext === '.html') {
-      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK === 'mainnet' ? '' : '?cluster=devnet'}",isDevnet:${NETWORK !== 'mainnet'}};</script>`;
+      const configScript = `<script>window.CLWDN_CONFIG={network:"${NETWORK}",rpc:"${SOLANA_RPC}",explorer:"https://explorer.solana.com",cluster:"${NETWORK==="mainnet"?"":"?cluster=devnet"}",isDevnet:${NETWORK!=="mainnet"},clwdnMint:"${CLWDN_MINT}",dispenserProgram:"${DISPENSER_PROGRAM}",bootstrapProgram:"${BOOTSTRAP_PROGRAM}",paymentWallet:"${PAYMENT_WALLET}"};</script>`;
       let html = data.toString();
       html = html.replace('</head>', configScript + '</head>');
-      // Show/hide devnet badge based on network
-      if (NETWORK === 'mainnet') {
-        html = html.replace(/<span class="ltag">devnet<\/span>/g, '');
-      }
       res.writeHead(200, { 'Content-Type': 'text/html' });
       return res.end(html);
     }

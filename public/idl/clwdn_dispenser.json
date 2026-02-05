@@ -1,0 +1,943 @@
+{
+  "address": "C7V7KmwzifnEyjE7HKTyfL67xerkyGXeNh8eHi3bUuxL",
+  "metadata": {
+    "name": "clwdn_dispenser",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "CLWDN Token Dispenser"
+  },
+  "instructions": [
+    {
+      "name": "accept_authority",
+      "docs": [
+        "Step 2 of authority transfer — new authority accepts"
+      ],
+      "discriminator": [
+        107,
+        86,
+        198,
+        91,
+        33,
+        12,
+        107,
+        160
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "add_operator",
+      "docs": [
+        "Add an operator (max 10)"
+      ],
+      "discriminator": [
+        149,
+        142,
+        187,
+        68,
+        33,
+        250,
+        87,
+        105
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "new_operator",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "add_recipient",
+      "docs": [
+        "Queue a distribution — creates a PDA keyed by contribution_id"
+      ],
+      "discriminator": [
+        207,
+        170,
+        166,
+        28,
+        210,
+        186,
+        242,
+        145
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "distribution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "contribution_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "contribution_id",
+          "type": "string"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "cancel",
+      "docs": [
+        "Cancel a queued distribution"
+      ],
+      "discriminator": [
+        232,
+        219,
+        223,
+        41,
+        219,
+        236,
+        220,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "distribution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "contribution_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "_contribution_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "cancel_transfer",
+      "docs": [
+        "Cancel a pending authority transfer"
+      ],
+      "discriminator": [
+        50,
+        32,
+        70,
+        130,
+        142,
+        41,
+        111,
+        175
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "distribute",
+      "docs": [
+        "Execute a queued distribution — sends CLWDN from vault to recipient"
+      ],
+      "discriminator": [
+        191,
+        44,
+        223,
+        207,
+        164,
+        236,
+        126,
+        61
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "distribution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "contribution_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "recipient_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "operator",
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "contribution_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "emergency_pause",
+      "docs": [
+        "Emergency pause — any operator can trigger"
+      ],
+      "discriminator": [
+        21,
+        143,
+        27,
+        142,
+        200,
+        181,
+        210,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the dispenser with mint and operator"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "remove_operator",
+      "docs": [
+        "Remove an operator"
+      ],
+      "discriminator": [
+        84,
+        183,
+        126,
+        251,
+        137,
+        150,
+        214,
+        134
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "target",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "transfer_authority",
+      "docs": [
+        "Step 1 of authority transfer — propose new authority"
+      ],
+      "discriminator": [
+        48,
+        169,
+        76,
+        72,
+        229,
+        180,
+        55,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "docs": [
+        "Unpause — only authority can unpause"
+      ],
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_max_amount",
+      "docs": [
+        "Update max single distribution amount — only authority"
+      ],
+      "discriminator": [
+        201,
+        56,
+        102,
+        231,
+        215,
+        69,
+        216,
+        17
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "new_max",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_rate_limit",
+      "docs": [
+        "Update rate limit — only authority"
+      ],
+      "discriminator": [
+        19,
+        62,
+        173,
+        11,
+        170,
+        140,
+        47,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "new_limit",
+          "type": "u32"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "DispenserState",
+      "discriminator": [
+        29,
+        77,
+        249,
+        160,
+        196,
+        54,
+        101,
+        101
+      ]
+    },
+    {
+      "name": "Distribution",
+      "discriminator": [
+        176,
+        85,
+        17,
+        11,
+        13,
+        194,
+        18,
+        1
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: not an operator"
+    },
+    {
+      "code": 6001,
+      "name": "AlreadyDistributed",
+      "msg": "Already distributed"
+    },
+    {
+      "code": 6002,
+      "name": "NotQueued",
+      "msg": "Not in queued status"
+    },
+    {
+      "code": 6003,
+      "name": "CannotRemoveAuthority",
+      "msg": "Cannot remove the authority"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6005,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6006,
+      "name": "RecipientMismatch",
+      "msg": "Recipient token account owner does not match distribution recipient"
+    },
+    {
+      "code": 6007,
+      "name": "NoPendingTransfer",
+      "msg": "No pending authority transfer"
+    },
+    {
+      "code": 6008,
+      "name": "Paused",
+      "msg": "System is paused"
+    },
+    {
+      "code": 6009,
+      "name": "AmountTooLarge",
+      "msg": "Amount exceeds maximum allowed per distribution"
+    },
+    {
+      "code": 6010,
+      "name": "RateLimitExceeded",
+      "msg": "Rate limit exceeded - too many distributions this window"
+    },
+    {
+      "code": 6011,
+      "name": "TooManyOperators",
+      "msg": "Maximum number of operators (10) reached"
+    }
+  ],
+  "types": [
+    {
+      "name": "DispenserState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_authority",
+            "docs": [
+              "Pending authority for 2-step transfer (None if no transfer in progress)"
+            ],
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "operators",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "total_distributed",
+            "type": "u64"
+          },
+          {
+            "name": "total_queued",
+            "type": "u64"
+          },
+          {
+            "name": "total_cancelled",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "last_distribution_slot",
+            "type": "u64"
+          },
+          {
+            "name": "distributions_this_window",
+            "type": "u32"
+          },
+          {
+            "name": "rate_limit_per_window",
+            "type": "u32"
+          },
+          {
+            "name": "max_single_distribution",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Distribution",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "contribution_id",
+            "type": "string"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "DistributionStatus"
+              }
+            }
+          },
+          {
+            "name": "queued_at",
+            "type": "i64"
+          },
+          {
+            "name": "distributed_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DistributionStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Queued"
+          },
+          {
+            "name": "Distributed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    }
+  ]
+}

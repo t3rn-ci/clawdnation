@@ -32,7 +32,7 @@ const KEYPAIR_PATH = process.env.KEYPAIR_PATH || '/root/.config/solana/clawdnati
 const RPC_URL = process.env.SOLANA_RPC || (IS_MAINNET ? 'https://api.mainnet-beta.solana.com' : clusterApiUrl('devnet'));
 
 // CLWDN mint — for mainnet, override with CLWDN_MINT env
-const CLWDN_MINT = process.env.CLWDN_MINT || '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
+const CLWDN_MINT = process.env.CLWDN_MINT || '2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx';
 const WSOL_MINT = 'So11111111111111111111111111111111111111112';
 
 // Default pool amounts

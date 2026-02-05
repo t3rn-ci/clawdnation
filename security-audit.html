@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLWDN Security Audit — ClawdNation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+  h1 { color: #fff; font-size: 28px; margin-bottom: 8px; }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 40px; }
+  .score { display: inline-block; background: #1a3a1a; border: 1px solid #2d5a2d; color: #4ade80; padding: 8px 20px; border-radius: 6px; font-size: 24px; font-weight: bold; margin-bottom: 40px; }
+  h2 { color: #fff; font-size: 18px; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid #222; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; background: #111; color: #888; font-weight: 600; border-bottom: 1px solid #222; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1a1a1a; }
+  .pass { color: #4ade80; }
+  .warn { color: #fbbf24; }
+  .fail { color: #f87171; }
+  .addr { font-family: 'SF Mono', monospace; font-size: 11px; color: #93c5fd; word-break: break-all; }
+  .addr a { color: #93c5fd; text-decoration: none; }
+  .addr a:hover { text-decoration: underline; }
+  .section { background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 20px; margin: 16px 0; }
+  .label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .value { color: #fff; font-size: 16px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+  .tx-link { font-size: 11px; color: #93c5fd; }
+  .tx-link a { color: #93c5fd; text-decoration: none; }
+  .tx-link a:hover { text-decoration: underline; }
+  .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #222; color: #555; font-size: 12px; text-align: center; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #1a3a1a; color: #4ade80; border: 1px solid #2d5a2d; }
+  .badge-yellow { background: #3a3a1a; color: #fbbf24; border: 1px solid #5a5a2d; }
+  .badge-red { background: #3a1a1a; color: #f87171; border: 1px solid #5a2d2d; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>CLWDN Security Audit</h1>
+<p class="subtitle">ClawdNation Mainnet Token — Comprehensive Transparency Report<br>Published: February 3, 2026 | Last verified on-chain</p>
+
+<div class="score">9 / 10</div>
+
+<!-- Token Overview -->
+<h2>Token Overview</h2>
+<div class="section">
+  <div class="grid">
+    <div><span class="label">Token</span><br><span class="value">ClawdNation (CLWDN)</span></div>
+    <div><span class="label">Network</span><br><span class="value">Solana Mainnet</span></div>
+    <div><span class="label">Total Supply</span><br><span class="value">1,000,000,000</span></div>
+    <div><span class="label">Decimals</span><br><span class="value">9</span></div>
+  </div>
+  <br>
+  <span class="label">Mint Address</span><br>
+  <span class="addr"><a href="https://explorer.solana.com/address/3zvSRWfjPvcnt8wfTrKhgCtQVwVSrYfBY6g1jPwzfHJG" target="_blank">3zvSRWfjPvcnt8wfTrKhgCtQVwVSrYfBY6g1jPwzfHJG</a></span>
+  <br><br>
+  <span class="label">Token Program</span><br>
+  <span class="addr">TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA (Standard SPL)</span>
+</div>
+
+<!-- Security Checks -->
+<h2>Security Checks</h2>
+<table>
+  <tr><th>Check</th><th>Status</th><th>Details</th></tr>
+  <tr><td>Total Supply</td><td class="pass">PASS</td><td>Exactly 1,000,000,000 tokens verified on-chain</td></tr>
+  <tr><td>Decimals</td><td class="pass">PASS</td><td>9 (standard Solana SPL)</td></tr>
+  <tr><td>Mint Authority</td><td class="pass">REVOKED</td><td>Cannot create new tokens — supply permanently fixed</td></tr>
+  <tr><td>Freeze Authority</td><td class="pass">REVOKED</td><td>Cannot freeze any token accounts</td></tr>
+  <tr><td>Token Program</td><td class="pass">PASS</td><td>Standard SPL Token (not Token-2022)</td></tr>
+  <tr><td>Supply Immutable</td><td class="pass">PASS</td><td>No inflation, no additional minting possible</td></tr>
+  <tr><td>LP Burned</td><td class="pass">BURNED</td><td>All LP tokens burned — liquidity permanently locked</td></tr>
+  <tr><td>Team Vesting</td><td class="pass">LOCKED</td><td>150M locked via Streamflow — 12-month linear, non-cancelable</td></tr>
+  <tr><td>Staking Vesting</td><td class="pass">LOCKED</td><td>150M locked via Streamflow — 12-month linear, non-cancelable</td></tr>
+  <tr><td>Community/Treasury</td><td class="warn">UNLOCKED</td><td>200M in standard wallets — no vesting contract yet</td></tr>
+</table>
+
+<!-- Token Distribution -->
+<h2>Token Distribution</h2>
+<table>
+  <tr><th>Allocation</th><th>Amount</th><th>%</th><th>Status</th><th>Wallet</th></tr>
+  <tr>
+    <td>LP Pool</td><td>399,990,000</td><td>40%</td>
+    <td><span class="badge badge-green">ACTIVE</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/3Y3g183jbpyj1Nq9eDTfegGLMhgMXTBMviBus92Pp7rk" target="_blank">3Y3g...Pp7rk</a></td>
+  </tr>
+  <tr>
+    <td>Team</td><td>150,000,000</td><td>15%</td>
+    <td><span class="badge badge-green">VESTED</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/3DAZTJRxzyLkqzvqiqYZrUcAmM2CHKG7VJe69Rb24iQQ" target="_blank">3DAZ...4iQQ</a> → Streamflow</td>
+  </tr>
+  <tr>
+    <td>Staking</td><td>150,000,000</td><td>15%</td>
+    <td><span class="badge badge-green">VESTED</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/BSrpfnzfRb9nwLqkk2Jjg9cwAK7YSb59m5eh7pie6PC8" target="_blank">BSrp...6PC8</a> → Streamflow</td>
+  </tr>
+  <tr>
+    <td>Dispenser/Bootstrap</td><td>~99,999,900</td><td>10%</td>
+    <td><span class="badge badge-green">PDA-LOCKED</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/3JDo1hAmBJwDgJvzT16GnZa1GAYfoAxCe3d4smdgAYb6" target="_blank">3JDo...AYb6</a> (Program vault)</td>
+  </tr>
+  <tr>
+    <td>Community</td><td>100,000,000</td><td>10%</td>
+    <td><span class="badge badge-yellow">UNLOCKED</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/2MT5NRrXB2ioGtnvtpUG3f8it99cCCpUf7SzaiJKeB3h" target="_blank">2MT5...B3h</a></td>
+  </tr>
+  <tr>
+    <td>Treasury</td><td>100,000,000</td><td>10%</td>
+    <td><span class="badge badge-yellow">UNLOCKED</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/8yY2uxCdrkjHRxeCD5hq4cxNnSPrcn2MEYinhRdCKCn8" target="_blank">8yY2...CKCn8</a></td>
+  </tr>
+  <tr>
+    <td>Pool Liquidity</td><td>10,000</td><td>&lt;0.01%</td>
+    <td><span class="badge badge-green">POOL-LOCKED</span></td>
+    <td class="addr">In Raydium CPMM pool (LP burned)</td>
+  </tr>
+  <tr>
+    <td>E2E Residual</td><td>~100</td><td>&lt;0.01%</td>
+    <td><span class="badge badge-green">DUST</span></td>
+    <td class="addr"><a href="https://explorer.solana.com/address/GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE" target="_blank">GyQg...CGRE</a></td>
+  </tr>
+</table>
+
+<!-- Raydium LP Pool -->
+<h2>Raydium LP Pool</h2>
+<div class="section">
+  <div class="grid">
+    <div><span class="label">Pool Type</span><br><span class="value">CPMM (Constant Product)</span></div>
+    <div><span class="label">Trade Fee</span><br><span class="value">0.25%</span></div>
+    <div><span class="label">CLWDN Liquidity</span><br><span class="value">10,000 CLWDN</span></div>
+    <div><span class="label">SOL Liquidity</span><br><span class="value">1 SOL</span></div>
+  </div>
+  <br>
+  <span class="label">Pool Address</span><br>
+  <span class="addr"><a href="https://explorer.solana.com/address/DQTUCGyGBQPFunRqQYxCjPfe8iaNLXEFwMXo6tFMkT3g" target="_blank">DQTUCGyGBQPFunRqQYxCjPfe8iaNLXEFwMXo6tFMkT3g</a></span>
+  <br><br>
+  <span class="label">LP Mint</span><br>
+  <span class="addr"><a href="https://explorer.solana.com/address/GUxxZ1fZb8i9TSAvfEVXTSc7LYybinKe5xCufENmv4BM" target="_blank">GUxxZ1fZb8i9TSAvfEVXTSc7LYybinKe5xCufENmv4BM</a></span>
+  <br><br>
+  <span class="label">LP Tokens Burned</span><br>
+  <span class="value pass">99,999,999,900 — ALL BURNED</span>
+  <br><br>
+  <span class="label">Pool Creation TX</span><br>
+  <span class="tx-link"><a href="https://solscan.io/tx/5e5p6Ro8AVgwcVDkxhKNVPdBUPoDxpSKeZxGJgQN4vEQnTn4Jvv5tN3J9gkdUq5t88iotg8yUtt1s2NqnxxCMBmx" target="_blank">5e5p6Ro8AVgwcVDkxhKNVPd...CMBmx</a></span>
+  <br><br>
+  <span class="label">LP Burn TX</span><br>
+  <span class="tx-link"><a href="https://solscan.io/tx/4LqfMH29s1vKHAdwdHaMmvVzZGbpiWLVYpEvjPCNVgkX5SjTuv5MdGGHjPYv3zbqiKsibVcW3XzsYH1W54uRUVPb" target="_blank">4LqfMH29s1vKHAdwdHaMmvV...UVPb</a></span>
+  <br><br>
+  <span class="label">Program</span><br>
+  <span class="addr">CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C (Raydium CPMM)</span>
+</div>
+
+<!-- Vesting Contracts -->
+<h2>Vesting Contracts (Streamflow)</h2>
+<div class="section">
+  <span class="label">Protocol</span><br>
+  <span class="addr"><a href="https://explorer.solana.com/address/strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m" target="_blank">strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m</a> (Streamflow — audited)</span>
+  <br><br>
+
+  <table>
+    <tr><th>Parameter</th><th>Team Tokens</th><th>Staking Tokens</th></tr>
+    <tr><td>Amount</td><td>150,000,000 CLWDN</td><td>150,000,000 CLWDN</td></tr>
+    <tr><td>Duration</td><td>365 days (12 months)</td><td>365 days (12 months)</td></tr>
+    <tr><td>Unlock Rate</td><td>~410,959 CLWDN/day</td><td>~410,959 CLWDN/day</td></tr>
+    <tr><td>Cliff</td><td>None</td><td>None</td></tr>
+    <tr><td>Cancelable</td><td class="pass">NO</td><td class="pass">NO</td></tr>
+    <tr><td>Transferable</td><td class="pass">NO</td><td class="pass">NO</td></tr>
+    <tr><td>Can Top-up</td><td class="pass">NO</td><td class="pass">NO</td></tr>
+    <tr><td>Wallet Balance</td><td class="pass">0 CLWDN (in vault)</td><td class="pass">0 CLWDN (in vault)</td></tr>
+  </table>
+</div>
+
+<!-- On-Chain Programs -->
+<h2>On-Chain Programs</h2>
+<table>
+  <tr><th>Program</th><th>Address</th><th>Status</th></tr>
+  <tr>
+    <td>Bootstrap</td>
+    <td class="addr"><a href="https://explorer.solana.com/address/91Mi9zpdkcoQEN5748MGeyeBTVRKLUoWzxq51nAnq2No" target="_blank">91Mi9zpd...q2No</a></td>
+    <td class="pass">Deployed + Executable</td>
+  </tr>
+  <tr>
+    <td>Dispenser</td>
+    <td class="addr"><a href="https://explorer.solana.com/address/C7V7KmwzifnEyjE7HKTyfL67xerkyGXeNh8eHi3bUuxL" target="_blank">C7V7Kmwz...uxL</a></td>
+    <td class="pass">Deployed + Executable</td>
+  </tr>
+  <tr>
+    <td>Raydium CPMM</td>
+    <td class="addr"><a href="https://explorer.solana.com/address/CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C" target="_blank">CPMMoo8L...P1C</a></td>
+    <td class="pass">Raydium (3rd party)</td>
+  </tr>
+  <tr>
+    <td>Streamflow</td>
+    <td class="addr"><a href="https://explorer.solana.com/address/strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m" target="_blank">strmRqUC...g5m</a></td>
+    <td class="pass">Audited (3rd party)</td>
+  </tr>
+</table>
+
+<!-- IDLs -->
+<h2>Program IDLs (Interface Definitions)</h2>
+<div class="section">
+  <span class="label">Bootstrap IDL</span><br>
+  <span class="tx-link"><a href="https://clawdnation.com/public/idl/clwdn_bootstrap.json" target="_blank">clawdnation.com/public/idl/clwdn_bootstrap.json</a></span>
+  <br><br>
+  <span class="label">Dispenser IDL</span><br>
+  <span class="tx-link"><a href="https://clawdnation.com/public/idl/clwdn_dispenser.json" target="_blank">clawdnation.com/public/idl/clwdn_dispenser.json</a></span>
+</div>
+
+<!-- Bootstrap State -->
+<h2>Bootstrap State</h2>
+<div class="section">
+  <div class="grid">
+    <div><span class="label">Rate</span><br><span class="value">10,000 CLWDN/SOL</span></div>
+    <div><span class="label">Allocation Cap</span><br><span class="value">100,000,000 CLWDN</span></div>
+    <div><span class="label">Min Contribution</span><br><span class="value">0.01 SOL</span></div>
+    <div><span class="label">Max Per Wallet</span><br><span class="value">100 SOL</span></div>
+    <div><span class="label">Status</span><br><span class="value">Active</span></div>
+    <div><span class="label">SOL Split</span><br><span class="value">80% LP / 10% Treasury / 10% Staking</span></div>
+  </div>
+</div>
+
+<!-- Verification -->
+<h2>How to Verify</h2>
+<div class="section" style="color: #aaa; font-size: 13px;">
+  <p>All data in this report can be independently verified on-chain:</p>
+  <br>
+  <p>1. <strong>Token supply &amp; authorities:</strong> Check mint account on <a href="https://explorer.solana.com/address/3zvSRWfjPvcnt8wfTrKhgCtQVwVSrYfBY6g1jPwzfHJG" target="_blank" style="color:#93c5fd">Solana Explorer</a></p>
+  <p>2. <strong>LP burn:</strong> Verify LP mint <a href="https://explorer.solana.com/address/GUxxZ1fZb8i9TSAvfEVXTSc7LYybinKe5xCufENmv4BM" target="_blank" style="color:#93c5fd">GUxxZ1...</a> — check total supply vs burned</p>
+  <p>3. <strong>Vesting:</strong> Check Team and Staking wallets show 0 CLWDN — tokens are in Streamflow program vaults</p>
+  <p>4. <strong>Dispenser vault:</strong> Check <a href="https://explorer.solana.com/address/3JDo1hAmBJwDgJvzT16GnZa1GAYfoAxCe3d4smdgAYb6" target="_blank" style="color:#93c5fd">3JDo1h...</a> — owned by PDA, not a wallet</p>
+  <p>5. <strong>All transactions:</strong> Click any TX link above to see full on-chain details on Solscan</p>
+</div>
+
+<div class="footer">
+  ClawdNation — Built on Solana | <a href="https://clawdnation.com" style="color:#555">clawdnation.com</a><br>
+  This report is auto-generated from on-chain data. Verify everything yourself.
+</div>
+
+</div>
+</body>
+</html>

@@ -11,7 +11,7 @@ const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 console.log('Authority:', authority.publicKey.toBase58());
 
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
 
 // Anchor discriminator
 const crypto = require('crypto');

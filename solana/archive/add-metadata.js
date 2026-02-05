@@ -10,7 +10,7 @@ const fs = require('fs');
 
 const NETWORK = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
 const KEYPAIR_PATH = process.env.KEYPAIR_PATH || '/root/.config/solana/clawdnation.json';
-const TOKEN_MINT = process.env.TOKEN_MINT || '2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3';
+const TOKEN_MINT = process.env.TOKEN_MINT || '2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx';
 
 async function main() {
   // Load keypair

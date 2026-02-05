@@ -50,7 +50,7 @@ async function main() {
     console.log('');
     console.log('Example (3-of-5 multisig):');
     console.log('  node setup-multisig-treasury.js \\');
-    console.log('    --mint=2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3 \\');
+    console.log('    --mint=2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx \\');
     console.log('    --members=PUBKEY1,PUBKEY2,PUBKEY3,PUBKEY4,PUBKEY5 \\');
     console.log('    --threshold=3');
     console.log('');

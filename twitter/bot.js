@@ -15,6 +15,17 @@ const path = require('path');
 const { createOrder, checkPayments, loadOrders } = require('../solana/payment-monitor');
 const { createToken } = require('../solana/token-factory');
 
+// Self-birth module
+const { BOT_USER_ID, isSelfBirthTweet, executeSelfBirth, GENESIS_TWEET } = require("../solana/self-birth");
+const { handleMention, handleWalletReply } = require("./airdrop-handler");
+const { Keypair } = require("@solana/web3.js");
+let authority = null;
+try {
+  const authorityKey = JSON.parse(fs.readFileSync(process.env.AUTHORITY_KEYPAIR || "/root/.config/solana/clawdnation.json", "utf8"));
+  authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
+  console.log("🔑 Self-birth enabled:", authority.publicKey.toBase58().slice(0,16) + "...");
+} catch(e) { console.warn("⚠️ Self-birth disabled:", e.message); }
+
 // Load env
 // Load from .env first, then .env.twitter as fallback
 const envFiles = [path.join(__dirname, '..', '.env'), path.join(__dirname, '..', '.env.twitter')];
@@ -30,8 +41,9 @@ const CK = process.env.X_CONSUMER_KEY;
 const CS = process.env.X_CONSUMER_SECRET;
 const AT = process.env.X_ACCESS_TOKEN;
 const AS = process.env.X_ACCESS_SECRET;
-const BEARER = process.env.X_BEARER_TOKEN;
+const BEARER = decodeURIComponent(process.env.X_BEARER_TOKEN || '');
 const PAYMENT_ADDRESS = process.env.PAYMENT_ADDRESS || 'GyQga5Dui9ym8X4FBLjFjeGmgXA81YGHpLJGcTdzCGRE';
+const NETWORK = process.env.NETWORK || 'devnet';
 const SEARCH_INTERVAL = parseInt(process.env.SEARCH_INTERVAL || '30000'); // 30s
 const PROCESSED_PATH = path.join(__dirname, 'processed-tweets.json');
 
@@ -162,21 +174,76 @@ async function pollTwitter() {
       // Skip if already processed
       if (processed.tweets[t.id]) continue;
 
+      // Skip own tweets UNLESS they're token launch requests (self-birth handled separately)
+      if (t.author_id === BOT_USER_ID) {
+        const hasTokenFormat = /name:|symbol:/i.test(t.text);
+        if (!hasTokenFormat) {
+          console.log(`\n⏭️  Skipping own marketing tweet: ${t.id}`);
+          processed.tweets[t.id] = { status: 'skipped', reason: 'own_marketing' };
+          saveProcessed(processed);
+          continue;
+        }
+        console.log(`\n🦞 Processing own launch request: ${t.id}`);
+      }
+
       console.log(`\n🔍 New tweet: ${t.id} by ${t.author_id}`);
       console.log(`   ${t.text.slice(0, 100)}...`);
 
       // Parse launch request
       const data = parseLaunchRequest(t.text);
 
+
+      // Self-birth: bot detects its own genesis tweet
+      if (isSelfBirthTweet(t) && authority) {
+        console.log("🦞 SELF-BIRTH TWEET DETECTED!");
+        processed.tweets[t.id] = { status: "self-birth", started: Date.now() };
+        saveProcessed(processed);
+        const result = await executeSelfBirth(authority, tweet, t.id);
+        processed.tweets[t.id].status = result.success ? "self-birth-complete" : "self-birth-failed";
+        processed.tweets[t.id].result = result;
+        saveProcessed(processed);
+        continue;
+      }
+
       if (!data.name && !data.symbol) {
-        console.log('   Skipping — no token details found');
-        processed.tweets[t.id] = { status: 'skipped', reason: 'no_details' };
+        // No token launch details — handle as airdrop mention
+        // But skip if the post is already about CLWDN/our airdrop
+        const lowerText = t.text.toLowerCase();
+        if (lowerText.includes('$clwdn') || (lowerText.includes('clwdn') && lowerText.includes('airdrop')) || lowerText.includes('clawdnation.com')) {
+          console.log('   Skipping — already about CLWDN/airdrop');
+          processed.tweets[t.id] = { status: 'skipped', reason: 'own_campaign' };
+          saveProcessed(processed);
+          continue;
+        }
+        console.log('   No token details — processing as airdrop mention');
+        const user = await getUserById(t.author_id);
+        const username = user ? user.username : t.author_id;
+        const airdropResult = handleMention(t, username);
+        
+        if (airdropResult && airdropResult.reply) {
+          const reply = await tweet(airdropResult.reply, t.id);
+          console.log('   Airdrop:', airdropResult.action, reply ? '(tweeted)' : '(failed)');
+          processed.tweets[t.id] = { 
+            status: 'airdrop_' + airdropResult.action,
+            replyId: reply?.id 
+          };
+        } else {
+          processed.tweets[t.id] = { status: 'airdrop_no_reply' };
+        }
         saveProcessed(processed);
         continue;
       }
 
       if (!data.symbol) data.symbol = data.name.replace(/[^A-Z]/gi, '').slice(0, 5).toUpperCase();
       if (!data.name) data.name = data.symbol;
+
+      // Never try to launch CLWDN — it already exists
+      if (data.symbol && data.symbol.toUpperCase() === "CLWDN") {
+        console.log("   Skipping — CLWDN already exists");
+        processed.tweets[t.id] = { status: "skipped", reason: "clwdn_exists" };
+        saveProcessed(processed);
+        continue;
+      }
 
       // Get user info
       const user = await getUserById(t.author_id);
@@ -250,7 +317,7 @@ https://clawdnation.com`;
       const idx = updatedOrders.findIndex(o => o.id === c.id);
       if (idx >= 0) updatedOrders[idx].tweeted = true;
     }
-    fs.writeFileSync(path.join(__dirname, '..', 'solana', 'orders.json'), JSON.stringify(updatedOrders, null, 2));
+    fs.writeFileSync(path.join(__dirname, '..', 'solana', NETWORK === 'mainnet' ? 'orders-mainnet.json' : 'orders.json'), JSON.stringify(updatedOrders, null, 2));
   }
 }
 
@@ -265,10 +332,10 @@ async function main() {
 
   // Poll Twitter for new mentions
   setInterval(pollTwitter, SEARCH_INTERVAL);
-  pollTwitter();
+  pollTwitter().catch(e => console.error("Poll error:", e.message || e));
 
   // Check payments
-  setInterval(checkPayments, 10000);
+  setInterval(checkPayments, 60000);
 
   // Check for completed orders to tweet about
   setInterval(checkCompletedOrders, 15000);

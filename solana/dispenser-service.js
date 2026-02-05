@@ -15,6 +15,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 const RPC = process.env.SOLANA_RPC || 'https://api.devnet.solana.com';
+const NETWORK = process.env.NETWORK || 'devnet';
+const CLUSTER_PARAM = NETWORK === 'mainnet' ? '' : '${CLUSTER_PARAM}';
 const conn = new Connection(RPC, 'confirmed');
 
 const path = require('path');
@@ -22,9 +24,9 @@ const authorityPath = process.env.AUTHORITY_KEYPAIR || path.join(process.env.HOM
 const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
-const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
-const BOOTSTRAP_PROGRAM = new PublicKey('GZNvf6JHw5b3KQwS2pPTyb3xPmu225p3rZ3iVBbodrAe');
+const CLWDN_MINT = new PublicKey(process.env.CLWDN_MINT || 'Dm5fvVbBFxS3ivM5PUfc6nTccxK5nLcLs4aZKnPdjujj');
+const DISPENSER_PROGRAM = new PublicKey(process.env.DISPENSER_PROGRAM || 'DauUaBLK9aut1WLqiL9kmpmc2x1MJNbEtHeVBQZYmFWK');
+const BOOTSTRAP_PROGRAM = new PublicKey(process.env.BOOTSTRAP_PROGRAM || 'CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
 
 const [DISPENSER_STATE] = PublicKey.findProgramAddressSync([Buffer.from('state')], DISPENSER_PROGRAM);
 const [BOOTSTRAP_STATE] = PublicKey.findProgramAddressSync([Buffer.from('bootstrap')], BOOTSTRAP_PROGRAM);
@@ -149,7 +151,7 @@ async function distributeToContributor(record) {
       const tx1 = new Transaction().add(addIx);
       const sig1 = await sendAndConfirmTransaction(conn, tx1, [authority]);
       console.log(`  ✅ Queued: ${sig1}`);
-      console.log(`     Explorer: https://explorer.solana.com/tx/${sig1}?cluster=devnet`);
+      console.log(`     Explorer: https://explorer.solana.com/tx/${sig1}${CLUSTER_PARAM}`);
       sigs.push(sig1);
       
       // Wait a moment for state to settle
@@ -184,7 +186,7 @@ async function distributeToContributor(record) {
       const tx2 = new Transaction().add(distIx);
       const sig2 = await sendAndConfirmTransaction(conn, tx2, [authority]);
       console.log(`  ✅ Distributed: ${sig2}`);
-      console.log(`     Explorer: https://explorer.solana.com/tx/${sig2}?cluster=devnet`);
+      console.log(`     Explorer: https://explorer.solana.com/tx/${sig2}${CLUSTER_PARAM}`);
       sigs.push(sig2);
     } else {
       console.log('  Step 2: Skipped (already distributed)');
@@ -206,7 +208,7 @@ async function distributeToContributor(record) {
     const tx3 = new Transaction().add(markIx);
     const sig3 = await sendAndConfirmTransaction(conn, tx3, [authority]);
     console.log(`  ✅ Marked: ${sig3}`);
-    console.log(`     Explorer: https://explorer.solana.com/tx/${sig3}?cluster=devnet`);
+    console.log(`     Explorer: https://explorer.solana.com/tx/${sig3}${CLUSTER_PARAM}`);
     sigs.push(sig3);
 
     console.log(`  ✅ Distribution complete for ${record.contributor.toBase58()}`);

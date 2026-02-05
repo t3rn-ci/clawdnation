@@ -21,8 +21,8 @@ const authorityPath = process.env.AUTHORITY_KEYPAIR || path.join(process.env.HOM
 const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
-const CLWDN_MINT = new PublicKey('2poZXLqSbgjLBugaxNqgcF5VVj9qeLWEJNwd1qqBbVs3');
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
+const CLWDN_MINT = new PublicKey('2y6QBET7YTqwzgHBeTUkKA791npyLxh9KXkUZTPjQmNx');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
 
 console.log('🚀 BOOTSTRAP → LP FLOW\n');
 

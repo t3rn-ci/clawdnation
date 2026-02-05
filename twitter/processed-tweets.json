@@ -1,17 +1,306 @@
 {
-  "lastId": "2018286013211091274",
+  "lastId": "2018650572346273889",
   "tweets": {
-    "2018285224535196052": {
-      "status": "replied",
-      "orderId": "ml538rnbel5f",
-      "replyId": "2018285844906319979",
-      "symbol": "PHNX"
-    },
     "2018286013211091274": {
       "status": "replied",
       "orderId": "ml53a1yeht1y",
-      "replyId": "2018286096673640765",
+      "replyId": "2018482012080763314",
       "symbol": "SFIRE"
+    },
+    "2018482043185737880": {
+      "status": "self-birth-complete",
+      "started": 1770078617770,
+      "result": {
+        "success": true,
+        "steps": [
+          {
+            "step": "balance_check",
+            "status": "✅",
+            "balance": 1.55884792
+          },
+          {
+            "step": "contribute",
+            "status": "✅",
+            "sig": "3S4bc6ynFgZ94qdZ5N7yy89yNhLi8y5JCWk4jqt18taH21BTrraJDZgboT8RSninaTa52Wu2LQCNWuSTJBQaanAB",
+            "clwdnAllocated": 20000
+          },
+          {
+            "step": "distribution",
+            "status": "✅",
+            "balance": 20000,
+            "timeMs": 11125
+          }
+        ]
+      }
+    },
+    "2018497045682635203": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018497389166825858": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018497542024012177": {
+      "status": "self-birth-failed",
+      "started": 1770082308853,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018500122229842005": {
+      "status": "self-birth-failed",
+      "started": 1770082939132,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501475475853565": {
+      "status": "self-birth-failed",
+      "started": 1770083239235,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501433625030944": {
+      "status": "replied",
+      "orderId": "ml5xux6ljjhp",
+      "replyId": "2018501524876386669",
+      "symbol": "CLWDN"
+    },
+    "2018501559521296888": {
+      "status": "self-birth-failed",
+      "started": 1770083269504,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501517536264394": {
+      "status": "replied",
+      "orderId": "ml5xvk4wah77",
+      "replyId": "2018501649598152946",
+      "symbol": "CLWDN"
+    },
+    "2018501847418360045": {
+      "status": "replied",
+      "orderId": "ml5xwu2qu0y6",
+      "replyId": "2018501899373134324",
+      "symbol": "CLWDN"
+    },
+    "2018501765176430640": {
+      "status": "self-birth-failed",
+      "started": 1770083329573,
+      "result": {
+        "success": false,
+        "steps": [
+          {
+            "step": "error",
+            "status": "❌",
+            "error": "Insufficient SOL: have 0.5155752, need 1.01"
+          }
+        ],
+        "error": "Insufficient SOL: have 0.5155752, need 1.01"
+      }
+    },
+    "2018501892649677184": {
+      "status": "replied",
+      "orderId": "ml5xxh9vn2ok",
+      "replyId": "2018502025474912454",
+      "symbol": "PLATF"
+    },
+    "2018502983504249234": {
+      "status": "replied",
+      "orderId": "ml5y2mmvpf47",
+      "replyId": "2018503033013825929",
+      "symbol": "CLWDN"
+    },
+    "2018502938608423324": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018503073253957963": {
+      "status": "skipped",
+      "reason": "no_details"
+    },
+    "2018503031046709565": {
+      "status": "replied",
+      "orderId": "ml5y39vpii92",
+      "replyId": "2018503159375696045",
+      "symbol": "CLWDN"
+    },
+    "2018506197200949607": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018506153068466419": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018506615645708505": {
+      "status": "replied",
+      "orderId": "ml5yllldmtpr",
+      "replyId": "2018506745497133098",
+      "symbol": "RUMBA"
+    },
+    "2018509909185245616": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018509867632271420": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510040756338749": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510000310673795": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018509952256483370": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510555154141220": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510507620057186": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510464259326063": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510694203670982": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510803758932308": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510751695032633": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018510951083905333": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018511443134443870": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018511773289038070": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512036750147879": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512108145496305": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512330917544142": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512536979595490": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512759663525920": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512896028705173": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018512989574316365": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018514447640191005": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018514391390396883": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018514551243678091": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018514498777215238": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018597469538394547": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018625582645297390": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018638102076772582": {
+      "status": "airdrop_registered",
+      "replyId": "2018638220204851501"
+    },
+    "2018647279855440145": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018648112751894815": {
+      "status": "skipped",
+      "reason": "own_marketing"
+    },
+    "2018650482873634909": {
+      "status": "airdrop_ask_wallet",
+      "replyId": "2018650572346273889"
+    },
+    "2018650572346273889": {
+      "status": "skipped",
+      "reason": "own_marketing"
     }
   }
 }

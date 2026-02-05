@@ -22,7 +22,7 @@ const authorityKey = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
 const authority = Keypair.fromSecretKey(Uint8Array.from(authorityKey));
 
 // Program IDs
-const BOOTSTRAP_PROGRAM = new PublicKey('BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
+const BOOTSTRAP_PROGRAM = new PublicKey('CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
 const DISPENSER_PROGRAM = new PublicKey('fNggZ9pZJNsySp6twZ7KBXtEtS1wDTpzqwFByEjfcXi');
 
 // Load governance addresses
@@ -176,7 +176,7 @@ async function main() {
     console.log('\n📖 PROPOSAL INSTRUCTIONS:');
     console.log('');
     console.log('For Bootstrap:');
-    console.log('  Program: BFjy6b7KErhnVyep9xZL4yiuFK5hGTUJ7nH9Gkyw5HNN');
+    console.log('  Program: CdjKvKNt2hJmh2uydcnZBkALrUL86HsfEqacvbmdSZAC');
     console.log('  Instruction: accept_authority()');
     console.log('  Accounts:');
     console.log('    - state: [bootstrap PDA]');
