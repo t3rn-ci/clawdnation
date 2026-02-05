@@ -173,22 +173,22 @@ async function checkContributions() {
     contributions: contributors.map(c => ({
       sender: c.contributor,
       sol: c.totalContributedLamports / 1e9,
-      clwdn: c.totalAllocatedClwdn,
+      clwdn: c.totalAllocatedClwdn / 1e9,  // Convert from raw token amount to human-readable
       count: c.contributionCount,
       lastAt: c.lastContributionAt,
       distributed: c.distributed,
     })),
     totalSol,
-    totalClwdn: state.totalAllocatedClwdn,
+    totalClwdn: state.totalAllocatedClwdn / 1e9,  // Convert from raw token amount to human-readable
     contributorCount: state.contributorCount,
     lastChecked: new Date().toISOString(),
   };
-  
+
   // Save to disk
   fs.writeFileSync(BOOTSTRAP_PATH, JSON.stringify(cachedData, null, 2));
-  
+
   if (contributors.length > 0) {
-    console.log(`💰 Bootstrap: ${totalSol.toFixed(4)} SOL contributed, ${state.totalAllocatedClwdn.toLocaleString()} CLWDN allocated, ${state.contributorCount} contributors`);
+    console.log(`💰 Bootstrap: ${totalSol.toFixed(4)} SOL contributed, ${(state.totalAllocatedClwdn / 1e9).toLocaleString()} CLWDN allocated, ${state.contributorCount} contributors`);
   }
 }
 
