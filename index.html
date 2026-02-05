@@ -1295,7 +1295,7 @@ function onWalletConnected(provider,resp){
   // Update ALL connect buttons across the page
   document.querySelectorAll('[data-wallet-btn]').forEach(function(btn){
     if(btn.id==='navConnectBtn')return;
-    btn.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> '+short;
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> '+short;
     btn.disabled=true;
   });
 
@@ -1595,7 +1595,7 @@ window.connectWallet=function(){
       console.log('[ECO] SOL input value:', s, 'networkMismatch:', networkMismatch);
       if(s>0 && !networkMismatch){
         bbtn.disabled=false;
-        blbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12 V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN';
+        blbl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12 V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+(s/ECO_PRICE).toLocaleString()+' CLWDN';
         console.log('[ECO] Set button to Contribute mode');
       }
       else if(networkMismatch){
@@ -1636,7 +1636,7 @@ window.connectWallet=function(){
       sc.textContent=clwdn.toLocaleString()+' CLWDN';
       if(walletAddr && !networkMismatch){
         document.getElementById('ecoBuyBtn').disabled=false;
-        document.getElementById('ecoBuyLabel').textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+clwdn.toLocaleString()+' CLWDN';
+        document.getElementById('ecoBuyLabel').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+clwdn.toLocaleString()+' CLWDN';
       } else if(networkMismatch) {
         document.getElementById('ecoBuyBtn').disabled=true;
         var lbl = document.getElementById('ecoBuyLabel');
@@ -1743,18 +1743,18 @@ window.connectWallet=function(){
         }catch(pollErr){}
         await new Promise(function(r){setTimeout(r,2000)});
       }
-      if(!confirmed){ecoShowSt('pending','Transaction sent but confirmation is slow. Check explorer: <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View TX</a>');btn.disabled=false;lbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute More';return}
+      if(!confirmed){ecoShowSt('pending','Transaction sent but confirmation is slow. Check explorer: <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View TX</a>');btn.disabled=false;lbl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute More';return}
 
       var clwdn=Math.floor(sol/ECO_PRICE);
       ecoShowSt('success','Contributed '+sol+' SOL — you will receive '+clwdn.toLocaleString()+' CLWDN shortly. <a href="'+ECO_EXPLORER+'/tx/'+sig+ECO_CLUSTER+'" target="_blank">View on Explorer →</a>');
       lbl.textContent='Contribution Complete!';
       document.getElementById('inSol').value='';document.getElementById('inClwdn').value='';document.getElementById('buySummary').style.display='none';
-      setTimeout(async function(){await ecoRefreshBal();btn.disabled=false;lbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute More'},3000);
+      setTimeout(async function(){await ecoRefreshBal();btn.disabled=false;lbl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute More'},3000);
     } catch(e){
       console.error(e);var msg=e.message||'Transaction failed';
       if(msg.includes('User rejected'))msg='Transaction cancelled by user.';
       ecoShowSt('error',msg);btn.disabled=false;
-      var c2=Math.floor(sol/ECO_PRICE);lbl.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+c2.toLocaleString()+' CLWDN';
+      var c2=Math.floor(sol/ECO_PRICE);lbl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="16" r="1"/></svg> Contribute '+c2.toLocaleString()+' CLWDN';
     }
   };
 
@@ -2073,7 +2073,8 @@ window._onWsWalletConnected = function(wallet, account, addr) {
       if (!feat) throw new Error('Wallet does not support signTransaction');
       var serialized = tx.serialize({ requireAllSignatures: false, verifySignatures: false });
       var result = await feat.signTransaction({ transaction: serialized, account: account });
-      return solanaWeb3.Transaction.from(result.signedTransaction);
+      // result.signedTransaction is a Uint8Array, convert to array for Transaction.from()
+      return solanaWeb3.Transaction.from(Array.from(result.signedTransaction));
     },
     signAndSendTransaction: async function(tx) {
       var feat = wallet.features['solana:signAndSendTransaction'];
