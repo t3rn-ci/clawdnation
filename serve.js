@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
@@ -248,7 +250,7 @@ const server = http.createServer(async (req, res) => {
   if (req.url === "/api/config" || req.url === "/api/config/") {
     const config = {
       network: NETWORK,
-      rpc: SOLANA_RPC,
+      rpc: '/api/rpc',  // Use local proxy to avoid rate limits
       explorer: NETWORK === "mainnet" ? "https://explorer.solana.com" : "https://explorer.solana.com",
       explorerSuffix: NETWORK === "mainnet" ? "" : "?cluster=devnet",
     };
