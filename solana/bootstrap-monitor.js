@@ -44,13 +44,15 @@ function parseBootstrapState(data) {
   
   let off = 8; // skip discriminator
   const authority = new PublicKey(buf.slice(off, off + 32)); off += 32;
-  
-  // Option<Pubkey> pending_authority: 1 byte tag + 32 bytes if Some
+
+  // Option<Pubkey> pending_authority: Borsh encoding = 1 byte tag + 32 bytes only if Some
   const hasPending = buf.readUInt8(off); off += 1;
   let pendingAuthority = null;
-  if (hasPending) { pendingAuthority = new PublicKey(buf.slice(off, off + 32)); off += 32; }
-  // Borsh Option: only advance 32 if Some (already advanced above)
-  
+  if (hasPending) {
+    pendingAuthority = new PublicKey(buf.slice(off, off + 32));
+    off += 32;  // Only advance if Some
+  }
+
   const lpWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
   const masterWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
   const stakingWallet = new PublicKey(buf.slice(off, off + 32)); off += 32;
@@ -158,15 +160,27 @@ let cachedData = null;
 
 async function checkContributions() {
   const { state, contributors } = await fetchBootstrapState();
-  
+
   if (!state) {
     console.error('Bootstrap: No state account found');
     return;
   }
-  
-  const totalSol = state.totalContributedLamports / 1e9;
+
+  // IMPORTANT: BootstrapState totals are not being updated properly by the program
+  // Calculate actual totals from ContributorRecord accounts instead
+  let actualTotalLamports = 0;
+  let actualTotalClwdn = 0;
+  let actualContributorCount = contributors.length;
+
+  contributors.forEach(c => {
+    actualTotalLamports += c.totalContributedLamports;
+    actualTotalClwdn += c.totalAllocatedClwdn;
+  });
+
+  const totalSol = actualTotalLamports / 1e9;
+  const totalClwdn = actualTotalClwdn / 1e9;
   const targetSol = state.allocationCap * 0.0001; // rough estimate based on start rate
-  
+
   cachedData = {
     status: state.bootstrapComplete ? 'completed' : (state.paused ? 'paused' : 'active'),
     onChain: state,
@@ -178,9 +192,9 @@ async function checkContributions() {
       lastAt: c.lastContributionAt,
       distributed: c.distributed,
     })),
-    totalSol,
-    totalClwdn: state.totalAllocatedClwdn / 1e9,  // Convert from raw token amount to human-readable
-    contributorCount: state.contributorCount,
+    totalSol,  // Use calculated totals, not state.totalContributedLamports
+    totalClwdn,  // Use calculated totals, not state.totalAllocatedClwdn
+    contributorCount: actualContributorCount,  // Use actual count, not state.contributorCount
     lastChecked: new Date().toISOString(),
   };
 
@@ -188,7 +202,7 @@ async function checkContributions() {
   fs.writeFileSync(BOOTSTRAP_PATH, JSON.stringify(cachedData, null, 2));
 
   if (contributors.length > 0) {
-    console.log(`💰 Bootstrap: ${totalSol.toFixed(4)} SOL contributed, ${(state.totalAllocatedClwdn / 1e9).toLocaleString()} CLWDN allocated, ${state.contributorCount} contributors`);
+    console.log(`💰 Bootstrap: ${totalSol.toFixed(4)} SOL contributed, ${totalClwdn.toLocaleString()} CLWDN allocated, ${actualContributorCount} contributors`);
   }
 }
 
