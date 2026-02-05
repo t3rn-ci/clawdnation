@@ -250,7 +250,7 @@ const server = http.createServer(async (req, res) => {
   if (req.url === "/api/config" || req.url === "/api/config/") {
     const config = {
       network: NETWORK,
-      rpc: '/api/rpc',  // Use local proxy to avoid rate limits
+      rpc: SOLANA_RPC,  // Direct RPC for Web3.js Connection (has proper response format)
       explorer: NETWORK === "mainnet" ? "https://explorer.solana.com" : "https://explorer.solana.com",
       explorerSuffix: NETWORK === "mainnet" ? "" : "?cluster=devnet",
     };

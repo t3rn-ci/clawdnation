@@ -1226,10 +1226,7 @@ var networkMismatch = false;
 
 function onWalletConnected(provider,resp){
   walletProvider=provider;
-  var rpcUrl=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com';
-  // Convert relative /api/rpc to full URL
-  if(rpcUrl.startsWith('/')){rpcUrl=window.location.origin+rpcUrl;}
-  walletConn=new solanaWeb3.Connection(rpcUrl,'confirmed');
+  walletConn=new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com','confirmed');
   walletAddr=resp.publicKey.toBase58();
   var short=walletAddr.slice(0,4)+'…'+walletAddr.slice(-4);
 
@@ -1710,10 +1707,7 @@ window.connectWallet=function(){
 
     try{
       btn.disabled=true;lbl.textContent='Creating transaction...';ecoShowSt('pending','Preparing transaction…');
-      var rpcUrl=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com';
-      // Convert relative /api/rpc to full URL
-      if(rpcUrl.startsWith('/')){rpcUrl=window.location.origin+rpcUrl;}
-      var conn=walletConn||new solanaWeb3.Connection(rpcUrl,'confirmed');
+      var conn=walletConn||new solanaWeb3.Connection((window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com','confirmed');
       var fromPubkey=new solanaWeb3.PublicKey(walletAddr);
       var lam=Math.round(sol*solanaWeb3.LAMPORTS_PER_SOL);
       var to=new solanaWeb3.PublicKey(ECO_PAYMENT_ADDR);
@@ -2101,10 +2095,10 @@ window._onWsWalletConnected = function(wallet, account, addr) {
       return results;
     }
   };
-  var rpcUrl=(window.CLWDN_CONFIG&&window.CLWDN_CONFIG.rpc)||'https://api.mainnet-beta.solana.com';
-  // Convert relative /api/rpc to full URL
-  if(rpcUrl.startsWith('/')){rpcUrl=window.location.origin+rpcUrl;}
-  walletConn = new solanaWeb3.Connection(rpcUrl,'confirmed');
+  walletConn = new solanaWeb3.Connection(
+    (window.CLWDN_CONFIG && window.CLWDN_CONFIG.rpc) || 'https://api.mainnet-beta.solana.com',
+    'confirmed'
+  );
 
   // Store the wallet standard wallet for signing
   window._wsWalletRef = wallet;
