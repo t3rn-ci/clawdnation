@@ -123,13 +123,11 @@ pub mod clwdn_bootstrap {
         )?;
 
         // Calculate CLWDN for this contribution at current rate
-        // Multiply first to avoid precision loss for amounts < 1 SOL
-        let clwdn_lamports = (amount_lamports as u128)
+        // Since start_rate is CLWDN/SOL (e.g., 10,000) and amount_lamports is in lamports (1 SOL = 1B lamports),
+        // multiply directly to get CLWDN in lamports: amount_lamports * rate = CLWDN_lamports
+        // Example: 20M lamports (0.02 SOL) * 10,000 rate = 200M CLWDN lamports (200 CLWDN with 9 decimals)
+        let clwdn_amount = (amount_lamports as u128)
             .checked_mul(current_rate as u128)
-            .ok_or(BootstrapError::Overflow)?;
-
-        let clwdn_amount = clwdn_lamports
-            .checked_div(1_000_000_000)
             .ok_or(BootstrapError::Overflow)? as u64;
 
         // Check if this would exceed allocation cap
